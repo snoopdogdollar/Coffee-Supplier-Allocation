@@ -1,0 +1,4 @@
+com\coffeeallocation\config\DatabaseConnection.class
+com\coffeeallocation\dao\CoffeeProductDao.class
+com\coffeeallocation\Main.class
+com\coffeeallocation\model\CoffeeProduct.class
