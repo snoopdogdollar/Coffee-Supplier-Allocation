@@ -1,4 +1,11 @@
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\config\DatabaseConnection.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\CoffeeProductDao.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\CoffeeShopDao.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\DemandDao.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\DemandItemDao.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\WeeklySupplyDao.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\Main.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\AvailableSupply.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\CoffeeProduct.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\CoffeeShop.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\OpenDemandItem.java
