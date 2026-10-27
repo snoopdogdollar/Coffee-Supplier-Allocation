@@ -1,6 +1,7 @@
 package com.coffeeallocation;
 
 import com.coffeeallocation.config.DatabaseConnection;
+import com.coffeeallocation.console.MatchingConsole;
 import com.coffeeallocation.console.CreateDemandConsole;
 import com.coffeeallocation.dao.CoffeeProductDao;
 import com.coffeeallocation.dao.DemandDao;
@@ -41,6 +42,7 @@ public class Main {
 					case "3" -> showOpenDemandItems();
 					case "4" -> showShops();
 					case "5" -> CreateDemandConsole.run(scanner, DEMO_YEAR, DEMO_WEEK);
+					case "6" -> MatchingConsole.run(scanner, DEMO_YEAR, DEMO_WEEK);
 					case "0" -> {
 							    System.out.println("Goodbye!");
 							    return;
@@ -65,6 +67,7 @@ public class Main {
 		System.out.println("3. Show open demand items");
 		System.out.println("4. Show active coffee shops");
 		System.out.println("5. Create demo OPEN demand");
+		System.out.println("6. Match an OPEN demand item to suppliers");
 		System.out.println("0. Exit");
 		System.out.print("Choose: ");
 	}

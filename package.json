@@ -1,0 +1,19 @@
+{
+  "name": "coffee-supplier-allocation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Neon tooling and commands for the Java coffee allocation console app",
+  "engines": {
+    "node": ">=22.20.0"
+  },
+  "scripts": {
+    "build": "node scripts/java.mjs build",
+    "start": "node scripts/java.mjs start",
+    "test": "node --test scripts/database-env.test.mjs",
+    "test:neon": "node scripts/java.mjs smoke"
+  },
+  "dependencies": {
+    "@neon/config": "^1.9.5",
+    "@neon/env": "^1.6.6"
+  }
+}
