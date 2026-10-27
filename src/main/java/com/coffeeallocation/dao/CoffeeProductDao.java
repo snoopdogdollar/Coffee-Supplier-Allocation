@@ -39,7 +39,7 @@ public class CoffeeProductDao {
         return products;
     }
 
-    public boolean lockActiveById(long productId) throws SQLException {
+    public boolean lockActiveById(long productId) throws SQLException { //postgresql has a FOR SHARE clause that allows you to lock a row for reading, preventing other transactions from modifying it until the current transaction is complete. This is useful when you want to ensure that the data you're reading remains consistent while you perform some operations on it.
         if (connection.getAutoCommit()) {
             throw new SQLException("Locking a product requires a service transaction.");
         }
