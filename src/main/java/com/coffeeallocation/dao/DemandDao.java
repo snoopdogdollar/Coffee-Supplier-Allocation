@@ -114,4 +114,49 @@ public class DemandDao {
 			}
 		}
 	}
+
+    public List<OpenDemandItem> findOpenUnallocatedItemsForWeek(
+            int year, int week) throws SQLException {
+        String sql = """
+                SELECT di.demand_item_id, d.demand_id,
+                       cs.shop_id, cs.name AS shop_name,
+                       p.product_id, p.name AS product_name,
+                       di.quantity, p.unit
+                FROM demands d
+                JOIN demand_items di ON di.demand_id = d.demand_id
+                JOIN coffee_shops cs ON cs.shop_id = d.shop_id
+                JOIN coffee_products p ON p.product_id = di.product_id
+                WHERE d.required_year = ?
+                  AND d.required_week = ?
+                  AND d.status = ?
+                  AND cs.is_active = TRUE
+                  AND p.is_active = TRUE
+                  AND NOT EXISTS (
+                      SELECT 1 FROM allocations a
+                      WHERE a.demand_item_id = di.demand_item_id
+                  )
+                ORDER BY d.request_date, d.demand_id, di.demand_item_id
+                """;
+        List<OpenDemandItem> items = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, year);
+            statement.setInt(2, week);
+            statement.setString(3, "OPEN");
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    items.add(new OpenDemandItem(
+                            resultSet.getLong("demand_item_id"),
+                            resultSet.getLong("demand_id"),
+                            resultSet.getLong("shop_id"),
+                            resultSet.getString("shop_name"),
+                            resultSet.getLong("product_id"),
+                            resultSet.getString("product_name"),
+                            resultSet.getBigDecimal("quantity"),
+                            resultSet.getString("unit")));
+                }
+            }
+        }
+        return items;
+    }
+
 }

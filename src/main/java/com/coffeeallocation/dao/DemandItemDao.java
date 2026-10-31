@@ -10,6 +10,30 @@ public class DemandItemDao {
 
     private final Connection connection;
 
+    public boolean hasAllocationHistory(long demandItemId)
+        throws SQLException {
+
+    String sql = """
+            SELECT EXISTS (
+                SELECT 1
+                FROM allocations
+                WHERE demand_item_id = ?
+            )
+            """;
+
+    try (PreparedStatement statement = connection.prepareStatement(sql)) {
+        statement.setLong(1, demandItemId);
+
+        try (ResultSet resultSet = statement.executeQuery()) {
+            if (!resultSet.next()) {
+                throw new SQLException("Allocation history check returned no result.");
+            }
+
+            return resultSet.getBoolean(1);
+        }
+    }
+}
+
     public DemandItemDao(Connection connection) {
         this.connection = connection;
     }
@@ -22,7 +46,7 @@ public class DemandItemDao {
 
         if (connection.getAutoCommit()) {
             throw new SQLException(
-                "Service must disable auto-commit before inserting an item."
+                "Service must disable auto-commit before inserting an item." //turn of the auto commit to avoid partial inserts
             );
         }
 

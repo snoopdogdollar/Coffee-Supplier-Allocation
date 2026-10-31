@@ -1,3 +1,4 @@
+// This class is responsible for allocating available supplies to meet a given demand, prioritizing supplies based on their unit price. It ensures that the allocation is valid and meets the specified demand without exceeding the available supply.
 package com.coffeeallocation.algorithm;
 
 import com.coffeeallocation.model.AvailableSupply;
