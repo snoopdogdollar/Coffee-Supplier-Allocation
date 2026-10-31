@@ -1,6 +1,7 @@
 package com.coffeeallocation.service;
 
 import com.coffeeallocation.config.DatabaseConnection;
+import com.coffeeallocation.algorithm.PricePriority;
 import com.coffeeallocation.dao.DemandDao;
 import com.coffeeallocation.dao.WeeklySupplyDao;
 import com.coffeeallocation.model.AvailableSupply;
@@ -51,6 +52,8 @@ public final class MatchingService {
 
                 List<AvailableSupply> supplies = new WeeklySupplyDao(connection)
                         .findEligible(selected.getProductId(), year, week);
+
+                supplies = PricePriority.rank(supplies);
                 DemandSupplyMatch match = new DemandSupplyMatch(selected, supplies);
                 connection.commit();
                 return match;
