@@ -1,6 +1,7 @@
 package com.coffeeallocation;
 
 import com.coffeeallocation.console.AllocationConfirmationConsole;
+import com.coffeeallocation.console.OrderConsole;
 import com.coffeeallocation.console.SharedAllocationConsole;
 import com.coffeeallocation.config.DatabaseConnection;
 import com.coffeeallocation.console.MatchingConsole;
@@ -47,6 +48,7 @@ public class Main {
 					case "6" -> MatchingConsole.run(scanner, DEMO_YEAR, DEMO_WEEK);
 					case "7" -> SharedAllocationConsole.run(DEMO_YEAR, DEMO_WEEK);
 					case "8" -> AllocationConfirmationConsole.run(scanner, DEMO_YEAR, DEMO_WEEK);
+					case "9" -> OrderConsole.run(scanner);
 					case "0" -> {
 							    System.out.println("Goodbye!");
 							    return;
@@ -74,6 +76,7 @@ public class Main {
 		System.out.println("6. Match an OPEN demand item to suppliers");
 		System.out.println("7. Preview shared allocation for OPEN demand items");
 		System.out.println("8. Preview and confirm allocations / create orders");
+		System.out.println("9. View orders and order details");
 		System.out.println("0. Exit");
 		System.out.print("Choose: ");
 	}
