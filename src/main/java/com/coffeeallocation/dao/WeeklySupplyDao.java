@@ -2,6 +2,7 @@ package com.coffeeallocation.dao;
 
 import com.coffeeallocation.model.AvailableSupply;
 import java.sql.Connection;
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -64,4 +65,44 @@ public class WeeklySupplyDao {
 
         return supplies;
     }
+    
+    public void deductQuantity(long supplyId, BigDecimal quantity)
+        throws SQLException {
+
+    if (supplyId <= 0
+            || quantity == null
+            || quantity.signum() <= 0
+            || quantity.stripTrailingZeros().scale() > 2) {
+        throw new IllegalArgumentException(
+                "Invalid supply ID or quantity."
+        );
+    }
+
+    if (connection.getAutoCommit()) {
+        throw new SQLException(
+                "Service must start a transaction before deducting supply."
+        );
+    }
+
+    String sql = """
+            UPDATE supplier_weekly_supply
+            SET remaining_quantity = remaining_quantity - ?
+            WHERE supply_id = ?
+              AND remaining_quantity >= ?
+            """;
+
+    try (PreparedStatement statement = connection.prepareStatement(sql)) {
+        statement.setBigDecimal(1, quantity);
+        statement.setLong(2, supplyId);
+        statement.setBigDecimal(3, quantity);
+
+        int updatedRows = statement.executeUpdate();
+
+        if (updatedRows != 1) {
+            throw new SQLException(
+                    "Supply does not exist or has insufficient quantity."
+            );
+        }
+    }
+}
 }
