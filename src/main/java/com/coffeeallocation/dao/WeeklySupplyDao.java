@@ -105,4 +105,35 @@ public class WeeklySupplyDao {
         }
     }
 }
+    public void lockSuppliesForWeek(int year, int week)
+        throws SQLException {
+
+    if (connection.getAutoCommit()) {
+        throw new SQLException(
+                "Service must start a transaction before locking supplies."
+        );
+    }
+
+    String sql = """
+            SELECT supply_id
+            FROM supplier_weekly_supply
+            WHERE year = ?
+              AND week = ?
+            ORDER BY supply_id
+            FOR UPDATE
+            """;
+
+    try (PreparedStatement statement =
+            connection.prepareStatement(sql)) {
+
+        statement.setInt(1, year);
+        statement.setInt(2, week);
+
+        try (ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                // Read every row to acquire all supply locks.
+            }
+        }
+    }
+}
 }

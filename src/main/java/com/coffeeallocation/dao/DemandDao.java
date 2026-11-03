@@ -159,4 +159,58 @@ public class DemandDao {
         return items;
     }
 
+	public void lockDemandsForWeek(int year, int week)
+        throws SQLException {
+
+    if (connection.getAutoCommit()) {
+        throw new SQLException(
+                "Service must start a transaction before locking demands."
+        );
+    }
+
+    String demandSql = """
+            SELECT demand_id
+            FROM demands
+            WHERE required_year = ?
+              AND required_week = ?
+            ORDER BY demand_id
+            FOR UPDATE
+            """;
+
+    try (PreparedStatement statement =
+            connection.prepareStatement(demandSql)) {
+
+        statement.setInt(1, year);
+        statement.setInt(2, week);
+
+        try (ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                // Read every row to acquire all demand locks.
+            }
+        }
+    }
+
+    String itemSql = """
+            SELECT di.demand_item_id
+            FROM demand_items di
+            JOIN demands d ON d.demand_id = di.demand_id
+            WHERE d.required_year = ?
+              AND d.required_week = ?
+            ORDER BY di.demand_item_id
+            FOR UPDATE OF di
+            """;
+
+    try (PreparedStatement statement =
+            connection.prepareStatement(itemSql)) {
+
+        statement.setInt(1, year);
+        statement.setInt(2, week);
+
+        try (ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                // Read every row to acquire all demand item locks.
+            }
+        }
+    }
+}
 }

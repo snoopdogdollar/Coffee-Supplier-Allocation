@@ -179,7 +179,9 @@ public class Main {
 
 		for (OpenDemandItem item : items) {
 			System.out.println(
-			    item.getShopName()
+			    "Demand " + item.getDemandId()
+			    + " | Item " + item.getDemandItemId()
+			    + " | " + item.getShopName()
 			    + " | " + item.getProductName()
 			    + " | " + item.getQuantity() + " " + item.getUnit()
 			);

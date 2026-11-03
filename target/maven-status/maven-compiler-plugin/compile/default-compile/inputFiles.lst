@@ -5,10 +5,13 @@ C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\config\DatabaseCo
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\console\CreateDemandConsole.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\console\MatchingConsole.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\console\SharedAllocationConsole.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\AllocationDao.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\CoffeeProductDao.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\CoffeeShopDao.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\DemandDao.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\DemandItemDao.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\OrderDao.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\RecommendationRunDao.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\WeeklySupplyDao.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\Main.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\AvailableSupply.java
