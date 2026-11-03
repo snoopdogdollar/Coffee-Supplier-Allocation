@@ -19,6 +19,11 @@ public final class SharedAllocationConsole {
 
     public static void run(int year, int week) throws SQLException {
         BatchAllocationPreview preview = new SharedAllocationService().preview(year, week);
+        printPreview(preview, year, week);
+    }
+
+    public static void printPreview(
+            BatchAllocationPreview preview, int year, int week) {
         System.out.println("=== Shared allocation preview: ISO week " + week + "/" + year + " ===");
         System.out.println("Scope: OPEN demand items without allocation history.");
         System.out.println("Priority: request date, demand ID, then item ID.");
