@@ -14,6 +14,20 @@ public class OrderDao {
         this.connection = connection;
     }
 
+    public boolean completePendingOrder(long shopId, long orderId)
+            throws SQLException {
+        String sql = """
+                UPDATE orders
+                SET status = 'COMPLETED'
+                WHERE shop_id = ? AND order_id = ? AND status = 'PENDING'
+                """;
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, shopId);
+            statement.setLong(2, orderId);
+            return statement.executeUpdate() == 1;
+        }
+    }
+
     public long insertForAllocation(
             long shopId,
             long supplierId,

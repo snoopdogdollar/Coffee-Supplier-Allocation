@@ -1,6 +1,7 @@
 package com.coffeeallocation.service;
 
 import com.coffeeallocation.config.DatabaseConnection;
+import com.coffeeallocation.dao.OrderDao;
 import com.coffeeallocation.dao.OrderQueryDao;
 import com.coffeeallocation.model.OrderView;
 import java.sql.Connection;
@@ -9,6 +10,19 @@ import java.util.List;
 import java.util.Optional;
 
 public final class OrderService {
+    public boolean completePendingOrder(long shopId, long orderId)
+            throws SQLException {
+        if (shopId <= 0 || orderId <= 0) {
+            throw new IllegalArgumentException(
+                    "Shop ID and order ID must be positive."
+            );
+        }
+
+        try (Connection connection = DatabaseConnection.getConnection()) {
+            return new OrderDao(connection).completePendingOrder(shopId, orderId);
+        }
+    }
+
 
     public List<OrderView.Summary> findPage(Long beforeId)
             throws SQLException {

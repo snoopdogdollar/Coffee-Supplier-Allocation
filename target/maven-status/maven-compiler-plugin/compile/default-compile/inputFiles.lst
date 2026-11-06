@@ -5,6 +5,7 @@ C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\config\DatabaseCo
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\console\AllocationConfirmationConsole.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\console\CreateDemandConsole.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\console\MatchingConsole.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\console\OrderConsole.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\console\SharedAllocationConsole.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\AllocationDao.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\CoffeeProductDao.java
@@ -13,6 +14,7 @@ C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\ConfirmationD
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\DemandDao.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\DemandItemDao.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\OrderDao.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\OrderQueryDao.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\RecommendationRunDao.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\WeeklySupplyDao.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\Main.java
@@ -24,7 +26,9 @@ C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\CoffeeShop.
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\DemandSupplyMatch.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\NewDemandItem.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\OpenDemandItem.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\OrderView.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\AllocationConfirmationService.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\DemandService.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\MatchingService.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\OrderService.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\SharedAllocationService.java
