@@ -11,3 +11,14 @@
 - Existing reviews remain readable, including historical orders that already contain multiple reviews.
 - Menu 11 supports submission and viewing by shop and order ID. The console uses manual shop selection as the current demo context.
 - Review comments are optional and limited to 255 Unicode characters.
+
+## 2026-11-07 — Phase 7.3 supplier review history
+
+- Menu 12 reports the number of reviewed orders and the proportions of satisfactory quality, correct quantity, and on-time delivery reported by shops.
+- Each order contributes its first eligible review, ordered by created_at and then review_id. This applies the one-review policy to legacy orders with multiple reviews while preserving their stored rows.
+- Eligibility requires the order's current status to be COMPLETED, its supplier to match the review, and the review timestamp to fall between order creation and the selected cutoff, inclusive.
+- Rates use the count of contributing orders as the denominator. A supplier with no eligible reviews displays N/A. All suppliers are included, including inactive suppliers.
+- These metrics summarize shop feedback. Delivery timestamps and status history are absent from the current schema, so the report cannot reconstruct past status transitions or independently measure delivery punctuality.
+- Existing timestamps are PostgreSQL TIMESTAMP without time zone. The cutoff uses that same local clock convention and the report shows the database session time zone. Connections used to write and report timestamps must use the same clock convention.
+- An empty cutoff uses LOCALTIMESTAMP from the database. Explicit cutoffs use local date/time, are truncated to microseconds, and must be at or before the current database time.
+- The service reads the clock and summary in one read-only REPEATABLE READ transaction.

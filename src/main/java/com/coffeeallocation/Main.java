@@ -4,6 +4,7 @@ import com.coffeeallocation.console.AllocationConfirmationConsole;
 import com.coffeeallocation.console.OrderCompletionConsole;
 import com.coffeeallocation.console.OrderConsole;
 import com.coffeeallocation.console.SupplierReviewConsole;
+import com.coffeeallocation.console.SupplierHistoryConsole;
 import com.coffeeallocation.console.SharedAllocationConsole;
 import com.coffeeallocation.config.DatabaseConnection;
 import com.coffeeallocation.console.MatchingConsole;
@@ -53,6 +54,7 @@ public class Main {
 					case "9" -> OrderConsole.run(scanner);
 					case "10" -> OrderCompletionConsole.run(scanner);
 					case "11" -> SupplierReviewConsole.run(scanner);
+					case "12" -> SupplierHistoryConsole.run(scanner);
 					case "0" -> {
 							    System.out.println("Goodbye!");
 							    return;
@@ -83,6 +85,7 @@ public class Main {
 		System.out.println("9. View orders and order details");
 		System.out.println("10. Complete a pending order");
 		System.out.println("11. Review supplier / view order reviews");
+		System.out.println("12. View supplier review history");
 		System.out.println("0. Exit");
 		System.out.print("Choose: ");
 	}
