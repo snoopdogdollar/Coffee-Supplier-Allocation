@@ -1,0 +1,7 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+ fx:controller="com.coffeemongers.controller.AdminManagementController" fx:id="screenRoot" styleClass="main-layout">
+ <top><HBox alignment="CENTER_LEFT" styleClass="topbar" spacing="10"><Button text="← Back" onAction="#openOverview" styleClass="back-button"/><Label text="Marketplace Management" styleClass="section-title"/><Region HBox.hgrow="ALWAYS"/><fx:include source="../view/HomeLogo.fxml"/></HBox></top>
+ <center><VBox styleClass="content" spacing="14"><Label text="Manage Coffee Mongers records" styleClass="page-title"/><Label text="Changes stay in this demo session. Fields follow the supplied schema." styleClass="subtitle"/><TabPane fx:id="managementTabs" VBox.vgrow="ALWAYS"/></VBox></center>
+</BorderPane>

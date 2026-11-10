@@ -1,0 +1,14 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coffeemongers.controller.LoginController" styleClass="auth-layout">
+ <center><HBox styleClass="auth-page-shell" spacing="0"><fx:include source="AuthHero.fxml" HBox.hgrow="ALWAYS"/><VBox alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="auth-page"><VBox maxWidth="460" spacing="17" styleClass="auth-card">
+  <HBox alignment="CENTER_LEFT"><Label text="☕  Coffee Mongers" styleClass="brand"/><Region HBox.hgrow="ALWAYS"/><fx:include source="../view/EnvironmentStatus.fxml"/></HBox><Label text="Welcome back" styleClass="page-title"/><Label text="Sign in to your coffee marketplace workspace." styleClass="subtitle" wrapText="true"/>
+  <VBox spacing="6"><Label text="Email" styleClass="form-label"/><TextField fx:id="emailField" promptText="you@example.com"/></VBox>
+  <VBox spacing="6"><Label text="Password" styleClass="form-label"/><PasswordField fx:id="passwordField" promptText="Enter your password" onAction="#login"/></VBox>
+  <Label fx:id="messageLabel" minHeight="20" styleClass="status-message" wrapText="true"/>
+  <Button fx:id="signInButton" text="Sign in" onAction="#login" styleClass="primary-button" maxWidth="Infinity"/>
+  <HBox alignment="CENTER" spacing="5"><Label text="New to Coffee Mongers?" styleClass="small-text"/><Hyperlink text="Create a demo account" onAction="#openRegistration"/></HBox>
+  <VBox spacing="6" styleClass="info-card"><Label text="Demo Admin access" styleClass="section-title"/><Label text="Email: admin@coffeemongers.demo" styleClass="small-text"/><Label text="Password: CoffeeAdmin2026!" styleClass="small-text"/><Button text="Fill demo Admin credentials" onAction="#useDemoAdmin" styleClass="outline-button"/></VBox>
+  <Label text="Demo accounts and data are stored in memory for this app session." styleClass="demo-badge" wrapText="true"/>
+ </VBox></VBox></HBox></center>
+</BorderPane>

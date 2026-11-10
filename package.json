@@ -9,6 +9,7 @@
   "scripts": {
     "build": "node scripts/java.mjs build",
     "start": "node scripts/java.mjs start",
+    "desktop": "node scripts/desktop.mjs",
     "test": "node --test scripts/database-env.test.mjs",
     "test:neon": "node scripts/java.mjs smoke"
   },

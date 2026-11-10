@@ -1,0 +1,111 @@
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:id="detailsRoot" xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.coffeemongers.controller.DemandDetailsController"
+            styleClass="main-layout">
+
+    <top>
+        <VBox spacing="8" styleClass="form-header">
+            <HBox alignment="CENTER_RIGHT"><Region HBox.hgrow="ALWAYS"/><fx:include source="../view/HomeLogo.fxml"/></HBox>
+            <Button text="← Back"
+                    onAction="#goBack"
+                    styleClass="back-button"/>
+
+            <Label text="Buyer Workspace  /  Demand Details"
+                   styleClass="subtitle"/>
+            <Label text="Demand Details" styleClass="page-title"/>
+            <Label text="Review the products, requested quantities, and notes."
+                   styleClass="subtitle"/>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="content-scroll">
+            <VBox spacing="18" styleClass="content">
+
+                <VBox styleClass="section-card" spacing="12">
+                    <HBox alignment="CENTER_LEFT">
+                        <VBox spacing="5">
+                            <Label fx:id="demandIdLabel"
+                                   text="#DM-004"
+                                   styleClass="section-title"/>
+                            <Label fx:id="demandTitleLabel"
+                                   text="Requested products"
+                                   styleClass="page-title"/>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="demandStatusLabel" text="DRAFT" styleClass="demand-status"/>
+                    </HBox>
+                </VBox>
+
+                <VBox styleClass="section-card" spacing="12">
+                    <Label text="Buyer Information" styleClass="section-title"/>
+                    <GridPane hgap="30" vgap="12">
+                        <Label text="Buyer Shop" GridPane.columnIndex="0"
+                               GridPane.rowIndex="0" styleClass="small-text"/>
+                        <Label text="Address" GridPane.columnIndex="1"
+                               GridPane.rowIndex="0" styleClass="small-text"/>
+
+                        <Label fx:id="shopNameLabel" text="Bếp Cà Phê" GridPane.columnIndex="0"
+                               GridPane.rowIndex="1" styleClass="supplier-name"/>
+                        <Label fx:id="shopCityLabel" text="Ho Chi Minh City" GridPane.columnIndex="1"
+                               GridPane.rowIndex="1" styleClass="supplier-name"/>
+                    </GridPane>
+                </VBox>
+
+                <VBox styleClass="section-card" spacing="12">
+                    <Label text="Coffee Products" styleClass="section-title"/>
+                    <HBox styleClass="form-column-header">
+                        <Label text="Coffee Product" HBox.hgrow="ALWAYS"/>
+                        <Label text="Quantity" prefWidth="160"
+                               alignment="CENTER_RIGHT"/>
+                    </HBox>
+                    <VBox fx:id="detailsProductContainer" spacing="10"/>
+                    <Separator/>
+                    <HBox alignment="CENTER_RIGHT" spacing="12">
+                        <Label text="Requested product lines"
+                               styleClass="form-label"/>
+                        <Label fx:id="totalQuantityLabel"
+                               text="0 lines"
+                               styleClass="score"/>
+                    </HBox>
+                </VBox>
+
+                <VBox styleClass="section-card" spacing="12">
+                    <Label text="Request Details" styleClass="section-title"/>
+
+                    <Label text="Request Date"
+                           styleClass="small-text"/>
+                    <Label fx:id="deliveryDateLabel"
+                           text="-"
+                           styleClass="supplier-name"/>
+
+                    <Label fx:id="requiredWeekLabel" text="Required Delivery Week" styleClass="small-text"
+                           visible="false" managed="false"/>
+                    <Label fx:id="requiredWeekValue" styleClass="supplier-name"
+                           visible="false" managed="false"/>
+
+                    <Label text="Additional Notes"
+                           styleClass="small-text"/>
+                    <Label fx:id="notesLabel"
+                           text="No additional notes"
+                           wrapText="true"/>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="12" styleClass="demand-actions">
+            <Label fx:id="submissionMessage" styleClass="error-text" wrapText="true"
+                   minWidth="0" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+            <Button text="Back" onAction="#goBack" styleClass="outline-button"/>
+            <Button fx:id="findMatchesButton" text="Submit Demand &amp; Find Matches"
+                    onAction="#findMatches" styleClass="primary-button"/>
+        </HBox>
+    </bottom>
+</BorderPane>

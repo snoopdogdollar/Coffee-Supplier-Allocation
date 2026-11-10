@@ -22,3 +22,13 @@
 - Existing timestamps are PostgreSQL TIMESTAMP without time zone. The cutoff uses that same local clock convention and the report shows the database session time zone. Connections used to write and report timestamps must use the same clock convention.
 - An empty cutoff uses LOCALTIMESTAMP from the database. Explicit cutoffs use local date/time, are truncated to microseconds, and must be at or before the current database time.
 - The service reads the clock and summary in one read-only REPEATABLE READ transaction.
+
+## 2026-11-10 — JavaFX Buyer integration
+
+- Coffee Supplier Allocation owns the backend and JavaFX source in one Maven build. The JavaFX Buyer adapter calls the existing demand transaction and uses the same PostgreSQL schema as Swing and the console.
+- The PostgreSQL test workspace uses an explicitly configured Buyer account and shop ID. It saves demand and reads the latest 20 demands for that shop. Other JavaFX workflows use the demo services.
+
+## 2026-11-11 — JavaFX weekly allocation preview
+
+- A separately configured PostgreSQL test Admin can view the batch preview for all open, unallocated demand lines in the selected delivery week. The workspace uses the existing shared allocation service and displays supplier proposals per line.
+- The preview uses a read-only transaction. Confirmation and the resulting order workflow remain in the existing Swing and console entry points.

@@ -1,0 +1,16 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coffeemongers.controller.RegisterController" styleClass="auth-layout">
+ <center><HBox styleClass="auth-page-shell" spacing="0"><fx:include source="AuthHero.fxml" HBox.hgrow="ALWAYS"/><VBox alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="auth-page"><VBox maxWidth="500" spacing="14" styleClass="auth-card">
+  <Button text="← Back to sign in" onAction="#backToLogin" styleClass="back-button" maxWidth="Infinity"/>
+  <HBox alignment="CENTER_LEFT"><Label text="Create your account" styleClass="page-title"/><Region HBox.hgrow="ALWAYS"/><fx:include source="../view/EnvironmentStatus.fxml"/></HBox><Label text="Register as a Buyer or Supplier. Admin access is managed separately." styleClass="subtitle" wrapText="true"/>
+  <VBox spacing="5"><Label text="Full name" styleClass="form-label"/><TextField fx:id="fullNameField" promptText="Your full name"/></VBox>
+  <VBox spacing="5"><Label text="Email" styleClass="form-label"/><TextField fx:id="emailField" promptText="you@example.com"/></VBox>
+  <VBox spacing="5"><Label text="Account type" styleClass="form-label"/><ComboBox fx:id="rolePicker" maxWidth="Infinity"/></VBox>
+  <VBox spacing="5"><Label text="Password" styleClass="form-label"/><PasswordField fx:id="passwordField" promptText="10+ characters, upper/lowercase, number, symbol"/></VBox>
+  <VBox spacing="5"><Label text="Confirm password" styleClass="form-label"/><PasswordField fx:id="confirmPasswordField" promptText="Enter the password again" onAction="#register"/></VBox>
+  <Label fx:id="messageLabel" minHeight="22" styleClass="status-message" wrapText="true"/>
+  <Button text="Create account" onAction="#register" styleClass="primary-button" maxWidth="Infinity"/>
+  <Label text="Demo credentials and marketplace data are held in memory. Passwords are stored as salted hashes." styleClass="demo-badge" wrapText="true"/>
+ </VBox></VBox></HBox></center>
+</BorderPane>

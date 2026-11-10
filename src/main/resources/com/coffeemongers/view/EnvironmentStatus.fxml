@@ -1,0 +1,4 @@
+<?import javafx.scene.control.Label?>
+<Label xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+       fx:controller="com.coffeemongers.controller.EnvironmentStatusController"
+       fx:id="environmentLabel" text="DEMO MODE" styleClass="environment-indicator"/>

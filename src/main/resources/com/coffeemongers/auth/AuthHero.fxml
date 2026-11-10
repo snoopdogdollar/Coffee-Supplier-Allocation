@@ -1,0 +1,13 @@
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coffeemongers.controller.AuthHeroController" fx:id="heroPane" styleClass="auth-hero" HBox.hgrow="ALWAYS" minWidth="300" prefWidth="560">
+    <ImageView fx:id="heroImage" fitWidth="560" fitHeight="800" preserveRatio="false" smooth="true"><image><Image url="@/images/coffee-farm.jpg"/></image></ImageView>
+    <Region styleClass="auth-hero-shade"/>
+    <VBox alignment="BOTTOM_LEFT" spacing="12" styleClass="auth-hero-copy">
+        <Label text="COFFEE MONGERS" styleClass="auth-hero-eyebrow"/>
+        <Label text="From Vietnam’s highlands to your coffee shop." styleClass="auth-hero-title" wrapText="true"/>
+        <Label text="A thoughtful marketplace for coffee demand, supply and trusted sourcing." styleClass="auth-hero-subtitle" wrapText="true"/>
+    </VBox>
+</StackPane>

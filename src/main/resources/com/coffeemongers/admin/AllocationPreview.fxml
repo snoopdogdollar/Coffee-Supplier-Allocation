@@ -1,0 +1,54 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:id="previewRoot" xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.coffeemongers.controller.AllocationPreviewController"
+            styleClass="main-layout">
+    <top>
+        <VBox styleClass="form-header" spacing="8">
+            <Button text="← Back" onAction="#goBack" styleClass="back-button"/>
+            <Label text="Admin Workspace / PostgreSQL Test" styleClass="subtitle"/>
+            <Label text="Allocation Preview" styleClass="page-title"/>
+            <Label text="Read-only preview for all open demand in the selected delivery week."
+                   styleClass="subtitle" wrapText="true"/>
+        </VBox>
+    </top>
+    <center>
+        <VBox spacing="12" styleClass="content">
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <Label text="ISO year" styleClass="form-label"/>
+                <TextField fx:id="yearField" prefColumnCount="6"/>
+                <Label text="ISO week" styleClass="form-label"/>
+                <TextField fx:id="weekField" prefColumnCount="4"/>
+                <Button fx:id="loadPreviewButton" text="Load Preview" onAction="#loadPreview"
+                        styleClass="primary-button"/>
+            </HBox>
+            <Label fx:id="previewStatus" styleClass="subtitle" wrapText="true"/>
+            <TableView fx:id="demandTable" styleClass="data-table" VBox.vgrow="ALWAYS" prefHeight="260">
+                <placeholder><Label text="No demand lines to display."/></placeholder>
+                <columns>
+                    <TableColumn fx:id="demandIdColumn" text="Demand ID" prefWidth="90"/>
+                    <TableColumn fx:id="itemIdColumn" text="Line ID" prefWidth="70"/>
+                    <TableColumn fx:id="shopColumn" text="Coffee Shop" prefWidth="155"/>
+                    <TableColumn fx:id="productColumn" text="Product" prefWidth="155"/>
+                    <TableColumn fx:id="unitColumn" text="Unit" prefWidth="58"/>
+                    <TableColumn fx:id="requiredColumn" text="Requested" prefWidth="95"/>
+                    <TableColumn fx:id="proposedColumn" text="Proposed" prefWidth="90"/>
+                    <TableColumn fx:id="unallocatedColumn" text="Unallocated" prefWidth="100"/>
+                    <TableColumn fx:id="shortfallColumn" text="Supply Shortfall" prefWidth="120"/>
+                </columns>
+            </TableView>
+            <Label text="A line receives a proposal only when the remaining weekly supply can cover it in full."
+                   styleClass="small-text" wrapText="true"/>
+            <Label text="Proposed Suppliers for Selected Line" styleClass="section-title"/>
+            <TableView fx:id="supplierTable" styleClass="data-table" prefHeight="136" minHeight="98">
+                <columns>
+                    <TableColumn fx:id="supplierColumn" text="Supplier" prefWidth="270"/>
+                    <TableColumn fx:id="supplyIdColumn" text="Weekly Supply ID" prefWidth="150"/>
+                    <TableColumn fx:id="allocatedColumn" text="Proposed Quantity" prefWidth="155"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+</BorderPane>

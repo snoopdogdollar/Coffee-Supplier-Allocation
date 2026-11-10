@@ -1,0 +1,15 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+ fx:controller="com.coffeemongers.controller.MatchingResultsController" styleClass="main-layout">
+ <top><VBox styleClass="form-header" spacing="8"><HBox alignment="CENTER_LEFT"><Button text="← Back" onAction="#goToDashboard" styleClass="back-button"/><Region HBox.hgrow="ALWAYS"/><fx:include source="../view/HomeLogo.fxml"/></HBox>
+  <Label text="Matching Results" styleClass="page-title"/><Label text="Review supplier availability and allocate the requested quantity before orders are generated." styleClass="subtitle"/>
+ </VBox></top>
+ <center><ScrollPane fitToWidth="true" styleClass="content-scroll"><VBox spacing="16" styleClass="content">
+  <VBox styleClass="success-card" spacing="7"><Label text="Demand" styleClass="section-title"/><Label fx:id="demandIdLabel" styleClass="supplier-name"/><Label fx:id="demandTitleLabel" styleClass="subtitle"/><Label text="Request date" styleClass="small-text"/><Label fx:id="deliveryDateLabel" styleClass="supplier-name"/></VBox>
+  <VBox fx:id="noDemandState" styleClass="empty-state" spacing="10" visible="false" managed="false"><Label text="No submitted demand to match yet." styleClass="section-title"/><Label text="Create a demand with one or more coffee products, then review supplier availability and scores here." styleClass="small-text" wrapText="true"/><Button text="+ Create Demand" onAction="#openCreateDemand" styleClass="primary-button"/></VBox>
+  <VBox fx:id="matchesContainer" spacing="14"/>
+  <VBox styleClass="info-card" spacing="5"><Label text="Allocation rule" styleClass="section-title"/><Label text="The combined allocation for each product must equal the demand quantity and cannot exceed the supplier availability shown. Confirming creates demo orders and reduces demo remaining supply." styleClass="small-text" wrapText="true"/></VBox>
+  <HBox alignment="CENTER_RIGHT" spacing="10"><Label fx:id="statusLabel" text="" styleClass="status-message" wrapText="true" HBox.hgrow="ALWAYS"/><Button fx:id="ordersButton" text="Go to My Orders" visible="false" managed="false" onAction="#openOrders" styleClass="outline-button"/><Button fx:id="confirmButton" text="Confirm allocation &amp; create orders" onAction="#confirmAllocations" styleClass="primary-button"/></HBox>
+ </VBox></ScrollPane></center>
+</BorderPane>

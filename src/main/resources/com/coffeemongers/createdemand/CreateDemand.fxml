@@ -1,0 +1,135 @@
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.coffeemongers.controller.CreateDemandController"
+            styleClass="main-layout">
+
+    <top>
+        <VBox styleClass="form-header" spacing="8">
+            <HBox alignment="CENTER_RIGHT"><Region HBox.hgrow="ALWAYS"/><fx:include source="../view/HomeLogo.fxml"/></HBox>
+            <Button text="← Back"
+                    onAction="#goBack"
+                    styleClass="back-button"/>
+
+            <Label text="Buyer Workspace  /  Create Demand"
+                   styleClass="subtitle"/>
+
+            <Label text="Create New Demand"
+                   styleClass="page-title"/>
+
+            <Label text="Tell us which coffee products your shop needs and the quantities to request."
+                   styleClass="subtitle"/>
+            <Label fx:id="previewNotice" text="Admin workspace preview · sign in as a Buyer to submit demands." styleClass="info-card" wrapText="true" visible="false" managed="false"/>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true"
+                    styleClass="content-scroll"
+                    pannable="true">
+
+            <VBox spacing="18" styleClass="content">
+
+                <VBox styleClass="section-card" spacing="14">
+                    <Label text="Buyer Information"
+                           styleClass="section-title"/>
+                    <Label fx:id="shopLabel" text="Bếp Cà Phê · Ho Chi Minh City"
+                           styleClass="supplier-name"/>
+                    <Label text="Shop details come from the selected buyer account."
+                           styleClass="small-text"/>
+                    <Label fx:id="dateLabel" text="Request Date *"
+                           styleClass="form-label"/>
+                    <DatePicker fx:id="requestDatePicker"
+                                promptText="Select request date"
+                                maxWidth="Infinity"/>
+                </VBox>
+
+                <VBox styleClass="section-card" spacing="14">
+
+                    <HBox alignment="CENTER_LEFT">
+                        <VBox spacing="4">
+                            <Label text="Coffee Products"
+                                   styleClass="section-title"/>
+
+                            <Label text="Select each coffee product and enter the requested quantity."
+                                   styleClass="small-text"/>
+                        </VBox>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+
+                        <Button fx:id="addProductButton" text="+ Add Product"
+                                onAction="#addProductRow"
+                                styleClass="outline-button"/>
+                    </HBox>
+
+                    <GridPane hgap="10"
+                              maxWidth="Infinity"
+                              styleClass="form-column-header">
+
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="ALWAYS" minWidth="0"/>
+                            <ColumnConstraints minWidth="80" prefWidth="80" maxWidth="80"/>
+                            <ColumnConstraints minWidth="55" prefWidth="55" maxWidth="55"/>
+                            <ColumnConstraints minWidth="160" prefWidth="160" maxWidth="220"/>
+                            <ColumnConstraints minWidth="78" prefWidth="78" maxWidth="78"/>
+                        </columnConstraints>
+
+                        <Label text="Coffee Product"
+                               GridPane.columnIndex="0"/>
+
+                        <Label text="Quantity"
+                               GridPane.columnIndex="1"/>
+
+                        <Label text="Product unit"
+                               GridPane.columnIndex="2"/>
+
+                        <Label text="Product note"
+                               GridPane.columnIndex="3"/>
+
+                        <Label text="Action"
+                               GridPane.columnIndex="4"/>
+
+                    </GridPane>
+
+                    <VBox fx:id="productRowsContainer"
+                          spacing="10"/>
+
+                    <Label fx:id="catalogStatusLabel" styleClass="info-card" wrapText="true"
+                           visible="false" managed="false"/>
+                </VBox>
+
+                <VBox styleClass="section-card" spacing="12">
+                    <Label text="Additional Notes"
+                           styleClass="section-title"/>
+
+                    <Label text="Provide any quality requirements or special instructions."
+                           styleClass="small-text"/>
+
+                    <TextArea fx:id="notesField"
+                              promptText="e.g. Prefer consistent bean size, moisture level, and natural processing..."
+                              prefRowCount="4"
+                              wrapText="true"/>
+                </VBox>
+
+                <Label text="Product quantities use the unit defined in the coffee product catalog."
+                       styleClass="small-text"/>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="12" styleClass="demand-actions">
+            <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                <Label text="Step 1 of 2 · Review your demand before submitting." styleClass="subtitle" wrapText="true"/>
+                <Label fx:id="productErrorLabel" styleClass="error-text" wrapText="true"/>
+            </VBox>
+            <Button text="Cancel" onAction="#goBack" styleClass="outline-button"/>
+            <Button fx:id="reviewDemandButton" text="Review Demand →"
+                    onAction="#submitDemand" styleClass="primary-button"/>
+        </HBox>
+    </bottom>
+</BorderPane>

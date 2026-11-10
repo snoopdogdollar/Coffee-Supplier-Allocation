@@ -1,0 +1,92 @@
+
+/* Create Demand Screen */
+
+.form-header {
+    -fx-background-color: #F7F3EC;
+    -fx-padding: 24 28 12 28;
+}
+
+.back-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #55734A;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+    -fx-padding: 4 0 8 0;
+}
+
+.form-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #725F4F;
+}
+
+.section-card .text-field,
+.section-card .combo-box,
+.section-card .date-picker {
+    -fx-background-color: #FAF8F4;
+    -fx-border-color: #E5DCCF;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 8;
+    -fx-font-size: 12px;
+}
+
+.section-card .text-area {
+    -fx-background-color: #FAF8F4;
+    -fx-border-color: #E5DCCF;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-font-size: 12px;
+}
+
+.section-card .text-area .content {
+    -fx-background-color: #FAF8F4;
+}
+
+.form-column-header {
+    -fx-background-color: #F2EDE5;
+    -fx-padding: 10;
+    -fx-background-radius: 6;
+}
+
+.form-column-header .label {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #725F4F;
+}
+
+.remove-button {
+    -fx-background-color: #F8E8E3;
+    -fx-text-fill: #A34F3D;
+    -fx-background-radius: 5;
+    -fx-padding: 8 10;
+    -fx-font-size: 10px;
+    -fx-cursor: hand;
+}
+
+.remove-button:hover {
+    -fx-background-color: #F1D6CE;
+}
+
+.error-text {
+    -fx-text-fill: #B44A3C;
+    -fx-font-size: 11px;
+}
+
+.success-text {
+    -fx-text-fill: #48643B;
+    -fx-font-size: 12px;
+}
+
+.success-card {
+    -fx-background-color: #EAF0E2;
+    -fx-background-radius: 9;
+    -fx-padding: 16;
+}
+
+.info-card {
+    -fx-background-color: #E7F0F8;
+    -fx-background-radius: 9;
+    -fx-padding: 16;
+}
+

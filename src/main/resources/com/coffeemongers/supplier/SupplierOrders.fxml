@@ -1,0 +1,6 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coffeemongers.controller.SupplierOrdersController" fx:id="screenRoot" styleClass="main-layout">
+ <top><HBox alignment="CENTER_LEFT" styleClass="topbar" spacing="10"><Button text="← Back" onAction="#goBack" styleClass="back-button"/><Label text="My Orders" styleClass="section-title"/><Region HBox.hgrow="ALWAYS"/><fx:include source="../view/HomeLogo.fxml"/></HBox></top>
+ <center><VBox spacing="18" styleClass="content"><VBox spacing="4"><Label text="Incoming Orders" styleClass="page-title"/><Label text="Confirmed buyer allocations assigned to this demo supplier." styleClass="subtitle"/></VBox><Label fx:id="emptyLabel" text="No incoming orders yet. Confirm a buyer allocation for this supplier to create a demo order." styleClass="empty-state" wrapText="true"/><ScrollPane fitToWidth="true" styleClass="content-scroll"><VBox fx:id="ordersContainer" spacing="14"/></ScrollPane></VBox></center>
+</BorderPane>

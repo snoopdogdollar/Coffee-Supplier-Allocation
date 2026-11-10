@@ -1,0 +1,6 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coffeemongers.controller.BuyerSuppliersController" fx:id="screenRoot" styleClass="main-layout">
+ <top><HBox alignment="CENTER_LEFT" spacing="12" styleClass="topbar"><Button text="← Back" onAction="#goBack" styleClass="back-button"/><Label text="Suppliers" styleClass="section-title"/><Region HBox.hgrow="ALWAYS"/><fx:include source="HomeLogo.fxml"/></HBox></top>
+ <center><VBox spacing="16" styleClass="content"><VBox spacing="4"><Label text="Coffee Suppliers" styleClass="page-title"/><Label text="Browse suppliers, available coffee products and demo marketplace scores." styleClass="subtitle" wrapText="true"/></VBox><Label fx:id="emptyLabel" text="No suppliers are currently listed." styleClass="empty-state" wrapText="true"/><ScrollPane fitToWidth="true" styleClass="content-scroll" VBox.vgrow="ALWAYS"><VBox fx:id="supplierCards" spacing="14"/></ScrollPane></VBox></center>
+</BorderPane>

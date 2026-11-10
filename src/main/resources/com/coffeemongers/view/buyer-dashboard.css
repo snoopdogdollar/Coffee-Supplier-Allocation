@@ -1,0 +1,456 @@
+.root {
+    -fx-font-family: "Arial";
+    -fx-background-color: #F7F3EC;
+}
+
+.main-layout {
+    -fx-background-color: #F7F3EC;
+}
+
+/* Sidebar */
+.sidebar {
+    -fx-background-color: #EDE5D8;
+    -fx-padding: 24 16 18 16;
+}
+
+.brand {
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #49372B;
+}
+
+.brand-subtitle {
+    -fx-font-size: 9px;
+    -fx-text-fill: #8A7868;
+}
+
+.sidebar-heading {
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #9B8C7D;
+    -fx-padding: 8 5;
+}
+
+.nav-button, .nav-active {
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 11 12;
+    -fx-background-radius: 7;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+}
+
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #645548;
+}
+
+.nav-button:hover, .nav-active {
+    -fx-background-color: #E1E8D7;
+    -fx-text-fill: #3E6136;
+}
+
+.nav-active {
+    -fx-font-weight: bold;
+}
+
+.profile-card {
+    -fx-background-color: #E2E9D9;
+    -fx-background-radius: 8;
+    -fx-padding: 12;
+}
+
+.profile-name {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #49372B;
+}
+
+/* Main content */
+.content-scroll {
+    -fx-background-color: transparent;
+    -fx-background: #F7F3EC;
+    -fx-border-color: transparent;
+}
+
+.content {
+    -fx-padding: 28;
+}
+
+.page-title {
+    -fx-font-size: 25px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #49372B;
+}
+
+.subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #958575;
+}
+
+.small-text {
+    -fx-font-size: 10px;
+    -fx-text-fill: #958575;
+}
+
+/* Buttons */
+.primary-button {
+    -fx-background-color: #46643A;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-padding: 11 17;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.primary-button:hover {
+    -fx-background-color: #344F2C;
+}
+
+.outline-button {
+    -fx-background-color: white;
+    -fx-border-color: #78916C;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-text-fill: #48643B;
+    -fx-font-size: 10px;
+    -fx-padding: 7 12;
+    -fx-cursor: hand;
+}
+
+.hyperlink {
+    -fx-text-fill: #55734A;
+    -fx-font-size: 11px;
+}
+
+/* Cards */
+.stat-card, .section-card {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 10;
+    -fx-border-color: #E9E0D5;
+    -fx-border-radius: 10;
+    -fx-padding: 17;
+}
+
+.stat-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #8B7A69;
+}
+
+.stat-number {
+    -fx-font-size: 27px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #49372B;
+}
+
+.section-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #49372B;
+}
+
+/* Tables */
+.data-table {
+    -fx-background-color: white;
+    -fx-border-color: transparent;
+    -fx-background-radius: 7;
+}
+
+.data-table .column-header-background {
+    -fx-background-color: #F2EDE5;
+}
+
+.data-table .column-header {
+    -fx-background-color: #F2EDE5;
+    -fx-size: 36px;
+}
+
+.data-table .column-header .label {
+    -fx-text-fill: #725F4F;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+.data-table .table-row-cell {
+    -fx-background-color: white;
+    -fx-border-color: transparent transparent #EEE8DF transparent;
+    -fx-cell-size: 36px;
+}
+
+.data-table .table-row-cell:selected {
+    -fx-background-color: #E9EFDF;
+}
+
+.data-table .table-cell {
+    -fx-text-fill: #57483D;
+    -fx-font-size: 11px;
+    -fx-alignment: CENTER_LEFT;
+}
+
+/* Supplier section */
+.supplier-row {
+    -fx-background-color: #FAF8F4;
+    -fx-background-radius: 8;
+    -fx-padding: 10;
+}
+
+.supplier-name {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #49372B;
+}
+
+.supplier-image {
+    -fx-background-radius: 6;
+}
+
+.score {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #48643B;
+}
+
+
+/* Create Demand Header */
+
+.form-header {
+    -fx-background-color: #F7F3EC;
+    -fx-padding: 24px 36px 18px 36px;
+}
+
+.demand-actions {
+    -fx-background-color: #F7F6F2;
+    -fx-border-color: #E5DCCF transparent transparent transparent;
+    -fx-padding: 12px 24px;
+}
+
+.form-header .page-title {
+    -fx-font-family: "Arial";
+    -fx-font-size: 25px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #49372B;
+}
+
+.form-header .subtitle {
+    -fx-font-family: "Arial";
+    -fx-font-size: 12px;
+    -fx-text-fill: #958575;
+}
+
+.form-header .back-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #55734A;
+    -fx-font-size: 12px;
+    -fx-padding: 4px 0 8px 0;
+    -fx-cursor: hand;
+}
+
+.form-header .back-button:hover {
+    -fx-text-fill: #344F2C;
+}
+
+.form-column-header {
+    -fx-background-color: #F2EDE5;
+    -fx-padding: 10px;
+    -fx-background-radius: 6px;
+}
+
+.form-column-header .label {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #725F4F;
+}
+
+.section-card .combo-box,
+.section-card .text-field {
+    -fx-background-color: #FAF8F4;
+    -fx-border-color: #E5DCCF;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 7px;
+}
+
+.section-card .text-area {
+    -fx-background-color: #FAF8F4;
+    -fx-border-color: #E5DCCF;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+
+.remove-button {
+    -fx-background-color: #F8E8E3;
+    -fx-text-fill: #A34F3D;
+    -fx-background-radius: 5px;
+    -fx-padding: 8px 10px;
+    -fx-font-size: 10px;
+    -fx-cursor: hand;
+}
+
+
+/* Demand Details */
+
+.demand-status {
+    -fx-background-color: #E8EFDF;
+    -fx-text-fill: #48643B;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+    -fx-padding: 8px 14px;
+    -fx-background-radius: 20px;
+}
+
+.section-card .grid-pane {
+    -fx-background-color: #FAF8F4;
+}
+
+.section-card .separator {
+    -fx-background-color: #E9E0D5;
+}
+
+.section-card .score {
+    -fx-text-fill: #48643B;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.section-card .supplier-name {
+    -fx-text-fill: #49372B;
+    -fx-font-size: 12px;
+}
+
+/* CREATE DEMAND */
+
+.form-column-header {
+    -fx-background-color: #F2EDE5;
+    -fx-background-radius: 6px;
+    -fx-padding: 10px;
+}
+
+.form-column-header .label {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #725F4F;
+    -fx-padding: 0 0 0 0;
+}
+
+.remove-button {
+    -fx-background-color: #F8E8E3;
+    -fx-text-fill: #A34F3D;
+    -fx-background-radius: 5px;
+    -fx-padding: 8px 10px;
+    -fx-font-size: 10px;
+    -fx-cursor: hand;
+}
+
+/* MY ORDERS */
+
+.order-list {
+    -fx-padding: 4 2 20 2;
+}
+
+.order-card {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 10;
+    -fx-border-color: #E9E0D5;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+.order-field-heading {
+    -fx-font-size: 10px;
+    -fx-text-fill: #8A7868;
+}
+
+.order-field-value {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #49372B;
+}
+
+.order-status {
+    -fx-background-color: #E5EDCF;
+    -fx-background-radius: 15;
+    -fx-padding: 5 12;
+    -fx-text-fill: #3E6136;
+}
+
+.order-table-heading {
+    -fx-background-color: #F2EDE5;
+    -fx-background-radius: 5;
+    -fx-padding: 9 12;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #725F4F;
+}
+
+.order-table-value {
+    -fx-padding: 10 12;
+    -fx-font-size: 11px;
+    -fx-text-fill: #49372B;
+}
+
+/* Shared Coffee Mongers surfaces aligned to the warm neutrals and brown-green
+   accents used across the Admin and Buyer Figma screens. */
+.root, .main-layout { -fx-font-family: "Inter", "Arial"; -fx-background-color: #F7F6F2; }
+.sidebar, .admin-sidebar, .supplier-sidebar { -fx-background-color: #FFFFFF; -fx-border-color: transparent #E8E6DF transparent transparent; -fx-border-width: 0 1 0 0; }
+.admin-sidebar, .supplier-sidebar { -fx-padding: 22 14 18 14; }
+.brand, .profile-name, .page-title, .section-title, .stat-number, .supplier-name { -fx-text-fill: #302C28; }
+.brand { -fx-text-fill: #604537; }
+.brand-subtitle, .subtitle, .small-text, .stat-label { -fx-text-fill: #7A7770; }
+.primary-button { -fx-background-color: #604537; -fx-background-radius: 8; -fx-font-size: 13px; }
+.primary-button:hover { -fx-background-color: #49372F; }
+.nav-button, .nav-active { -fx-font-size: 13px; }
+.nav-button { -fx-text-fill: #4E4A45; }
+.nav-button:hover, .nav-active { -fx-background-color: #F1ECE4; -fx-text-fill: #604537; }
+.stat-card, .section-card, .order-card { -fx-background-color: #FFFFFF; -fx-border-color: #E8E6DF; -fx-background-radius: 12; -fx-border-radius: 12; }
+.supplier-row { -fx-background-color: #FAF8F4; -fx-border-color: #EFECE6; -fx-border-radius: 8; -fx-background-radius: 8; }
+.score { -fx-text-fill: #2E6B38; }
+.form-header, .content { -fx-background-color: #F7F6F2; }
+.form-label { -fx-text-fill: #302C28; -fx-font-weight: bold; }
+.section-card .text-field, .section-card .combo-box, .section-card .text-area, .content .text-field, .content .combo-box, .content .date-picker, .section-card .date-picker {
+    -fx-background-color: #FFFFFF; -fx-border-color: #D9D5CE; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 8;
+}
+.role-switcher { -fx-padding: 0; }
+.role-button { -fx-background-color: #FFFFFF; -fx-border-color: #E8E6DF; -fx-border-radius: 6; -fx-background-radius: 6; -fx-text-fill: #604537; -fx-font-size: 11px; -fx-padding: 6 9; -fx-cursor: hand; }
+.role-button:hover { -fx-background-color: #F1ECE4; }
+.account-label { -fx-text-fill: #655B51; -fx-font-size: 11px; -fx-padding: 0 8 0 0; }
+.logout-button { -fx-background-color: transparent; -fx-border-color: #D9D5CE; -fx-border-radius: 6; -fx-background-radius: 6; -fx-text-fill: #604537; -fx-font-size: 11px; -fx-padding: 6 9; -fx-cursor: hand; }
+.logout-button:hover { -fx-background-color: #F8E8E3; }
+.auth-layout, .auth-page { -fx-background-color: #F7F3EC; }
+.auth-page { -fx-padding: 32; }
+.auth-card { -fx-background-color: white; -fx-border-color: #E8E0D5; -fx-border-radius: 14; -fx-background-radius: 14; -fx-padding: 30; -fx-effect: dropshadow(gaussian, rgba(52,39,28,0.10), 18, 0.12, 0, 4); }
+.ad-banner { -fx-background-color: linear-gradient(to right, #F0E5D3, #F8F4EC); -fx-border-color: #D8C5A8; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 8 16; -fx-min-height: 82; -fx-pref-height: 82; }
+.rank-number { -fx-min-width: 28; -fx-alignment: center; -fx-font-weight: bold; -fx-text-fill: #604537; -fx-padding: 0 5 0 0; }
+.role-switcher .button { -fx-cursor: hand; }
+.topbar { -fx-padding: 12 24; -fx-background-color: #FFFFFF; -fx-border-color: transparent transparent #E8E6DF transparent; -fx-border-width: 0 0 1 0; }
+.admin-sidebar .workspace-card { -fx-background-color: #FAF8F4; -fx-padding: 12; -fx-background-radius: 8; -fx-border-color: #E8E6DF; -fx-border-radius: 8; }
+.demo-badge { -fx-background-color: #F1ECE4; -fx-background-radius: 6; -fx-padding: 6 9; -fx-text-fill: #604537; -fx-font-size: 10px; -fx-font-weight: bold; }
+.week-badge { -fx-background-color: #EDF2EB; -fx-background-radius: 6; -fx-padding: 7 10; -fx-text-fill: #2E6B38; -fx-font-weight: bold; }
+.empty-state { -fx-background-color: #FAF8F4; -fx-background-radius: 10; -fx-border-color: #E8E6DF; -fx-border-radius: 10; -fx-padding: 20; -fx-text-fill: #7A7770; }
+.status-message { -fx-text-fill: #604537; -fx-font-size: 12px; }
+.score-block { -fx-alignment: CENTER_RIGHT; -fx-spacing: 3; }
+.score-block .label:first-child { -fx-text-fill: #302C28; -fx-font-size: 12px; -fx-font-weight: bold; }
+.score-block .label:last-child { -fx-text-fill: #7A7770; -fx-font-size: 10px; }
+.chart-bar-supply { -fx-background-color: #71916A; -fx-background-radius: 4 4 0 0; -fx-min-width: 24; }
+.chart-bar-demand { -fx-background-color: #B89A75; -fx-background-radius: 4 4 0 0; -fx-min-width: 24; }
+.demand-status, .status-pill { -fx-background-color: #EDF2EB; -fx-background-radius: 10; -fx-padding: 4 8; -fx-text-fill: #2E6B38; -fx-font-size: 10px; -fx-font-weight: bold; }
+.workspace-active { -fx-background-color: #6B4636; -fx-text-fill: white; -fx-border-color: #6B4636; -fx-font-weight: bold; }
+.workspace-active:hover { -fx-background-color: #563829; -fx-text-fill: white; }
+.logout-button { -fx-background-color: transparent; -fx-border-color: transparent; -fx-text-fill: #655B51; -fx-font-size: 11px; -fx-padding: 6 9; -fx-cursor: hand; }
+.logout-button:hover { -fx-background-color: #F8E8E3; -fx-text-fill: #A33D32; }
+.brand-home-button { -fx-background-color: transparent; -fx-text-fill: #604537; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 6 8; -fx-cursor: hand; }
+.brand-home-button:hover { -fx-background-color: #F1ECE4; -fx-background-radius: 6; }
+.environment-indicator { -fx-background-color: #EDF2EB; -fx-background-radius: 10; -fx-padding: 5 8; -fx-text-fill: #476B3F; -fx-font-size: 9px; -fx-font-weight: bold; }
+.back-button { -fx-background-color: transparent; -fx-text-fill: #6B4636; -fx-font-size: 12px; -fx-padding: 8 10; -fx-cursor: hand; }
+.back-button:hover { -fx-background-color: #EFE7DD; -fx-background-radius: 6; }
+.topbar { -fx-spacing: 12; -fx-padding: 12 24; }
+.content { -fx-spacing: 18; -fx-padding: 24; }
+.ad-banner { -fx-min-height: 82; -fx-pref-height: 82; -fx-max-height: 100; }
+.role-switcher { -fx-spacing: 8; -fx-alignment: center-right; }
+.account-label { -fx-max-width: 240; -fx-text-overflow: ellipsis; }
+.auth-page-shell { -fx-background-color: #F7F6F2; }
+.auth-hero { -fx-min-width: 300; -fx-background-radius: 0; }
+.auth-hero-shade { -fx-background-color: rgba(38, 29, 22, 0.34); }
+.auth-hero-copy { -fx-max-width: 480; -fx-padding: 46; }
+.auth-hero-eyebrow { -fx-text-fill: #F0E5D3; -fx-font-size: 11px; -fx-font-weight: bold; }
+.auth-hero-title { -fx-text-fill: white; -fx-font-size: 34px; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 4, 0.2, 0, 1); }
+.auth-hero-subtitle { -fx-text-fill: #F6F1E9; -fx-font-size: 14px; }

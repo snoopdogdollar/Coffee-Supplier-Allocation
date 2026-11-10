@@ -1,0 +1,175 @@
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.coffeemongers.controller.BuyerDashboardController"
+            styleClass="main-layout">
+
+    <left>
+        <VBox prefWidth="220" styleClass="sidebar" spacing="16">
+            <HBox alignment="CENTER_LEFT" spacing="9">
+                <ImageView fx:id="logoImage" fitWidth="38" fitHeight="38"
+                           preserveRatio="true"/>
+                <VBox spacing="1">
+                    <Label text="Coffee Mongers" styleClass="brand"/>
+                    <Label text="Coffee Supply Chain" styleClass="brand-subtitle"/>
+                </VBox>
+            </HBox>
+
+            <Separator/>
+            <Label text="WORKSPACE" styleClass="sidebar-heading"/>
+
+            <Button fx:id="overviewNavButton" text="☰  Overview" styleClass="nav-active" maxWidth="Infinity"/>
+            <Button fx:id="createDemandNavButton" text="＋  Create Demand" styleClass="nav-button" maxWidth="Infinity"/>
+            <Button fx:id="matchingNavButton" text="⌕  Matching Results" styleClass="nav-button" maxWidth="Infinity"/>
+            <Button fx:id="ordersNavButton" text="▣   My Orders" styleClass="nav-button" maxWidth="Infinity"/>
+            <Button fx:id="suppliersNavButton" text="♧  Suppliers" styleClass="nav-button" maxWidth="Infinity"/>
+            <Button fx:id="profileNavButton" text="♙  Profile" styleClass="nav-button" maxWidth="Infinity"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <ImageView fx:id="sidebarImage" fitWidth="185" fitHeight="105"
+                       preserveRatio="false"/>
+
+            <VBox styleClass="profile-card" spacing="4">
+                <Label fx:id="buyerNameLabel" text="Buyer" styleClass="profile-name"/>
+                <Label text="Coffee Shop · Buyer Account" styleClass="small-text"/>
+                <Label fx:id="buyerEmailLabel" text="" styleClass="small-text" wrapText="true"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <center>
+        <ScrollPane fx:id="dashboardScroll" fitToWidth="true" styleClass="content-scroll">
+            <VBox spacing="18" styleClass="content">
+
+                <HBox alignment="CENTER_LEFT" spacing="14">
+                    <VBox spacing="5">
+                        <Label text="Overview" styleClass="page-title"/>
+                        <Label fx:id="dashboardSubtitle" text="Your coffee sourcing, from demand to confirmed order."
+                               styleClass="subtitle"/>
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <fx:include source="RoleSwitcher.fxml"/>
+                    <Button fx:id="createDemandButton" text="+ Create New Demand" styleClass="primary-button"/>
+                </HBox>
+
+
+                <HBox spacing="14">
+                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                        <Label fx:id="demandCountTitle" text="Total Demands" styleClass="stat-label"/>
+                        <Label fx:id="totalDemandsLabel" text="0" styleClass="stat-number"/>
+                        <Label fx:id="demandCountCaption" text="Demo session demands" styleClass="small-text"/>
+                    </VBox>
+                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                        <Label fx:id="pendingCountTitle" text="Pending Demands" styleClass="stat-label"/>
+                        <Label fx:id="pendingDemandsLabel" text="0" styleClass="stat-number"/>
+                        <Label fx:id="pendingCountCaption" text="Submitted in demo session" styleClass="small-text"/>
+                    </VBox>
+                    <VBox fx:id="orderStat" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                        <Label text="Total Orders" styleClass="stat-label"/>
+                        <Label fx:id="totalOrdersLabel" text="0" styleClass="stat-number"/>
+                        <Label text="Created by demo confirmation" styleClass="small-text"/>
+                    </VBox>
+                </HBox>
+
+                <VBox styleClass="section-card" spacing="12">
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <Label text="Recent Demands" styleClass="section-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="refreshDemandsButton" text="Refresh" visible="false" managed="false"
+                                styleClass="outline-button"/>
+                        <Hyperlink fx:id="selectedDemandLink" text="Select a demand to view details"/>
+                    </HBox>
+
+                    <TableView fx:id="recentDemandsTable" prefHeight="185"
+                               styleClass="data-table">
+                        <columns>
+                            <TableColumn fx:id="demandIdColumn" text="Demand" prefWidth="130"/>
+                            <TableColumn fx:id="productColumn" text="Coffee Product" prefWidth="210"/>
+                            <TableColumn fx:id="quantityColumn" text="Total Quantity" prefWidth="120"/>
+                            <TableColumn fx:id="dateColumn" text="Request Date" prefWidth="120"/>
+                            <TableColumn fx:id="statusColumn" text="Status" prefWidth="120"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+
+                <VBox fx:id="supplierSection" styleClass="section-card" spacing="12">
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="Supplier Recommendations" styleClass="section-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Hyperlink fx:id="viewSuppliersLink" text="Review matches for selected demand"/>
+                    </HBox>
+
+                    <HBox spacing="12" styleClass="supplier-row" alignment="CENTER_LEFT">
+                <ImageView fx:id="farmImage1" fitWidth="105" fitHeight="72"
+                                   preserveRatio="true"/>
+                        <VBox spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="Cau Dat Coffee Farm" styleClass="supplier-name"/>
+                            <Label text="Da Lat, Lam Dong" styleClass="small-text"/>
+                            <Label text="Robusta · Arabica" styleClass="small-text"/>
+                        </VBox>
+                        <VBox spacing="3" alignment="CENTER">
+                            <Label text="92 / 100" styleClass="score"/>
+                            <Label text="Final score" styleClass="small-text"/>
+                        </VBox>
+                        <Button fx:id="supplierProfile1" text="View Profile" styleClass="outline-button"/>
+                    </HBox>
+
+                    <HBox spacing="12" styleClass="supplier-row" alignment="CENTER_LEFT">
+                        <ImageView fx:id="farmImage2" fitWidth="105" fitHeight="72"
+                                   preserveRatio="true"/>
+                        <VBox spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="Dak Lak Coffee Co-op" styleClass="supplier-name"/>
+                            <Label text="Buon Ma Thuot, Dak Lak" styleClass="small-text"/>
+                            <Label text="Robusta" styleClass="small-text"/>
+                        </VBox>
+                        <VBox spacing="3" alignment="CENTER">
+                            <Label text="88 / 100" styleClass="score"/>
+                            <Label text="Final score" styleClass="small-text"/>
+                        </VBox>
+                        <Button fx:id="supplierProfile2" text="View Profile" styleClass="outline-button"/>
+                    </HBox>
+
+                    <HBox spacing="12" styleClass="supplier-row" alignment="CENTER_LEFT">
+                        <ImageView fx:id="farmImage3" fitWidth="105" fitHeight="72"
+                                   preserveRatio="true"/>
+                        <VBox spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="Gia Lai Coffee Supply" styleClass="supplier-name"/>
+                            <Label text="Pleiku, Gia Lai" styleClass="small-text"/>
+                            <Label text="Robusta · Arabica" styleClass="small-text"/>
+                        </VBox>
+                        <VBox spacing="3" alignment="CENTER">
+                            <Label text="85 / 100" styleClass="score"/>
+                            <Label text="Final score" styleClass="small-text"/>
+                        </VBox>
+                        <Button fx:id="supplierProfile3" text="View Profile" styleClass="outline-button"/>
+                    </HBox>
+                </VBox>
+
+                <VBox fx:id="ordersSection" styleClass="section-card" spacing="12">
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="Recent Orders" styleClass="section-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Hyperlink fx:id="viewAllOrdersLink" text="View all orders"/>
+                    </HBox>
+
+                    <TableView fx:id="recentOrdersTable" prefHeight="155"
+                               styleClass="data-table">
+                        <columns>
+                            <TableColumn fx:id="orderIdColumn" text="Order ID" prefWidth="150"/>
+                            <TableColumn fx:id="orderSupplierColumn" text="Supplier" prefWidth="180"/>
+                            <TableColumn fx:id="orderProductColumn" text="Product" prefWidth="180"/>
+                            <TableColumn fx:id="orderQuantityColumn" text="Quantity" prefWidth="100"/>
+                            <TableColumn fx:id="orderStatusColumn" text="Status" prefWidth="110"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>
