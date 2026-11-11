@@ -10,7 +10,7 @@
             <Button text="← Back" onAction="#goBack" styleClass="back-button"/>
             <Label text="Admin Workspace / PostgreSQL Test" styleClass="subtitle"/>
             <Label text="Allocation Preview" styleClass="page-title"/>
-            <Label text="Read-only preview for all open demand in the selected delivery week."
+            <Label text="Review all open demand in the selected delivery week, then confirm the fully supplied lines."
                    styleClass="subtitle" wrapText="true"/>
         </VBox>
     </top>
@@ -51,4 +51,16 @@
             </TableView>
         </VBox>
     </center>
+    <bottom>
+        <VBox spacing="8" styleClass="demand-actions">
+            <TextArea fx:id="confirmationResult" editable="false" wrapText="true"
+                      prefRowCount="3" visible="false" managed="false"/>
+            <HBox alignment="CENTER_RIGHT" spacing="12">
+                <Label text="Confirmation applies to all fully supplied lines in this week's preview."
+                       wrapText="true" maxWidth="Infinity" HBox.hgrow="ALWAYS" styleClass="subtitle"/>
+                <Button fx:id="confirmAllocationButton" text="Confirm Allocation"
+                        onAction="#confirmAllocation" disable="true" styleClass="primary-button"/>
+            </HBox>
+        </VBox>
+    </bottom>
 </BorderPane>

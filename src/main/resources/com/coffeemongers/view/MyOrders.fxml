@@ -45,7 +45,7 @@
 
             <ScrollPane fitToWidth="true"
                         styleClass="content-scroll"
-                        pannable="true">
+                        pannable="true" VBox.vgrow="ALWAYS" minHeight="100">
 
                 <VBox fx:id="orderCardsContainer"
                       spacing="18"
@@ -57,5 +57,18 @@
 
         </VBox>
     </center>
+
+    <bottom>
+        <VBox fx:id="liveOrderControls" spacing="8" styleClass="demand-actions"
+              visible="false" managed="false">
+            <Label fx:id="ordersStatusLabel" styleClass="subtitle" wrapText="true"/>
+            <HBox alignment="CENTER_RIGHT" spacing="12">
+                <Button fx:id="refreshOrdersButton" text="Refresh Orders"
+                        onAction="#refreshOrders" styleClass="outline-button"/>
+                <Button fx:id="loadMoreOrdersButton" text="Load More"
+                        onAction="#loadMoreOrders" styleClass="primary-button" disable="true"/>
+            </HBox>
+        </VBox>
+    </bottom>
 
 </BorderPane>

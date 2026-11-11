@@ -3,17 +3,24 @@ package com.coffeemongers.controller;
 import com.coffeeallocation.model.BatchAllocationPreview;
 import com.coffeeallocation.model.BatchItemAllocation;
 import com.coffeeallocation.service.SharedAllocationService;
+import com.coffeeallocation.service.AllocationConfirmationService;
 import com.coffeemongers.service.AppServices;
 import com.coffeemongers.view.SceneNavigator;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.event.EventHandler;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Window;
+import javafx.stage.WindowEvent;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -26,8 +33,9 @@ public final class AllocationPreviewController {
 
     @FXML private BorderPane previewRoot;
     @FXML private TextField yearField, weekField;
-    @FXML private Button loadPreviewButton;
+    @FXML private Button loadPreviewButton, confirmAllocationButton;
     @FXML private Label previewStatus;
+    @FXML private TextArea confirmationResult;
     @FXML private TableView<BatchItemAllocation> demandTable;
     @FXML private TableColumn<BatchItemAllocation, Long> demandIdColumn, itemIdColumn;
     @FXML private TableColumn<BatchItemAllocation, String> shopColumn, productColumn, unitColumn;
@@ -39,6 +47,10 @@ public final class AllocationPreviewController {
     @FXML private TableColumn<SupplierProposal, BigDecimal> allocatedColumn;
 
     private BatchAllocationPreview displayed;
+    private int displayedYear, displayedWeek;
+    private boolean confirming;
+    private Window confirmationWindow;
+    private final EventHandler<WindowEvent> blockClose = WindowEvent::consume;
 
     @FXML
     private void initialize() {
@@ -106,6 +118,9 @@ public final class AllocationPreviewController {
             }
             setInputsDisabled(false);
             displayed = load.getValue();
+            displayedYear = year;
+            displayedWeek = week;
+            refreshConfirmAction();
             demandTable.getItems().setAll(displayed.getItems());
             String weekLabel = String.format(Locale.ROOT, "%04d-W%02d", year, week);
             if (displayed.getItems().isEmpty()) {
@@ -132,6 +147,10 @@ public final class AllocationPreviewController {
 
     private void resetPreview() {
         displayed = null;
+        confirmAllocationButton.setDisable(true);
+        confirmationResult.clear();
+        confirmationResult.setVisible(false);
+        confirmationResult.setManaged(false);
         demandTable.getItems().clear();
         showSupplierProposals(null);
         previewStatus.setText(AppServices.allocationPreviewEnabled() ? SELECT_WEEK : ACCESS_REQUIRED);
@@ -155,10 +174,108 @@ public final class AllocationPreviewController {
         yearField.setDisable(disabled);
         weekField.setDisable(disabled);
         loadPreviewButton.setDisable(disabled);
+        refreshConfirmAction();
+    }
+
+    private void refreshConfirmAction() {
+        confirmAllocationButton.setDisable(confirming || loadPreviewButton.isDisabled()
+                || !AppServices.allocationPreviewEnabled() || displayed == null
+                || displayed.getItems().stream().noneMatch(row -> !row.getAllocations().isEmpty()));
+    }
+
+    @FXML
+    private void confirmAllocation() {
+        if (confirming || !AppServices.allocationPreviewEnabled()
+                || confirmAllocationButton.isDisabled() || displayed == null) {
+            return;
+        }
+        BatchAllocationPreview approved = displayed;
+        int year = displayedYear;
+        int week = displayedWeek;
+        var admin = AppServices.currentUser();
+        long fullLines = approved.getItems().stream().filter(row -> !row.getAllocations().isEmpty()).count();
+        long orderCount = approved.getItems().stream().mapToLong(row -> row.getAllocations().size()).sum();
+        String weekLabel = String.format(Locale.ROOT, "%04d-W%02d", year, week);
+
+        confirming = true;
+        setInputsDisabled(true);
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION,
+                "Confirm all " + fullLines + " fully supplied demand lines in " + weekLabel
+                        + " and create " + orderCount + " PENDING orders?\n\n"
+                        + "The remaining " + (approved.getItems().size() - fullLines)
+                        + " demand lines will stay unallocated. Weekly supply will be deducted.",
+                ButtonType.CANCEL, ButtonType.OK);
+        confirmation.setTitle("Confirm weekly allocation");
+        confirmation.setHeaderText("Confirm the entire weekly proposal");
+        confirmation.initOwner(previewRoot.getScene().getWindow());
+        if (confirmation.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) {
+            finishConfirmation();
+            return;
+        }
+        if (!AppServices.allocationPreviewEnabled() || !AppServices.currentUser().equals(admin)) {
+            finishConfirmation();
+            resetPreview();
+            return;
+        }
+
+        resetPreview();
+        previewStatus.setText("Confirming " + weekLabel + "…");
+        previewRoot.setDisable(true);
+        confirmationWindow = previewRoot.getScene().getWindow();
+        confirmationWindow.addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, blockClose);
+        Task<AllocationConfirmationService.ConfirmationResult> task = new Task<>() {
+            @Override
+            protected AllocationConfirmationService.ConfirmationResult call() throws Exception {
+                return new AllocationConfirmationService().confirm(year, week, approved);
+            }
+        };
+        task.setOnSucceeded(event -> {
+            finishConfirmation();
+            if (!AppServices.allocationPreviewEnabled() || !AppServices.currentUser().equals(admin)) {
+                resetPreview();
+                return;
+            }
+            var result = task.getValue();
+            previewStatus.setText("Confirmed " + weekLabel + ". Load Preview to see the remaining demand.");
+            confirmationResult.setText("Created PENDING order IDs: " + result.orderIds()
+                    + "\nAllocated demand IDs: " + result.allocatedDemandIds()
+                    + "\nAllocated lines: " + result.allocatedItems()
+                    + " · Unallocated lines: " + result.unallocatedItems());
+            confirmationResult.setVisible(true);
+            confirmationResult.setManaged(true);
+        });
+        task.setOnFailed(event -> {
+            finishConfirmation();
+            if (!AppServices.allocationPreviewEnabled() || !AppServices.currentUser().equals(admin)) {
+                resetPreview();
+                return;
+            }
+            if (task.getException() instanceof IllegalStateException
+                    && "Preview has changed. Display a fresh preview and confirm again."
+                            .equals(task.getException().getMessage())) {
+                previewStatus.setText("The preview changed. Load a fresh preview and review it before confirming.");
+            } else {
+                previewStatus.setText("Confirmation could not be verified. Check orders and supply in pgAdmin, then load a fresh preview.");
+            }
+        });
+        Thread.ofVirtual().name("confirm-weekly-allocation").start(task);
+    }
+
+    private void finishConfirmation() {
+        if (confirmationWindow != null) {
+            confirmationWindow.removeEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, blockClose);
+            confirmationWindow = null;
+        }
+        confirming = false;
+        previewRoot.setDisable(false);
+        setInputsDisabled(!AppServices.allocationPreviewEnabled());
     }
 
     @FXML
     private void goBack() {
+        if (confirming) {
+            return;
+        }
         SceneNavigator.back(previewRoot, "/com/coffeemongers/admin/AdminDashboard.fxml",
                 "Coffee Mongers · Admin Dashboard");
     }

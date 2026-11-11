@@ -31,4 +31,16 @@
 ## 2026-11-11 — JavaFX weekly allocation preview
 
 - A separately configured PostgreSQL test Admin can view the batch preview for all open, unallocated demand lines in the selected delivery week. The workspace uses the existing shared allocation service and displays supplier proposals per line.
-- The preview uses a read-only transaction. Confirmation and the resulting order workflow remain in the existing Swing and console entry points.
+- Loading the preview uses a read-only transaction.
+
+## 2026-11-11 — JavaFX weekly confirmation
+
+- The configured test Admin can confirm every fully supplied line in the displayed weekly preview. The JavaFX action calls AllocationConfirmationService with the exact snapshot and ISO week shown.
+- Each confirmation requires an explicit dialog approval. The UI invalidates the preview after each write attempt and blocks repeated confirmation and window closure while the write runs.
+- The backend transaction owns revalidation, supply deduction, allocations, orders and demand status. The JavaFX result lists committed order IDs and fully allocated demand IDs.
+
+## 2026-11-11 — Buyer orders and review integration
+
+- The PostgreSQL test Buyer reads paginated orders scoped to its configured shop, with persisted order items, prices, statuses and review existence.
+- Buyer receipt uses the existing PENDING-to-COMPLETED service. Review submission uses the existing completed-order transaction and one-review-per-order policy.
+- JavaFX database operations run on workers and refresh the persisted list after a successful write. Cards show order details and prices at two decimal places.

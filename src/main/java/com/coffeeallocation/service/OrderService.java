@@ -10,6 +10,13 @@ import java.util.List;
 import java.util.Optional;
 
 public final class OrderService {
+    public List<OrderView.BuyerOrder> findBuyerPage(long shopId, Long beforeId) throws SQLException {
+        if (shopId <= 0 || (beforeId != null && beforeId <= 0)) {
+            throw new IllegalArgumentException("Shop ID and order cursor must be positive.");
+        }
+        return read(dao -> dao.findBuyerPage(shopId, beforeId));
+    }
+
     public boolean completePendingOrder(long shopId, long orderId)
             throws SQLException {
         if (shopId <= 0 || orderId <= 0) {

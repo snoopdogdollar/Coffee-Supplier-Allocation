@@ -30,4 +30,14 @@ public final class OrderView {
             items = List.copyOf(items);
         }
     }
+
+    public record BuyerSummary(long orderId, long demandId, long supplierId,
+                               String supplierName, LocalDate orderDate,
+                               String status, boolean reviewed) {}
+
+    public record BuyerOrder(BuyerSummary summary, List<Line> items) {
+        public BuyerOrder {
+            items = List.copyOf(items);
+        }
+    }
 }

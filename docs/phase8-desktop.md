@@ -81,7 +81,7 @@ $env:COFFEE_TEST_BUYER_PASSWORD = Read-Host 'Test Buyer password' -MaskInput
 mvn javafx:run
 ```
 
-Đăng nhập bằng `buyer@coffeemongers.test`. Mật khẩu Buyer cần ít nhất 10 ký tự, có chữ hoa, chữ thường, số và ký tự đặc biệt. Tạo demand, kiểm tra mã và trạng thái `OPEN`, rồi mở lại app trong cùng terminal để xem demand đã lưu trên dashboard. Chế độ PostgreSQL thử nghiệm chỉ áp dụng cho danh mục và demand của shop được cấu hình.
+Đăng nhập bằng `buyer@coffeemongers.test`. Mật khẩu Buyer cần ít nhất 10 ký tự, có chữ hoa, chữ thường, số và ký tự đặc biệt. Tạo demand, kiểm tra mã và trạng thái `OPEN`, rồi mở lại app trong cùng terminal để xem demand đã lưu trên dashboard. Chế độ PostgreSQL thử nghiệm áp dụng cho danh mục, demand và My Orders của shop được cấu hình.
 
 ## Xem trước phân bổ theo tuần trong JavaFX
 
@@ -94,4 +94,16 @@ mvn javafx:run
 
 Mật khẩu cần ít nhất 10 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt. Đăng nhập bằng `admin@coffeemongers.test` rồi mở **Allocation Preview**. Nhập năm ISO và tuần ISO cần hàng của demand. Hai giá trị này được lưu trong `demands.required_year` và `demands.required_week`. Nguồn cung của supplier cần nằm trong đúng tuần đó và đúng sản phẩm.
 
-Bảng trên hiển thị các dòng demand đang mở và chưa được cấp. Chọn một dòng để xem số lượng đề xuất từ từng supplier. **Unallocated** là lượng chưa được đề xuất cấp cho dòng đó. **Supply Shortfall** là lượng thiếu so với nguồn cung còn tại lượt xử lý. Một dòng thiếu cung sẽ để lại toàn bộ lượng yêu cầu chưa được cấp theo chính sách đủ toàn bộ từng dòng. Màn preview chỉ đọc và dành cho Admin thử nghiệm.
+Bảng trên hiển thị các dòng demand đang mở và chưa được cấp. Chọn một dòng để xem số lượng đề xuất từ từng supplier. **Unallocated** là lượng chưa được đề xuất cấp cho dòng đó. **Supply Shortfall** là lượng thiếu so với nguồn cung còn tại lượt xử lý. Một dòng thiếu cung sẽ để lại toàn bộ lượng yêu cầu chưa được cấp theo chính sách đủ toàn bộ từng dòng.
+
+Khi có ít nhất một dòng đủ cung, nút **Confirm Allocation** ở thanh cố định dưới màn hình được bật. Hộp thoại xác nhận nêu rõ tuần, số dòng đủ cung và số order dự kiến cho toàn bộ tuần đã xem. Sau khi đồng ý, backend kiểm tra lại snapshot, trừ nguồn cung, ghi allocations, tạo order `PENDING` và chuyển các demand được đáp ứng đầy đủ sang `ALLOCATED` trong cùng transaction.
+
+Kết quả hiển thị mã order, mã demand đã cập nhật và số dòng đã/chưa phân bổ. Bấm **Load Preview** để xem các dòng còn lại. Khi preview đã thay đổi, cần tải lại và xem xét trước khi xác nhận lần nữa. Nếu app báo kết quả ghi chưa được xác minh do mất kết nối, kiểm tra `orders` và nguồn cung trong pgAdmin trước khi thực hiện thêm thao tác. Tài khoản được phép xác nhận là Admin thử nghiệm đã cấu hình ở trên.
+
+## Buyer My Orders, nhận hàng và review
+
+Đăng nhập `buyer@coffeemongers.test` với `COFFEE_TEST_SHOP_ID` của shop đã tạo demand. Mở **My Orders** từ Buyer Dashboard. Màn hình đọc order theo shop, gồm mã demand, supplier, ngày tạo, trạng thái và các dòng sản phẩm với số lượng, đơn giá, thành tiền đã lưu. **Load More** tải tiếp từng trang 20 order; **Refresh Orders** tải lại từ trang mới nhất.
+
+Đối với order `PENDING`, bấm **Confirm received** và xác nhận đã nhận hàng để chuyển sang `COMPLETED`. Sau đó bấm **Review supplier**, chọn ba tiêu chí chất lượng, số lượng, đúng hẹn và nhập ghi chú tối đa 255 ký tự. Sau khi lưu thành công, nút hiển thị **Review submitted**. Backend kiểm tra shop sở hữu order, trạng thái và review đã có trong transaction.
+
+Nếu mất kết nối khi ghi, tải lại danh sách để kiểm tra trạng thái trước khi thử thêm thao tác. Một review đã lưu sẽ tiếp tục hiển thị sau khi khởi động lại app. My Orders dùng dữ liệu của shop đang được cấu hình cho tài khoản Buyer thử nghiệm.

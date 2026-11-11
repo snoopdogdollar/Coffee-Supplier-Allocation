@@ -5,6 +5,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public final class OrderQueryDao {
     private final Connection connection;
@@ -29,6 +31,62 @@ public final class OrderQueryDao {
 
     public OrderQueryDao(Connection connection) {
         this.connection = connection;
+    }
+
+    public List<OrderView.BuyerOrder> findBuyerPage(long shopId, Long beforeId) throws SQLException {
+        String sql = """
+                WITH page AS (
+                    SELECT o.order_id, o.allocation_id, o.supplier_id, o.order_date, o.status
+                    FROM orders o
+                    WHERE o.shop_id = ?
+                """ + (beforeId == null ? "" : " AND o.order_id < ?\n") + """
+                    ORDER BY o.order_id DESC
+                    LIMIT 21
+                )
+                SELECT page.order_id, di.demand_id, page.supplier_id, s.name AS supplier_name,
+                       page.order_date, page.status,
+                       EXISTS (
+                           SELECT 1 FROM supplier_reviews r
+                           WHERE r.order_id = page.order_id AND r.supplier_id = page.supplier_id
+                       ) AS reviewed,
+                       oi.order_item_id, oi.product_id, p.name AS product_name, p.unit,
+                       oi.quantity, oi.unit_price, oi.total_price
+                FROM page
+                JOIN allocations a ON a.allocation_id = page.allocation_id
+                JOIN demand_items di ON di.demand_item_id = a.demand_item_id
+                JOIN suppliers s ON s.supplier_id = page.supplier_id
+                LEFT JOIN order_items oi ON oi.order_id = page.order_id
+                LEFT JOIN coffee_products p ON p.product_id = oi.product_id
+                ORDER BY page.order_id DESC, oi.order_item_id
+                """;
+
+        Map<Long, OrderView.BuyerSummary> summaries = new LinkedHashMap<>();
+        Map<Long, List<OrderView.Line>> items = new LinkedHashMap<>();
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, shopId);
+            if (beforeId != null) {
+                statement.setLong(2, beforeId);
+            }
+            try (ResultSet rows = statement.executeQuery()) {
+                while (rows.next()) {
+                    long orderId = rows.getLong("order_id");
+                    summaries.putIfAbsent(orderId, new OrderView.BuyerSummary(orderId,
+                            rows.getLong("demand_id"), rows.getLong("supplier_id"),
+                            rows.getString("supplier_name"), rows.getDate("order_date").toLocalDate(),
+                            rows.getString("status"), rows.getBoolean("reviewed")));
+                    if (rows.getObject("order_item_id") != null) {
+                        items.computeIfAbsent(orderId, ignored -> new ArrayList<>()).add(
+                                new OrderView.Line(rows.getLong("product_id"), rows.getString("product_name"),
+                                        rows.getString("unit"), rows.getBigDecimal("quantity"),
+                                        rows.getBigDecimal("unit_price"), rows.getBigDecimal("total_price")));
+                    }
+                }
+            }
+        }
+        return summaries.values().stream()
+                .map(summary -> new OrderView.BuyerOrder(summary,
+                        items.getOrDefault(summary.orderId(), List.of())))
+                .toList();
     }
 
     public List<OrderView.Summary> findPage(Long beforeId)

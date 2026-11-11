@@ -37,6 +37,10 @@ public final class AppServices {
         return liveBuyerDemands().isPresent();
     }
 
+    public static Optional<BuyerOrderService> liveBuyerOrders() {
+        return liveBuyerDemands().map(BuyerDemandService::orders);
+    }
+
     public static boolean allocationPreviewEnabled() {
         return System.getenv(TEST_ADMIN_PASSWORD_ENV) != null
                 && SESSION.activeWorkspace() == AccountRole.ADMIN

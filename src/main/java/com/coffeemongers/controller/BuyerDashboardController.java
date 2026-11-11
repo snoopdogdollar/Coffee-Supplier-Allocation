@@ -66,12 +66,13 @@ public class BuyerDashboardController {
     }
 
     private void setupTestDashboard(BuyerDemandService service) {
-        dashboardSubtitle.setText("PostgreSQL test workspace · Create and review your shop's demands.");
+        dashboardSubtitle.setText("PostgreSQL test workspace · Your shop's demands and orders.");
         demandCountTitle.setText("Recent Demands");
         demandCountCaption.setText("Up to 20 requests for this shop");
         pendingCountTitle.setText("Open Demands");
         pendingCountCaption.setText("Open requests in this list");
-        for (var node : List.of(matchingNavButton, ordersNavButton, suppliersNavButton, profileNavButton,
+        ordersNavButton.setOnAction(event -> openMyOrders());
+        for (var node : List.of(matchingNavButton, suppliersNavButton, profileNavButton,
                 supplierSection, ordersSection, orderStat)) {
             node.setVisible(false);
             node.setManaged(false);

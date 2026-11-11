@@ -39,6 +39,10 @@ public final class BuyerDemandService {
         this.shopId = shopId;
     }
 
+    BuyerOrderService orders() {
+        return new BuyerOrderService(shopId);
+    }
+
     public List<Product> products() throws SQLException {
         try (Connection connection = DatabaseConnection.getConnection()) {
             connection.setReadOnly(true);
