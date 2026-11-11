@@ -44,3 +44,9 @@
 - The PostgreSQL test Buyer reads paginated orders scoped to its configured shop, with persisted order items, prices, statuses and review existence.
 - Buyer receipt uses the existing PENDING-to-COMPLETED service. Review submission uses the existing completed-order transaction and one-review-per-order policy.
 - JavaFX database operations run on workers and refresh the persisted list after a successful write. Cards show order details and prices at two decimal places.
+
+## 2026-11-11 — Supplier weekly supply integration
+
+- The configured PostgreSQL test Supplier reads and writes supply for its own supplier ID and active supplier-product links.
+- New records use the existing unique supplier-product/week constraint. Editing preserves the record's product and ISO week and recomputes remaining quantity after locking the latest supply row.
+- Declared quantity cannot fall below the committed quantity. Deletion requires zero committed quantity and no allocation history. Existing order and allocation price snapshots are preserved.

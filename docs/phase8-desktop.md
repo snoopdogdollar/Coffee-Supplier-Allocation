@@ -107,3 +107,31 @@ Kết quả hiển thị mã order, mã demand đã cập nhật và số dòng 
 Đối với order `PENDING`, bấm **Confirm received** và xác nhận đã nhận hàng để chuyển sang `COMPLETED`. Sau đó bấm **Review supplier**, chọn ba tiêu chí chất lượng, số lượng, đúng hẹn và nhập ghi chú tối đa 255 ký tự. Sau khi lưu thành công, nút hiển thị **Review submitted**. Backend kiểm tra shop sở hữu order, trạng thái và review đã có trong transaction.
 
 Nếu mất kết nối khi ghi, tải lại danh sách để kiểm tra trạng thái trước khi thử thêm thao tác. Một review đã lưu sẽ tiếp tục hiển thị sau khi khởi động lại app. My Orders dùng dữ liệu của shop đang được cấu hình cho tài khoản Buyer thử nghiệm.
+
+## Supplier Weekly Supply dùng PostgreSQL
+
+Trong cùng terminal đã cấu hình `DB_URL`, `DB_USER`, `DB_PASSWORD` của database thử nghiệm, chọn một supplier đang hoạt động và đặt tài khoản Supplier thử nghiệm:
+
+```powershell
+$env:COFFEE_TEST_SUPPLIER_ID = Read-Host 'Supplier ID'
+$env:COFFEE_TEST_SUPPLIER_PASSWORD = [System.Net.NetworkCredential]::new('', (Read-Host 'Test Supplier password' -AsSecureString)).Password
+mvn javafx:run
+```
+
+Mật khẩu có ít nhất 10 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt. Đăng nhập `supplier@coffeemongers.test`, mở **Weekly Supply**, chọn ngày trong tuần cần cung và sản phẩm đã được liên kết với supplier. Có thể xem các liên kết đang hoạt động trong pgAdmin bằng:
+
+```sql
+SELECT s.supplier_id, s.name AS supplier_name,
+       sp.supplier_product_id, p.product_id, p.name AS product_name, p.unit
+FROM suppliers s
+JOIN supplier_products sp ON sp.supplier_id = s.supplier_id
+JOIN coffee_products p ON p.product_id = sp.product_id
+WHERE s.is_active AND sp.is_active AND p.is_active
+ORDER BY s.supplier_id, p.product_id;
+```
+
+Nhập lượng cung ban đầu và đơn giá rồi bấm **Save**. Chọn một dòng để sửa lượng và giá cho đúng sản phẩm, tuần của dòng đó. **Clear** chuyển về tạo mới. **Refresh** đọc lại dữ liệu. Số lượng và giá hỗ trợ hai chữ số thập phân. Mỗi supplier-product có một bản ghi cho mỗi tuần ISO.
+
+Khi sửa, transaction khóa bản ghi rồi tính lượng đã cam kết bằng `initial_quantity - remaining_quantity`. Lượng mới phải đủ cho phần đã cam kết. Phần còn lại được tính lại từ lượng mới. **Delete selected** chỉ xóa được bản ghi chưa có lượng cam kết và chưa có lịch sử allocation.
+
+Để kiểm tra xuyên luồng, lưu nguồn cung đúng sản phẩm và tuần của một demand đang mở, đăng nhập Admin thử nghiệm rồi tải lại **Allocation Preview** cho tuần đó. Sau xác nhận, Supplier tải lại Weekly Supply để kiểm tra lượng còn lại. Các màn demo vẫn có thể sử dụng bằng tài khoản demo riêng.

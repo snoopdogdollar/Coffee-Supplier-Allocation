@@ -5,41 +5,30 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
-public class CoffeeShopDao {
-
-    private final Connection connection;
+public class CoffeeShopDao extends AbstractCatalogDao<CoffeeShop> {
 
     public CoffeeShopDao(Connection connection) {
-        this.connection = connection;
+        super(connection);
     }
 
-    public List<CoffeeShop> findActive() throws SQLException {
-        String sql = """
+    @Override
+    protected String activeQuery() {
+        return """
                 SELECT shop_id, name
                 FROM coffee_shops
                 WHERE is_active = ?
                 ORDER BY name, shop_id
                 """;
+    }
 
-        List<CoffeeShop> shops = new ArrayList<>();
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setBoolean(1, true);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                while (resultSet.next()) {
-                    shops.add(new CoffeeShop(
-                        resultSet.getLong("shop_id"), resultSet.getString("name")
-                    ));
-                }
-            }
-        }
-        return shops;
+    @Override
+    protected CoffeeShop mapRow(ResultSet row) throws SQLException {
+        return new CoffeeShop(row.getLong("shop_id"), row.getString("name"));
     }
 
     public boolean lockActiveById(long shopId) throws SQLException {
-        if (connection.getAutoCommit()) {
+        if (connection().getAutoCommit()) {
             throw new SQLException("Locking a shop requires a service transaction.");
         }
 
@@ -50,7 +39,7 @@ public class CoffeeShopDao {
                 FOR SHARE
                 """;
 
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (PreparedStatement statement = connection().prepareStatement(sql)) {
             statement.setLong(1, shopId);
             try (ResultSet resultSet = statement.executeQuery()) {
                 return resultSet.next();

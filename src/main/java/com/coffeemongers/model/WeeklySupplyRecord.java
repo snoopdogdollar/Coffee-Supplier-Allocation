@@ -6,7 +6,12 @@ import java.time.LocalDate;
 /** UI row assembled from SUPPLIER_WEEKLY_SUPPLY and its supplier-product/product joins. */
 public record WeeklySupplyRecord(String id, String supplierId, String productName, LocalDate weekStart,
                                  BigDecimal initialQuantity, BigDecimal remainingQuantity,
-                                 BigDecimal unitPrice, String unit) {
+                                 BigDecimal unitPrice, String unit, long supplierProductId) {
+    public WeeklySupplyRecord(String id, String supplierId, String productName, LocalDate weekStart,
+                              BigDecimal initialQuantity, BigDecimal remainingQuantity,
+                              BigDecimal unitPrice, String unit) {
+        this(id, supplierId, productName, weekStart, initialQuantity, remainingQuantity, unitPrice, unit, 0);
+    }
     public WeeklySupplyRecord(String id, String supplierId, String productName, LocalDate weekStart,
                               BigDecimal initialQuantity, BigDecimal remainingQuantity, BigDecimal unitPrice) {
         this(id, supplierId, productName, weekStart, initialQuantity, remainingQuantity, unitPrice, "kg");

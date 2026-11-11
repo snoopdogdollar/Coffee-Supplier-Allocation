@@ -18,6 +18,8 @@ public final class InMemoryAuthenticationService implements AuthenticationServic
     static final String TEST_BUYER_EMAIL = "buyer@coffeemongers.test";
     static final String TEST_ADMIN_ID = "integration-admin";
     static final String TEST_ADMIN_EMAIL = "admin@coffeemongers.test";
+    static final String TEST_SUPPLIER_ID = "integration-supplier";
+    static final String TEST_SUPPLIER_EMAIL = "supplier@coffeemongers.test";
     private static final int ITERATIONS = 120_000;
     private static final int KEY_BITS = 256;
     private static final Pattern EMAIL = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$", Pattern.CASE_INSENSITIVE);
@@ -26,10 +28,11 @@ public final class InMemoryAuthenticationService implements AuthenticationServic
     private final SecureRandom random = new SecureRandom();
 
     public InMemoryAuthenticationService(SessionService sessions) {
-        this(sessions, null, null);
+        this(sessions, null, null, null);
     }
 
-    InMemoryAuthenticationService(SessionService sessions, String testBuyerPassword, String testAdminPassword) {
+    InMemoryAuthenticationService(SessionService sessions, String testBuyerPassword, String testAdminPassword,
+                                  String testSupplierPassword) {
         this.sessions = Objects.requireNonNull(sessions);
         DemoUser admin = new DemoUser("demo-admin", "Coffee Mongers Admin", ADMIN_EMAIL, AccountRole.ADMIN);
         credentials.put(ADMIN_EMAIL, credential(admin, ADMIN_PASSWORD.toCharArray()));
@@ -37,6 +40,8 @@ public final class InMemoryAuthenticationService implements AuthenticationServic
                 testBuyerPassword);
         addTestAccount(new DemoUser(TEST_ADMIN_ID, "Test Admin", TEST_ADMIN_EMAIL, AccountRole.ADMIN),
                 testAdminPassword);
+        addTestAccount(new DemoUser(TEST_SUPPLIER_ID, "Test Supplier", TEST_SUPPLIER_EMAIL, AccountRole.SUPPLIER),
+                testSupplierPassword);
     }
 
     private void addTestAccount(DemoUser user, String configuredPassword) {

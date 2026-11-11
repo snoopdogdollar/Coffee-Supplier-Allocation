@@ -10,10 +10,12 @@ import java.util.function.Function;
 public final class AppServices {
     private static final SessionService SESSION = new InMemorySessionService();
     private static final Optional<BuyerDemandService> TEST_BUYER_DEMANDS = configureTestBuyer();
+    private static final Optional<SupplierSupplyService> TEST_SUPPLIER_SUPPLY = configureTestSupplier();
     private static final String TEST_ADMIN_PASSWORD_ENV = "COFFEE_TEST_ADMIN_PASSWORD";
     private static final AuthenticationService AUTHENTICATION = new InMemoryAuthenticationService(
             SESSION, TEST_BUYER_DEMANDS.isPresent() ? System.getenv("COFFEE_TEST_BUYER_PASSWORD") : null,
-            System.getenv(TEST_ADMIN_PASSWORD_ENV));
+            System.getenv(TEST_ADMIN_PASSWORD_ENV),
+            TEST_SUPPLIER_SUPPLY.isPresent() ? System.getenv("COFFEE_TEST_SUPPLIER_PASSWORD") : null);
     private static final ConcurrentHashMap<String, MarketplaceService> MARKETPLACES = new ConcurrentHashMap<>();
     private static final DemoOrderHub DEMO_ORDER_HUB = new DemoOrderHub();
     private static final String GUEST = "__guest_preview__";
@@ -39,6 +41,28 @@ public final class AppServices {
 
     public static Optional<BuyerOrderService> liveBuyerOrders() {
         return liveBuyerDemands().map(BuyerDemandService::orders);
+    }
+
+    public static Optional<SupplierSupplyService> liveSupplierSupply() {
+        return SESSION.currentUser()
+                .filter(user -> user.role() == AccountRole.SUPPLIER
+                        && user.userId().equals(InMemoryAuthenticationService.TEST_SUPPLIER_ID))
+                .flatMap(user -> TEST_SUPPLIER_SUPPLY);
+    }
+
+    private static Optional<SupplierSupplyService> configureTestSupplier() {
+        String supplierId = System.getenv("COFFEE_TEST_SUPPLIER_ID");
+        if (supplierId == null || supplierId.isBlank()) {
+            return Optional.empty();
+        }
+        if (System.getenv("COFFEE_TEST_SUPPLIER_PASSWORD") == null) {
+            throw new IllegalStateException("Set COFFEE_TEST_SUPPLIER_PASSWORD to enable the PostgreSQL test supplier.");
+        }
+        try {
+            return Optional.of(new SupplierSupplyService(Long.parseLong(supplierId.strip())));
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalStateException("COFFEE_TEST_SUPPLIER_ID must be a positive supplier ID.", exception);
+        }
     }
 
     public static boolean allocationPreviewEnabled() {
@@ -72,7 +96,7 @@ public final class AppServices {
         MARKETPLACES.clear();
     }
     public static String environmentStatus() {
-        if (buyerIntegrationEnabled()) {
+        if (buyerIntegrationEnabled() || liveSupplierSupply().isPresent()) {
             return "POSTGRESQL TEST";
         }
         String key=SESSION.currentUser().map(DemoUser::email).orElse(GUEST);
