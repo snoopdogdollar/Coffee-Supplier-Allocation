@@ -47,7 +47,11 @@ public class AdminDashboardController {
         } else openManagement("Coffee Products");
     }
     @FXML private void openSupplierProducts(){openManagement("Supplier Products");}
-    @FXML private void openSupply(){openManagement("Supply Monitoring");}
+    @FXML private void openSupply(){
+        if(AppServices.liveAdminSupply().isPresent()) {
+            SceneNavigator.show(screenRoot,"/com/coffeemongers/admin/SupplyMonitoring.fxml","Coffee Mongers · Supply Monitoring");
+        } else openManagement("Supply Monitoring");
+    }
     @FXML private void openReviews(){openManagement("Reviews");}
     @FXML private void openAllocationPreview() {
         if (AppServices.allocationPreviewEnabled()) {

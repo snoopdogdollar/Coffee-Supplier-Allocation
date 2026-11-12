@@ -68,6 +68,11 @@ public final class AppServices {
                 ? Optional.of(new com.coffeeallocation.service.AdminActivityService()) : Optional.empty();
     }
 
+    public static Optional<com.coffeeallocation.service.AdminSupplyService> liveAdminSupply() {
+        return allocationPreviewEnabled()
+                ? Optional.of(new com.coffeeallocation.service.AdminSupplyService()) : Optional.empty();
+    }
+
     public static Optional<com.coffeeallocation.service.AdminBusinessPartyService> liveAdminParties(
             com.coffeeallocation.model.BusinessPartyType type) {
         return allocationPreviewEnabled()

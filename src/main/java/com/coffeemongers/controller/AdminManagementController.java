@@ -65,6 +65,13 @@ public class AdminManagementController {
         VBox body=new VBox(10,new Label("Current supplier catalog links"),new HBox(9,picker,add,remove),table);VBox.setVgrow(table,Priority.ALWAYS);body.getStyleClass().add("section-card");tables.put("Supplier Products",table);return new Tab("Supplier Products",body);
     }
     private Tab supplyTab(){
+        if(AppServices.liveAdminSupply().isPresent()) {
+            Button open=new Button("Open Supply Monitoring");open.setId("openLiveSupplyButton");open.getStyleClass().add("primary-button");
+            open.setOnAction(event -> SceneNavigator.show(screenRoot,
+                    "/com/coffeemongers/admin/SupplyMonitoring.fxml","Coffee Mongers · Supply Monitoring"));
+            VBox body=new VBox(12,new Label("Monitor PostgreSQL weekly supply across suppliers."),open);body.getStyleClass().add("section-card");
+            return new Tab("Supply Monitoring",body);
+        }
         TableView<AdminRow> table=table("Supply Monitoring",new String[]{"Supplier","Product","Week / Year","Remaining"},new double[]{200,240,140,130});
         VBox body=monitorBody("Weekly supplier quantity · remaining supply is allocation controlled",table);tables.put("Supply Monitoring",table);return new Tab("Supply Monitoring",body);
     }
@@ -98,7 +105,7 @@ public class AdminManagementController {
         sources.get("Suppliers").setAll(service.adminSuppliers().stream().map(s->new AdminRow("Supplier",Long.toString(s.supplierId()),s.name(),s.contactPerson()+" · "+s.phone()+" · "+s.email()+" · "+s.address(),s.isActive()?"Active":"Inactive")).toList());
         sources.get("Coffee Products").setAll(service.adminCoffeeProducts().stream().map(p->new AdminRow("Coffee Product",Long.toString(p.productId()),p.name(),p.variety()+" · "+p.unit()+" · "+p.description(),p.isActive()?"Active":"Inactive")).toList());
         tables.get("Supplier Products").getItems().setAll(service.adminSupplierProducts().stream().map(name->new AdminRow("Cau Dat Coffee Farm",name,"Active",""," ")).toList());
-        tables.get("Supply Monitoring").getItems().setAll(service.adminWeeklySupply().stream().map(row->new AdminRow(row.supplierId(),row.productName(),"Week "+row.week()+" · "+row.year(),row.remainingQuantity()+" "+row.unit(),"")).toList());
+        if(tables.containsKey("Supply Monitoring")) tables.get("Supply Monitoring").getItems().setAll(service.adminWeeklySupply().stream().map(row->new AdminRow(row.supplierId(),row.productName(),"Week "+row.week()+" · "+row.year(),row.remainingQuantity()+" "+row.unit(),"")).toList());
         tables.get("Reviews").getItems().setAll(service.adminReviews().stream().map(row->new AdminRow(row.supplierId(),row.orderId(),"Quality "+yes(row.qualityOk())+" · Quantity "+yes(row.quantityOk())+" · On time "+yes(row.onTimeOk()),row.comment(),row.createdOn().toString())).toList());
         if(tables.containsKey("Market Activity")) {
             List<AdminRow> activity=new ArrayList<>();service.adminRecentDemands().forEach(d->activity.add(new AdminRow("Demand",d.id(),d.title()+" · "+d.items().size()+" product line(s)",d.requestDate().toString(),"Submitted")));service.adminOrders().forEach(o->activity.add(new AdminRow("Order",o.id(),o.supplierName()+" · "+o.items().size()+" line(s)",o.createdOn().toString(),o.status())));tables.get("Market Activity").getItems().setAll(activity);

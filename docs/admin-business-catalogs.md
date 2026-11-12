@@ -32,7 +32,7 @@ retry or database Undo is registered. The fixed catalog enum selects the two SQL
 tables; user input is always bound through PreparedStatement.
 
 No schema changes or extra dependencies are required. Orders & Activity also reads
-PostgreSQL; supply monitoring, supplier-product administration, reviews and overview
+PostgreSQL; Supply Monitoring also reads PostgreSQL. Supplier-product administration, reviews and overview
 retain their demo labels. Verification uses a disposable local PostgreSQL
 database and does not modify the user's coffee_supplier_allocation database.
 

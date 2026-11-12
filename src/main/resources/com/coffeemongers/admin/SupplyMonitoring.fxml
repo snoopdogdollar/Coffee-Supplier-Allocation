@@ -1,0 +1,29 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coffeemongers.controller.AdminSupplyController" fx:id="screenRoot" styleClass="main-layout">
+ <top><HBox spacing="10" alignment="CENTER_LEFT" styleClass="topbar">
+  <Button fx:id="backButton" text="← Back" onAction="#goBack" styleClass="back-button"/>
+  <Label text="Supply Monitoring" styleClass="section-title"/><Region HBox.hgrow="ALWAYS"/>
+  <Label text="POSTGRESQL TEST" styleClass="week-badge"/><Label text="☕ Coffee Mongers" styleClass="brand"/>
+ </HBox></top>
+ <center><VBox spacing="14" styleClass="content">
+  <Label text="Weekly supply across suppliers" styleClass="page-title"/>
+  <Label text="Compare supply for a selected ISO week, or select All weeks to include every year and week." wrapText="true" styleClass="subtitle"/>
+  <CheckBox fx:id="allWeeksCheckBox" text="All weeks (all years)"/>
+  <HBox spacing="12" alignment="BOTTOM_LEFT">
+   <VBox spacing="4"><Label text="ISO year"/><TextField fx:id="yearField" prefWidth="90" maxWidth="90" onAction="#loadWeek"/></VBox>
+   <VBox spacing="4"><Label text="ISO week"/><TextField fx:id="weekField" prefWidth="75" maxWidth="75" onAction="#loadWeek"/></VBox>
+   <VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Supplier"/><TextField fx:id="supplierField" promptText="Name or ID · blank for all suppliers" onAction="#loadWeek"/></VBox>
+   <VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Coffee product"/><TextField fx:id="productField" promptText="Name or ID · blank for all products" onAction="#loadWeek"/></VBox>
+   <Button fx:id="loadWeekButton" text="Load Week" onAction="#loadWeek" styleClass="primary-button"/>
+   <Button fx:id="refreshButton" text="Refresh" onAction="#loadWeek" styleClass="outline-button"/>
+  </HBox>
+  <Label fx:id="loadedWeekLabel" text="No week loaded yet." wrapText="true" styleClass="subtitle"/>
+  <TableView fx:id="supplyTable" styleClass="data-table" VBox.vgrow="ALWAYS"/>
+ </VBox></center>
+ <bottom><VBox spacing="10" styleClass="content">
+  <Label text="Committed = Initial − Remaining. Receipt and review do not deduct supply again. Available means the supplier, product and offering are active and some quantity remains; an allocation still depends on the demand." wrapText="true" styleClass="small-text"/>
+  <HBox spacing="12" alignment="CENTER_LEFT"><Button fx:id="loadMoreButton" text="Load More" onAction="#loadMore" styleClass="outline-button"/><Label text="20 records per page · monitoring only" styleClass="small-text"/></HBox>
+  <Label fx:id="statusLabel" wrapText="true" styleClass="status-message"/>
+ </VBox></bottom>
+</BorderPane>
