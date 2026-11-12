@@ -1,0 +1,46 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+ fx:controller="com.coffeemongers.controller.AdminBusinessPartiesController" fx:id="screenRoot" styleClass="main-layout">
+ <top><HBox alignment="CENTER_LEFT" spacing="10" styleClass="topbar">
+  <Button fx:id="backButton" text="← Back" onAction="#goBack" styleClass="back-button"/>
+  <Label fx:id="sectionLabel" text="Business Catalog" styleClass="section-title"/><Region HBox.hgrow="ALWAYS"/>
+  <Label text="POSTGRESQL TEST" styleClass="week-badge"/><Label text="☕ Coffee Mongers" styleClass="brand"/>
+ </HBox></top>
+ <center><VBox spacing="12" styleClass="content">
+  <Label fx:id="titleLabel" text="Suppliers and Coffee Shops" styleClass="page-title"/>
+  <Label text="Manage business details and activity status. Adding a business record does not create a sign-in account." styleClass="subtitle" wrapText="true"/>
+  <HBox spacing="10" alignment="CENTER_LEFT">
+   <TextField fx:id="searchField" promptText="Search by ID, name or contact details" HBox.hgrow="ALWAYS"/>
+   <Button fx:id="refreshPartiesButton" text="Refresh" onAction="#refresh" styleClass="outline-button"/>
+   <Button fx:id="togglePartyButton" text="Deactivate selected" onAction="#changeStatus" styleClass="outline-button"/>
+  </HBox>
+  <TableView fx:id="partiesTable" styleClass="data-table" VBox.vgrow="ALWAYS">
+   <columns>
+    <TableColumn fx:id="idColumn" text="ID" prefWidth="65"/>
+    <TableColumn fx:id="nameColumn" text="Name" prefWidth="220"/>
+    <TableColumn fx:id="contactColumn" text="Contact person" prefWidth="160"/>
+    <TableColumn fx:id="phoneColumn" text="Phone" prefWidth="130"/>
+    <TableColumn fx:id="emailColumn" text="Email" prefWidth="220"/>
+    <TableColumn fx:id="addressColumn" text="Address" prefWidth="310"/>
+    <TableColumn fx:id="statusColumn" text="Status" prefWidth="100"/>
+   </columns>
+  </TableView>
+ </VBox></center>
+ <bottom><VBox spacing="10" styleClass="content">
+  <VBox fx:id="partyForm" spacing="10">
+   <Label fx:id="formTitle" text="Add record" styleClass="section-title"/>
+   <HBox spacing="12">
+    <VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Name (required)"/><TextField fx:id="nameField" promptText="Business name"/></VBox>
+    <VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Contact person"/><TextField fx:id="contactField" promptText="Contact person (optional)"/></VBox>
+    <VBox spacing="4"><Label text="Phone"/><TextField fx:id="phoneField" promptText="Phone (optional)"/></VBox>
+    <VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Email"/><TextField fx:id="emailField" promptText="Contact email (optional)"/></VBox>
+   </HBox>
+   <HBox spacing="12" alignment="CENTER_LEFT">
+    <TextArea fx:id="addressField" promptText="Address (optional, up to 255 characters)" prefRowCount="2" wrapText="true" HBox.hgrow="ALWAYS"/>
+    <Button fx:id="addPartyButton" text="Add record" onAction="#addParty" styleClass="primary-button"/>
+   </HBox>
+  </VBox>
+  <Label fx:id="statusLabel" wrapText="true" styleClass="status-message"/>
+ </VBox></bottom>
+</BorderPane>

@@ -63,6 +63,12 @@ public final class AppServices {
                 ? Optional.of(new com.coffeeallocation.service.AdminCoffeeProductService()) : Optional.empty();
     }
 
+    public static Optional<com.coffeeallocation.service.AdminBusinessPartyService> liveAdminParties(
+            com.coffeeallocation.model.BusinessPartyType type) {
+        return allocationPreviewEnabled()
+                ? Optional.of(new com.coffeeallocation.service.AdminBusinessPartyService(type)) : Optional.empty();
+    }
+
     private static Optional<SupplierSupplyService> configureTestSupplier() {
         String supplierId = System.getenv("COFFEE_TEST_SUPPLIER_ID");
         if (supplierId == null || supplierId.isBlank()) {

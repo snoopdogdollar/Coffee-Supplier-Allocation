@@ -28,8 +28,15 @@ public class AdminDashboardController {
     }
     @FXML private void openOverview(){com.coffeemongers.view.WorkspaceRouter.openHome(screenRoot);}
     @FXML private void openActivity(){openManagement("Market Activity");}
-    @FXML private void openShops(){openManagement("Coffee Shops");}
-    @FXML private void openSuppliers(){openManagement("Suppliers");}
+    @FXML private void openShops(){openParties(com.coffeeallocation.model.BusinessPartyType.SHOP);}
+    @FXML private void openSuppliers(){openParties(com.coffeeallocation.model.BusinessPartyType.SUPPLIER);}
+    private void openParties(com.coffeeallocation.model.BusinessPartyType type) {
+        String section = type == com.coffeeallocation.model.BusinessPartyType.SHOP ? "Coffee Shops" : "Suppliers";
+        if (AppServices.liveAdminParties(type).isPresent()) {
+            SceneNavigator.show(screenRoot,"/com/coffeemongers/admin/BusinessParties.fxml","Coffee Mongers · " + section,
+                    controller -> ((AdminBusinessPartiesController) controller).configure(type));
+        } else openManagement(section);
+    }
     @FXML private void openProducts(){
         if (AppServices.liveAdminProducts().isPresent()) {
             SceneNavigator.show(screenRoot,"/com/coffeemongers/admin/CoffeeProducts.fxml","Coffee Mongers · Coffee Products");

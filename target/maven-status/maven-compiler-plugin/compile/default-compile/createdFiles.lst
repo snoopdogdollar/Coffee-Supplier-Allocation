@@ -38,6 +38,7 @@ com\coffeeallocation\console\MatchingConsole.class
 com\coffeeallocation\model\BatchItemAllocation.class
 com\coffeemongers\model\auth\DemoUser.class
 com\coffeemongers\controller\BuyerDashboardController.class
+com\coffeeallocation\dao\BusinessPartyCatalogDao$1.class
 com\coffeeallocation\algorithm\PricePriority.class
 com\coffeeallocation\dao\CoffeeProductDao.class
 com\coffeeallocation\dao\DemandDao.class

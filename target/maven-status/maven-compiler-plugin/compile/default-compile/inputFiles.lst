@@ -12,6 +12,7 @@ C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\console\SupplierH
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\console\SupplierReviewConsole.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\AbstractCatalogDao.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\AllocationDao.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\BusinessPartyCatalogDao.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\CoffeeProductCatalogDao.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\CoffeeProductDao.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\dao\CoffeeShopDao.java
@@ -30,6 +31,8 @@ C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\Main.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\AvailableSupply.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\BatchAllocationPreview.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\BatchItemAllocation.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\BusinessPartyDetails.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\BusinessPartyType.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\CoffeeProduct.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\CoffeeProductDetails.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\CoffeeShop.java
@@ -40,6 +43,7 @@ C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\OrderView.j
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\SupplierHistory.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\SupplierReview.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\SupplierSupplyView.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\AdminBusinessPartyService.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\AdminCoffeeProductService.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\AllocationConfirmationService.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\DemandService.java
@@ -60,6 +64,7 @@ C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\view\ReviewsPanel
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\view\UiKit.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\view\UiTasks.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\App.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\controller\AdminBusinessPartiesController.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\controller\AdminCoffeeProductsController.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\controller\AdminDashboardController.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\controller\AdminManagementController.java
