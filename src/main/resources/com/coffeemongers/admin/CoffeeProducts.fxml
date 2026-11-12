@@ -1,0 +1,44 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+ fx:controller="com.coffeemongers.controller.AdminCoffeeProductsController" fx:id="screenRoot" styleClass="main-layout">
+ <top><HBox alignment="CENTER_LEFT" spacing="10" styleClass="topbar">
+  <Button fx:id="backButton" text="← Back" onAction="#goBack" styleClass="back-button"/>
+  <Label text="Coffee Products" styleClass="section-title"/><Region HBox.hgrow="ALWAYS"/>
+  <Label text="POSTGRESQL TEST" styleClass="week-badge"/><Label text="☕ Coffee Mongers" styleClass="brand"/>
+ </HBox></top>
+ <center><VBox spacing="12" styleClass="content">
+  <Label text="Shared coffee catalog" styleClass="page-title"/>
+  <Label text="Manage the coffee products available to Buyers and Suppliers. Inactive products stay visible here for their history." styleClass="subtitle" wrapText="true"/>
+  <HBox spacing="10" alignment="CENTER_LEFT">
+   <TextField fx:id="searchField" promptText="Search by ID, name, unit or variety" HBox.hgrow="ALWAYS"/>
+   <Button fx:id="refreshProductsButton" text="Refresh" onAction="#refresh" styleClass="outline-button"/>
+   <Button fx:id="toggleProductButton" text="Deactivate selected" onAction="#changeStatus" styleClass="outline-button"/>
+  </HBox>
+  <TableView fx:id="productsTable" styleClass="data-table" VBox.vgrow="ALWAYS">
+   <columns>
+    <TableColumn fx:id="idColumn" text="ID" prefWidth="75"/>
+    <TableColumn fx:id="nameColumn" text="Name" prefWidth="240"/>
+    <TableColumn fx:id="unitColumn" text="Unit" prefWidth="80"/>
+    <TableColumn fx:id="varietyColumn" text="Variety" prefWidth="140"/>
+    <TableColumn fx:id="descriptionColumn" text="Description" prefWidth="420"/>
+    <TableColumn fx:id="statusColumn" text="Status" prefWidth="100"/>
+   </columns>
+  </TableView>
+ </VBox></center>
+ <bottom><VBox spacing="10" styleClass="content">
+  <VBox fx:id="productForm" spacing="10">
+   <Label text="Add coffee product" styleClass="section-title"/>
+   <HBox spacing="12">
+    <VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Name (required)"/><TextField fx:id="nameField" promptText="Coffee product name"/></VBox>
+    <VBox spacing="4"><Label text="Unit (required)"/><TextField fx:id="unitField" promptText="e.g. kg" prefWidth="100"/></VBox>
+    <VBox spacing="4"><Label text="Variety"/><TextField fx:id="varietyField" promptText="e.g. Arabica"/></VBox>
+   </HBox>
+   <HBox spacing="12" alignment="CENTER_LEFT">
+    <TextArea fx:id="descriptionField" promptText="Description (optional, up to 255 characters)" prefRowCount="2" wrapText="true" HBox.hgrow="ALWAYS"/>
+    <Button fx:id="addProductButton" text="Add Product" onAction="#addProduct" styleClass="primary-button"/>
+   </HBox>
+  </VBox>
+  <Label fx:id="statusLabel" wrapText="true" styleClass="status-message"/>
+ </VBox></bottom>
+</BorderPane>

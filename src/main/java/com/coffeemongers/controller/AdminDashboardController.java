@@ -30,7 +30,11 @@ public class AdminDashboardController {
     @FXML private void openActivity(){openManagement("Market Activity");}
     @FXML private void openShops(){openManagement("Coffee Shops");}
     @FXML private void openSuppliers(){openManagement("Suppliers");}
-    @FXML private void openProducts(){openManagement("Coffee Products");}
+    @FXML private void openProducts(){
+        if (AppServices.liveAdminProducts().isPresent()) {
+            SceneNavigator.show(screenRoot,"/com/coffeemongers/admin/CoffeeProducts.fxml","Coffee Mongers · Coffee Products");
+        } else openManagement("Coffee Products");
+    }
     @FXML private void openSupplierProducts(){openManagement("Supplier Products");}
     @FXML private void openSupply(){openManagement("Supply Monitoring");}
     @FXML private void openReviews(){openManagement("Reviews");}

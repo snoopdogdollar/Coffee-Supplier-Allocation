@@ -71,7 +71,7 @@ class FxmlLoadTest {
 
         if (!completed.await(90, TimeUnit.SECONDS)) fail("FXML load and navigation check timed out");
         if (failure.get() != null) fail("FXML load failed", failure.get());
-        assertEquals(20, count.get());
+        assertEquals(21, count.get());
     }
 
     private void verifySidebarNavigation() throws Exception {

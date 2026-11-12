@@ -38,6 +38,14 @@ public class AdminManagementController {
         VBox body=new VBox(12,actions,table);VBox.setVgrow(table,Priority.ALWAYS);body.getStyleClass().add("section-card");
         var source=FXCollections.<AdminRow>observableArrayList();sources.put(section,source);FilteredList<AdminRow> view=new FilteredList<>(source);filtered.put(section,view);table.setItems(view);
         search.textProperty().addListener((o,old,value)->view.setPredicate(row->value==null||value.isBlank()||row.searchText().contains(value.toLowerCase(Locale.ROOT))));
+        if (section.equals("Coffee Products") && AppServices.liveAdminProducts().isPresent()) {
+            Button open = new Button("Open Coffee Products");
+            open.setId("openLiveProductsButton");
+            open.getStyleClass().add("primary-button");
+            open.setOnAction(event -> SceneNavigator.show(screenRoot,
+                    "/com/coffeemongers/admin/CoffeeProducts.fxml", "Coffee Mongers · Coffee Products"));
+            body.getChildren().setAll(new Label("Manage the shared PostgreSQL coffee catalog."), open);
+        }
         return new Tab(section,body);
     }
     private Tab supplierProductsTab(){

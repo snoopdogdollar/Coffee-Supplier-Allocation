@@ -58,6 +58,11 @@ public final class AppServices {
         return liveSupplierSupply().map(SupplierSupplyService::products);
     }
 
+    public static Optional<com.coffeeallocation.service.AdminCoffeeProductService> liveAdminProducts() {
+        return allocationPreviewEnabled()
+                ? Optional.of(new com.coffeeallocation.service.AdminCoffeeProductService()) : Optional.empty();
+    }
+
     private static Optional<SupplierSupplyService> configureTestSupplier() {
         String supplierId = System.getenv("COFFEE_TEST_SUPPLIER_ID");
         if (supplierId == null || supplierId.isBlank()) {
