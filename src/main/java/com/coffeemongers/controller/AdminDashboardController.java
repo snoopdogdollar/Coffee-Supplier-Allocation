@@ -27,7 +27,11 @@ public class AdminDashboardController {
         ordersTable.setItems(FXCollections.observableArrayList(orders.stream().map(o->new AdminOrderRow(o.id(),"Bếp Cà Phê",o.supplierName(),o.items().stream().map(i->i.quantity().stripTrailingZeros().toPlainString()+" "+i.unit()).reduce((a,b)->a+", "+b).orElse("—"),o.status())).toList()));ordersTable.setPlaceholder(new Label("No demo orders yet. Orders appear here after a buyer confirms allocations."));
     }
     @FXML private void openOverview(){com.coffeemongers.view.WorkspaceRouter.openHome(screenRoot);}
-    @FXML private void openActivity(){openManagement("Market Activity");}
+    @FXML private void openActivity(){
+        if (AppServices.liveAdminActivity().isPresent()) {
+            SceneNavigator.show(screenRoot,"/com/coffeemongers/admin/OrdersActivity.fxml","Coffee Mongers · Orders & Activity");
+        } else openManagement("Market Activity");
+    }
     @FXML private void openShops(){openParties(com.coffeeallocation.model.BusinessPartyType.SHOP);}
     @FXML private void openSuppliers(){openParties(com.coffeeallocation.model.BusinessPartyType.SUPPLIER);}
     private void openParties(com.coffeeallocation.model.BusinessPartyType type) {

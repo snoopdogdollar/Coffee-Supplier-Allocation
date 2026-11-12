@@ -75,6 +75,15 @@ public class AdminManagementController {
     private VBox monitorBody(String caption,TableView<AdminRow> table){VBox body=new VBox(10,new Label(caption),table);VBox.setVgrow(table,Priority.ALWAYS);body.getStyleClass().add("section-card");return body;}
     private TableView<AdminRow> table(String key,String[] titles,double[] widths){TableView<AdminRow> table=new TableView<>();table.getStyleClass().add("data-table");table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);String[] props={"type","id","name","detail","status"};for(int i=0;i<titles.length;i++){final int column=i;table.getColumns().add(column(titles[i],row->switch(column){case 0->row.type();case 1->row.id();case 2->row.name();case 3->row.detail();default->row.status();},widths[i]));}table.setItems(FXCollections.observableArrayList());return table;}
     private Tab activityTab(){
+        if (AppServices.liveAdminActivity().isPresent()) {
+            Button open = new Button("Open Orders & Activity");
+            open.setId("openLiveActivityButton");open.getStyleClass().add("primary-button");
+            open.setOnAction(event -> SceneNavigator.show(screenRoot,
+                    "/com/coffeemongers/admin/OrdersActivity.fxml", "Coffee Mongers · Orders & Activity"));
+            VBox body = new VBox(12, new Label("View PostgreSQL demands and orders."), open);
+            body.getStyleClass().add("section-card");
+            return new Tab("Market Activity", body);
+        }
         TableView<AdminRow> table=new TableView<>();table.getStyleClass().add("data-table");table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         table.getColumns().setAll(column("Type",AdminRow::type,130),column("Reference",AdminRow::id,150),column("Activity",AdminRow::name,330),column("Date",AdminRow::detail,130),column("Status",AdminRow::status,120));
         table.setItems(FXCollections.observableArrayList());
@@ -91,7 +100,9 @@ public class AdminManagementController {
         tables.get("Supplier Products").getItems().setAll(service.adminSupplierProducts().stream().map(name->new AdminRow("Cau Dat Coffee Farm",name,"Active",""," ")).toList());
         tables.get("Supply Monitoring").getItems().setAll(service.adminWeeklySupply().stream().map(row->new AdminRow(row.supplierId(),row.productName(),"Week "+row.week()+" · "+row.year(),row.remainingQuantity()+" "+row.unit(),"")).toList());
         tables.get("Reviews").getItems().setAll(service.adminReviews().stream().map(row->new AdminRow(row.supplierId(),row.orderId(),"Quality "+yes(row.qualityOk())+" · Quantity "+yes(row.quantityOk())+" · On time "+yes(row.onTimeOk()),row.comment(),row.createdOn().toString())).toList());
-        List<AdminRow> activity=new ArrayList<>();service.adminRecentDemands().forEach(d->activity.add(new AdminRow("Demand",d.id(),d.title()+" · "+d.items().size()+" product line(s)",d.requestDate().toString(),"Submitted")));service.adminOrders().forEach(o->activity.add(new AdminRow("Order",o.id(),o.supplierName()+" · "+o.items().size()+" line(s)",o.createdOn().toString(),o.status())));tables.get("Market Activity").getItems().setAll(activity);
+        if(tables.containsKey("Market Activity")) {
+            List<AdminRow> activity=new ArrayList<>();service.adminRecentDemands().forEach(d->activity.add(new AdminRow("Demand",d.id(),d.title()+" · "+d.items().size()+" product line(s)",d.requestDate().toString(),"Submitted")));service.adminOrders().forEach(o->activity.add(new AdminRow("Order",o.id(),o.supplierName()+" · "+o.items().size()+" line(s)",o.createdOn().toString(),o.status())));tables.get("Market Activity").getItems().setAll(activity);
+        }
     }
     private void add(String section){
         Dialog<ButtonType> dialog=new Dialog<>();dialog.setTitle("Add "+section.substring(0,section.length()-1));dialog.setHeaderText("Create a demo record using the schema fields");dialog.getDialogPane().getButtonTypes().setAll(new ButtonType("Save",ButtonBar.ButtonData.OK_DONE),ButtonType.CANCEL);

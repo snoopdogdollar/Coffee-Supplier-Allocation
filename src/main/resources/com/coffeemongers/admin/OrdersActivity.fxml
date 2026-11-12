@@ -1,0 +1,33 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coffeemongers.controller.AdminActivityController" fx:id="screenRoot" styleClass="main-layout">
+ <top><HBox spacing="10" alignment="CENTER_LEFT" styleClass="topbar">
+  <Button fx:id="backButton" text="← Back" onAction="#goBack" styleClass="back-button"/>
+  <Label text="Orders &amp; Activity" styleClass="section-title"/><Region HBox.hgrow="ALWAYS"/>
+  <Label text="POSTGRESQL TEST" styleClass="week-badge"/><Label text="☕ Coffee Mongers" styleClass="brand"/>
+ </HBox></top>
+ <center><VBox spacing="12" styleClass="content">
+  <Label text="Orders and demands" styleClass="page-title"/>
+  <Label text="View marketplace activity across shops and suppliers. Select a row to read product quantities and saved order prices." wrapText="true" styleClass="subtitle"/>
+  <HBox spacing="10">
+   <TextField fx:id="searchField" promptText="Search IDs, shop, supplier, product or status" onAction="#refresh" HBox.hgrow="ALWAYS"/>
+   <Button fx:id="searchButton" text="Search" onAction="#refresh" styleClass="primary-button"/>
+   <Button fx:id="refreshButton" text="Refresh" onAction="#refresh" styleClass="outline-button"/>
+  </HBox>
+  <TabPane fx:id="activityTabs" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+   <tabs>
+    <Tab text="Orders"><content><TableView fx:id="ordersTable" styleClass="data-table"/></content></Tab>
+    <Tab text="Demands"><content><TableView fx:id="demandsTable" styleClass="data-table"/></content></Tab>
+   </tabs>
+  </TabPane>
+ </VBox></center>
+ <bottom><VBox spacing="10" styleClass="content">
+  <HBox spacing="10" alignment="CENTER_LEFT">
+   <Button fx:id="viewDetailsButton" text="View Details" onAction="#viewDetails" styleClass="primary-button"/>
+   <Button fx:id="loadMoreButton" text="Load More" onAction="#loadMore" styleClass="outline-button"/>
+   <Label text="20 records per page in each tab" styleClass="small-text"/>
+  </HBox>
+  <TextArea fx:id="detailsArea" editable="false" wrapText="true" prefRowCount="5" promptText="Select an order or demand, then click View Details."/>
+  <Label fx:id="statusLabel" wrapText="true" styleClass="status-message"/>
+ </VBox></bottom>
+</BorderPane>
