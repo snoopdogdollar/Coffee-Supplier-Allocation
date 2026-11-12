@@ -135,3 +135,9 @@ Nhập lượng cung ban đầu và đơn giá rồi bấm **Save**. Chọn mộ
 Khi sửa, transaction khóa bản ghi rồi tính lượng đã cam kết bằng `initial_quantity - remaining_quantity`. Lượng mới phải đủ cho phần đã cam kết. Phần còn lại được tính lại từ lượng mới. **Delete selected** chỉ xóa được bản ghi chưa có lượng cam kết và chưa có lịch sử allocation.
 
 Để kiểm tra xuyên luồng, lưu nguồn cung đúng sản phẩm và tuần của một demand đang mở, đăng nhập Admin thử nghiệm rồi tải lại **Allocation Preview** cho tuần đó. Sau xác nhận, Supplier tải lại Weekly Supply để kiểm tra lượng còn lại. Các màn demo vẫn có thể sử dụng bằng tài khoản demo riêng.
+
+## Supplier My Orders
+
+Dùng cùng tài khoản `supplier@coffeemongers.test` và `COFFEE_TEST_SUPPLIER_ID` đã cấu hình. Mở **My Orders** trên Supplier Dashboard để đọc order thuộc supplier đó. Mỗi thẻ hiển thị Buyer, mã order/demand, ngày tạo, trạng thái và sản phẩm với số lượng, đơn giá, thành tiền đã lưu.
+
+**Load More** tải tiếp từng trang 20 order. **Refresh Orders** tải lại từ trang mới nhất. Sau khi Buyer bấm **Confirm received**, Supplier bấm **Refresh Orders** để thấy trạng thái `COMPLETED` trong cùng database. Mở lại app cũng đọc trạng thái hiện tại từ PostgreSQL.

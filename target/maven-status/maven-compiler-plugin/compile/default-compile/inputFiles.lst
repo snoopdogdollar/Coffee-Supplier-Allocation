@@ -45,6 +45,7 @@ C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\MatchingS
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\OrderService.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\SharedAllocationService.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\SupplierHistoryService.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\SupplierProductService.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\SupplierReviewService.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\SupplierWeeklySupplyService.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\view\AllocationPanel.java
@@ -112,7 +113,9 @@ C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\service\InMemorySess
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\service\MarketplaceService.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\service\RoleAwareMarketplaceService.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\service\SessionService.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\service\SupplierOrderService.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\service\SupplierSupplyService.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\view\DatabaseMessages.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\view\SceneNavigator.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\view\UndoHistory.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\view\WorkspaceRouter.java

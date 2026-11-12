@@ -50,3 +50,8 @@
 - The configured PostgreSQL test Supplier reads and writes supply for its own supplier ID and active supplier-product links.
 - New records use the existing unique supplier-product/week constraint. Editing preserves the record's product and ISO week and recomputes remaining quantity after locking the latest supply row.
 - Declared quantity cannot fall below the committed quantity. Deletion requires zero committed quantity and no allocation history. Existing order and allocation price snapshots are preserved.
+
+## 2026-11-12 — Supplier incoming orders
+
+- Supplier My Orders uses the configured supplier identity and the shared paginated order query. The query includes Buyer identity, persisted item prices and current order status.
+- The Supplier reads order status and refreshes after Buyer receipt confirmation. Buyer owns the existing PENDING-to-COMPLETED transition.

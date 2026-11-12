@@ -202,4 +202,32 @@ public final class SupplierSupplyDao {
             throw new SQLException("Supplier supply writes and locks require a service transaction.");
         }
     }
+
+    public boolean offerProduct(long supplierId, long productId) throws SQLException {
+        requireTransaction();
+        try (var statement = connection.prepareStatement("""
+                INSERT INTO supplier_products AS offering (supplier_id, product_id, is_active)
+                VALUES (?, ?, TRUE)
+                ON CONFLICT (supplier_id, product_id)
+                DO UPDATE SET is_active = TRUE WHERE NOT offering.is_active
+                """)) {
+            statement.setLong(1, supplierId);
+            statement.setLong(2, productId);
+            return statement.executeUpdate() == 1;
+        }
+    }
+
+    public void stopOffering(long supplierId, long supplierProductId) throws SQLException {
+        requireTransaction();
+        try (var statement = connection.prepareStatement("""
+                UPDATE supplier_products SET is_active = FALSE
+                WHERE supplier_id = ? AND supplier_product_id = ?
+                """)) {
+            statement.setLong(1, supplierId);
+            statement.setLong(2, supplierProductId);
+            if (statement.executeUpdate() != 1) {
+                throw new IllegalArgumentException("Choose a product linked to this supplier.");
+            }
+        }
+    }
 }

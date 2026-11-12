@@ -5,6 +5,7 @@ import com.coffeemongers.service.AppServices;
 import com.coffeemongers.service.SupplierSupplyService;
 import com.coffeeallocation.model.SupplierSupplyView;
 import com.coffeemongers.view.SceneNavigator;
+import com.coffeemongers.view.DatabaseMessages;
 import com.coffeemongers.view.UndoHistory;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -124,8 +125,8 @@ public class SupplierWeeklySupplyController {
             finishRequest();
             if (AppServices.currentUser().equals(supplier) && AppServices.liveSupplierSupply().isPresent()) {
                 Throwable error = task.getException();
-                statusLabel.setText(error instanceof IllegalArgumentException ? error.getMessage()
-                        : "Could not verify the request. Refresh supply before trying again.");
+                statusLabel.setText(DatabaseMessages.describe(error,
+                        "Could not verify the request. Refresh supply before trying again."));
             }
         });
         Thread.ofVirtual().name("supplier-weekly-supply").start(task);

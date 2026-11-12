@@ -34,16 +34,27 @@ public final class OrderQueryDao {
     }
 
     public List<OrderView.BuyerOrder> findBuyerPage(long shopId, Long beforeId) throws SQLException {
+        return findPartyPage("o.shop_id", shopId, beforeId);
+    }
+
+    public List<OrderView.BuyerOrder> findSupplierPage(long supplierId, Long beforeId) throws SQLException {
+        return findPartyPage("o.supplier_id", supplierId, beforeId);
+    }
+
+    // The two public entry points above supply fixed SQL identifiers; values are bound.
+    private List<OrderView.BuyerOrder> findPartyPage(String ownerColumn, long ownerId, Long beforeId)
+            throws SQLException {
         String sql = """
                 WITH page AS (
-                    SELECT o.order_id, o.allocation_id, o.supplier_id, o.order_date, o.status
+                    SELECT o.order_id, o.allocation_id, o.supplier_id, o.shop_id, o.order_date, o.status
                     FROM orders o
-                    WHERE o.shop_id = ?
-                """ + (beforeId == null ? "" : " AND o.order_id < ?\n") + """
+                    WHERE
+                """ + ownerColumn + " = ?\n" + (beforeId == null ? "" : " AND o.order_id < ?\n") + """
                     ORDER BY o.order_id DESC
                     LIMIT 21
                 )
                 SELECT page.order_id, di.demand_id, page.supplier_id, s.name AS supplier_name,
+                       page.shop_id, cs.name AS shop_name,
                        page.order_date, page.status,
                        EXISTS (
                            SELECT 1 FROM supplier_reviews r
@@ -55,6 +66,7 @@ public final class OrderQueryDao {
                 JOIN allocations a ON a.allocation_id = page.allocation_id
                 JOIN demand_items di ON di.demand_item_id = a.demand_item_id
                 JOIN suppliers s ON s.supplier_id = page.supplier_id
+                JOIN coffee_shops cs ON cs.shop_id = page.shop_id
                 LEFT JOIN order_items oi ON oi.order_id = page.order_id
                 LEFT JOIN coffee_products p ON p.product_id = oi.product_id
                 ORDER BY page.order_id DESC, oi.order_item_id
@@ -63,7 +75,7 @@ public final class OrderQueryDao {
         Map<Long, OrderView.BuyerSummary> summaries = new LinkedHashMap<>();
         Map<Long, List<OrderView.Line>> items = new LinkedHashMap<>();
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setLong(1, shopId);
+            statement.setLong(1, ownerId);
             if (beforeId != null) {
                 statement.setLong(2, beforeId);
             }
@@ -73,7 +85,8 @@ public final class OrderQueryDao {
                     summaries.putIfAbsent(orderId, new OrderView.BuyerSummary(orderId,
                             rows.getLong("demand_id"), rows.getLong("supplier_id"),
                             rows.getString("supplier_name"), rows.getDate("order_date").toLocalDate(),
-                            rows.getString("status"), rows.getBoolean("reviewed")));
+                            rows.getString("status"), rows.getBoolean("reviewed"),
+                            rows.getLong("shop_id"), rows.getString("shop_name")));
                     if (rows.getObject("order_item_id") != null) {
                         items.computeIfAbsent(orderId, ignored -> new ArrayList<>()).add(
                                 new OrderView.Line(rows.getLong("product_id"), rows.getString("product_name"),

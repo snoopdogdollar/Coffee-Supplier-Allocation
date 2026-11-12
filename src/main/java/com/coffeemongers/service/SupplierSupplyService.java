@@ -25,6 +25,14 @@ public final class SupplierSupplyService {
         this.supplierId = supplierId;
     }
 
+    SupplierOrderService orders() {
+        return new SupplierOrderService(supplierId);
+    }
+
+    com.coffeeallocation.service.SupplierProductService products() {
+        return new com.coffeeallocation.service.SupplierProductService(supplierId);
+    }
+
     public Snapshot load(LocalDate week) throws SQLException {
         var result = backend.load(week);
         List<WeeklySupplyRecord> rows = result.rows().stream().map(row -> {

@@ -1,8 +1,30 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.image.Image?>
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coffeemongers.controller.SupplierProductsController" fx:id="screenRoot" styleClass="main-layout">
- <top><HBox alignment="CENTER_LEFT" styleClass="topbar" spacing="10"><Button text="← Back" onAction="#goBack" styleClass="back-button"/><Label text="Products" styleClass="section-title"/><Region HBox.hgrow="ALWAYS"/><fx:include source="../view/HomeLogo.fxml"/></HBox></top>
- <center><VBox spacing="18" styleClass="content"><VBox spacing="4"><Label text="Your Products" styleClass="page-title"/><Label text="Select products from the shared coffee catalog to list in your supplier catalog." styleClass="subtitle" wrapText="true"/></VBox><HBox spacing="12" alignment="CENTER_LEFT" styleClass="supplier-row"><ImageView fitWidth="118" fitHeight="68" preserveRatio="true"><image><Image url="@/images/coffee-beans.jpg"/></image></ImageView><VBox spacing="4"><Label text="Coffee product catalogue" styleClass="supplier-name"/><Label text="Browse the shared coffee products and add the items your farm can supply." styleClass="small-text" wrapText="true"/></VBox></HBox><Label text="Coffee product records are managed centrally. Supplier catalog actions cannot create new coffee products." styleClass="info-card" wrapText="true"/><VBox styleClass="section-card" spacing="12"><HBox alignment="CENTER_LEFT"><Label text="Supplier product catalog · demo preview" styleClass="section-title"/><Region HBox.hgrow="ALWAYS"/><Button fx:id="removeButton" text="Remove selected" onAction="#removeProduct" styleClass="outline-button"/></HBox><ListView fx:id="productList" prefHeight="330" styleClass="data-table"/></VBox><VBox styleClass="section-card" spacing="10"><Label text="Add existing product" styleClass="section-title"/><HBox spacing="10"><ComboBox fx:id="catalogPicker" promptText="Select a coffee product" maxWidth="Infinity" HBox.hgrow="ALWAYS"/><Button fx:id="addButton" text="Add Product" onAction="#addProduct" styleClass="primary-button"/></HBox><Label fx:id="messageLabel" text="" styleClass="status-message" wrapText="true"/></VBox></VBox></center>
+ <top><HBox alignment="CENTER_LEFT" styleClass="topbar" spacing="10">
+  <Button fx:id="backButton" text="← Back" onAction="#goBack" styleClass="back-button"/>
+  <Label text="Products" styleClass="section-title"/><Region HBox.hgrow="ALWAYS"/>
+  <fx:include source="../view/HomeLogo.fxml"/>
+ </HBox></top>
+ <center><ScrollPane fitToWidth="true" styleClass="content-scroll"><content><VBox spacing="18" styleClass="content">
+  <VBox spacing="4"><Label text="Your Products" styleClass="page-title"/>
+   <Label text="Select existing coffee products to offer from your supplier catalog." styleClass="subtitle" wrapText="true"/>
+  </VBox>
+  <Label text="Coffee products are managed centrally. Add a product here, then declare its quantity and price in Weekly Supply." styleClass="info-card" wrapText="true"/>
+  <VBox styleClass="section-card" spacing="12">
+   <HBox alignment="CENTER_LEFT" spacing="10"><Label fx:id="catalogTitle" text="Supplier product catalog · demo preview" styleClass="section-title"/>
+    <Region HBox.hgrow="ALWAYS"/><Button fx:id="refreshProductsButton" text="Refresh" onAction="#reload" styleClass="outline-button"/>
+    <Button fx:id="removeButton" text="Remove selected" onAction="#removeProduct" styleClass="outline-button"/>
+   </HBox>
+   <ListView fx:id="productList" prefHeight="260" styleClass="data-table"/>
+  </VBox>
+ </VBox></content></ScrollPane></center>
+ <bottom><VBox spacing="10" styleClass="content">
+  <Label text="Add existing product" styleClass="section-title"/>
+  <HBox spacing="10"><ComboBox fx:id="catalogPicker" promptText="Select a coffee product" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+   <Button fx:id="addButton" text="Add Product" onAction="#addProduct" styleClass="primary-button"/>
+   <Button fx:id="weeklySupplyButton" text="Weekly Supply" onAction="#openWeeklySupply" styleClass="outline-button"/>
+  </HBox>
+  <Label fx:id="messageLabel" text="" styleClass="status-message" wrapText="true"/>
+ </VBox></bottom>
 </BorderPane>

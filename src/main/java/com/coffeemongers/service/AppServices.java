@@ -50,6 +50,14 @@ public final class AppServices {
                 .flatMap(user -> TEST_SUPPLIER_SUPPLY);
     }
 
+    public static Optional<SupplierOrderService> liveSupplierOrders() {
+        return liveSupplierSupply().map(SupplierSupplyService::orders);
+    }
+
+    public static Optional<com.coffeeallocation.service.SupplierProductService> liveSupplierProducts() {
+        return liveSupplierSupply().map(SupplierSupplyService::products);
+    }
+
     private static Optional<SupplierSupplyService> configureTestSupplier() {
         String supplierId = System.getenv("COFFEE_TEST_SUPPLIER_ID");
         if (supplierId == null || supplierId.isBlank()) {

@@ -4,6 +4,7 @@ import com.coffeemongers.service.AppServices;
 import com.coffeemongers.service.SupplierSupplyService;
 import com.coffeemongers.model.auth.DemoUser;
 import com.coffeemongers.view.SceneNavigator;
+import com.coffeemongers.view.DatabaseMessages;
 import com.coffeemongers.view.WorkspaceRouter;
 import javafx.fxml.FXML;
 import javafx.concurrent.Task;
@@ -35,8 +36,8 @@ public class SupplierDashboardController {
     }
 
     private void loadTestDashboard(SupplierSupplyService service) {
-        supplierSubtitle.setText("PostgreSQL test workspace · Manage your weekly supply.");
-        for (var node : java.util.List.of(productsNav, ordersNav, manageProductsButton, ordersStat)) {
+        supplierSubtitle.setText("PostgreSQL test workspace · Products, weekly supply and incoming orders.");
+        for (var node : java.util.List.of(ordersStat)) {
             node.setVisible(false);
             node.setManaged(false);
         }
@@ -53,14 +54,14 @@ public class SupplierDashboardController {
             supplierNameLabel.setText(snapshot.catalog().supplierName());
             productsCount.setText(Integer.toString(snapshot.catalog().products().size()));
             supplyCount.setText(Integer.toString(snapshot.rows().size()));
-            supplierStatusLabel.setText("Select Weekly Supply to choose a delivery week.");
+            supplierStatusLabel.setText("Manage Products, declare Weekly Supply or view My Orders.");
         });
-        task.setOnFailed(event -> supplierStatusLabel.setText(task.getException() instanceof IllegalArgumentException
-                ? task.getException().getMessage() : "Could not read the supplier test database. Check the connection settings."));
+        task.setOnFailed(event -> supplierStatusLabel.setText(DatabaseMessages.describe(task.getException(),
+                "Could not read the supplier test database. Check the connection settings.")));
         Thread.ofVirtual().name("supplier-dashboard").start(task);
     }
     @FXML private void openDashboard(){WorkspaceRouter.openHome(screenRoot);}
     @FXML private void openWeeklySupply(){SceneNavigator.show(screenRoot,"/com/coffeemongers/supplier/WeeklySupply.fxml","Coffee Mongers · Weekly Supply");}
-    @FXML private void openProducts(){if (AppServices.liveSupplierSupply().isEmpty()) SceneNavigator.show(screenRoot,"/com/coffeemongers/supplier/SupplierProducts.fxml","Coffee Mongers · Supplier Products");}
-    @FXML private void openOrders(){if (AppServices.liveSupplierSupply().isEmpty()) SceneNavigator.show(screenRoot,"/com/coffeemongers/supplier/SupplierOrders.fxml","Coffee Mongers · Supplier Orders");}
+    @FXML private void openProducts(){SceneNavigator.show(screenRoot,"/com/coffeemongers/supplier/SupplierProducts.fxml","Coffee Mongers · Supplier Products");}
+    @FXML private void openOrders(){SceneNavigator.show(screenRoot,"/com/coffeemongers/supplier/SupplierOrders.fxml","Coffee Mongers · Supplier Orders");}
 }

@@ -33,7 +33,12 @@ public final class OrderView {
 
     public record BuyerSummary(long orderId, long demandId, long supplierId,
                                String supplierName, LocalDate orderDate,
-                               String status, boolean reviewed) {}
+                               String status, boolean reviewed, long shopId, String shopName) {
+        public BuyerSummary(long orderId, long demandId, long supplierId, String supplierName,
+                            LocalDate orderDate, String status, boolean reviewed) {
+            this(orderId, demandId, supplierId, supplierName, orderDate, status, reviewed, 0, "");
+        }
+    }
 
     public record BuyerOrder(BuyerSummary summary, List<Line> items) {
         public BuyerOrder {
