@@ -83,6 +83,11 @@ public final class AppServices {
                 ? Optional.of(new com.coffeeallocation.service.AdminReviewService()) : Optional.empty();
     }
 
+    public static Optional<com.coffeeallocation.service.AdminOverviewService> liveAdminOverview() {
+        return allocationPreviewEnabled()
+                ? Optional.of(new com.coffeeallocation.service.AdminOverviewService()) : Optional.empty();
+    }
+
     public static Optional<com.coffeeallocation.service.AdminBusinessPartyService> liveAdminParties(
             com.coffeeallocation.model.BusinessPartyType type) {
         return allocationPreviewEnabled()
@@ -135,7 +140,7 @@ public final class AppServices {
         MARKETPLACES.clear();
     }
     public static String environmentStatus() {
-        if (buyerIntegrationEnabled() || liveSupplierSupply().isPresent()) {
+        if (buyerIntegrationEnabled() || liveSupplierSupply().isPresent() || allocationPreviewEnabled()) {
             return "POSTGRESQL TEST";
         }
         String key=SESSION.currentUser().map(DemoUser::email).orElse(GUEST);

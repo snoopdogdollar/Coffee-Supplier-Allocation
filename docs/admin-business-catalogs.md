@@ -33,7 +33,7 @@ tables; user input is always bound through PreparedStatement.
 
 No schema changes or extra dependencies are required. Orders & Activity also reads
 PostgreSQL; Supply Monitoring, Supplier Products and Supplier Reviews also use PostgreSQL.
-The overview retains its demo label. Verification uses a disposable local PostgreSQL
+The configured Admin Overview also uses PostgreSQL. Verification uses a disposable local PostgreSQL
 database and does not modify the user's coffee_supplier_allocation database.
 
 Verification on 2026-11-12: all 18 Maven tests and 34 PostgreSQL checks passed.

@@ -3,8 +3,8 @@
 Use the existing DB_URL, DB_USER, DB_PASSWORD and COFFEE_TEST_ADMIN_PASSWORD settings.
 Sign in as admin@coffeemongers.test and open Orders & Activity. The Market Activity
 tab in the existing management screen also links here. Demo Admin navigation keeps
-its existing demo behavior. Overview and the other monitoring screens keep their
-demo labels.
+its existing demo behavior. The configured Admin Overview and other integrated
+Admin monitoring screens also read PostgreSQL.
 
 Orders lists order/demand IDs, date, shop and supplier IDs/names, status, line count
 and total. Demands lists IDs, request date, required ISO year/week, shop, status

@@ -24,7 +24,7 @@ order requirement and duplicate-review rejection remain in SupplierReviewService
 the existing Buyer workflow. There are no Admin edit/delete actions or score changes.
 The query joins the exact order/supplier pair and reads shop ownership from that order.
 All JDBC reads run outside the JavaFX thread using read-only repeatable-read snapshots.
-No schema changes or extra dependencies are required. The Admin Overview remains demo.
+No schema changes or extra dependencies are required. The configured Admin Overview also reads PostgreSQL.
 
 Verification uses a disposable local PostgreSQL database, separate from
 coffee_supplier_allocation.

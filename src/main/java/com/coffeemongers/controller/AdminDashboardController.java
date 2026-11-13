@@ -2,15 +2,19 @@ package com.coffeemongers.controller;
 
 import com.coffeemongers.service.AppServices;
 import com.coffeemongers.view.SceneNavigator;
+import com.coffeemongers.view.DatabaseMessages;
+import com.coffeeallocation.service.AdminOverviewService;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.collections.FXCollections;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
-import java.util.List;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 public class AdminDashboardController {
     @FXML private BorderPane screenRoot;
@@ -18,11 +22,91 @@ public class AdminDashboardController {
     @FXML private TableView<AdminOrderRow> ordersTable;
     @FXML private TableColumn<AdminOrderRow,String> orderColumn,businessColumn,supplierColumn,quantityColumn,statusColumn;
     @FXML private Label totalOrdersLabel,pendingOrdersLabel,activeSuppliersLabel;
+    @FXML private Label overviewSubtitle,scopeBadge,totalOrdersHint,activeSuppliersHint,recentOrdersHint,overviewNote,overviewStatusLabel;
+    @FXML private HBox demoPanels;
+    @FXML private VBox overviewFooter;
+    @FXML private Button refreshOverviewButton;
+    private AdminOverviewService liveOverview;
+    private boolean busy;
+    private boolean displayedOnce,refreshQueued;
     @FXML public void initialize() {
         boolean previewEnabled = AppServices.allocationPreviewEnabled();
         allocationPreviewNav.setVisible(previewEnabled);
         allocationPreviewNav.setManaged(previewEnabled);
-        orderColumn.setCellValueFactory(new PropertyValueFactory<>("order"));businessColumn.setCellValueFactory(new PropertyValueFactory<>("business"));supplierColumn.setCellValueFactory(new PropertyValueFactory<>("supplier"));quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+        orderColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().order()));
+        businessColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().business()));
+        supplierColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().supplier()));
+        quantityColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().quantity()));
+        statusColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().status()));
+        ordersTable.setItems(FXCollections.observableArrayList());
+        liveOverview=AppServices.liveAdminOverview().orElse(null);
+        if(liveOverview!=null) {
+            configureLiveOverview();
+            // Cached dashboard scenes are reattached when Back restores them.
+            screenRoot.sceneProperty().addListener((o,old,scene) -> {
+                if(scene!=null) scene.windowProperty().addListener((property,previous,window) -> {
+                    if(window!=null&&AppServices.liveAdminOverview().isPresent()) {
+                        if(displayedOnce)refreshOverview();
+                        else displayedOnce=true;
+                    }
+                });
+            });
+        }
+        refreshOverview();
+    }
+    private void configureLiveOverview() {
+        demoPanels.setVisible(false);demoPanels.setManaged(false);
+        overviewFooter.setVisible(true);overviewFooter.setManaged(true);
+        overviewSubtitle.setText("PostgreSQL marketplace totals and the latest orders.");
+        scopeBadge.setText("All time");totalOrdersHint.setText("All saved orders");activeSuppliersHint.setText("Current supplier status");
+        recentOrdersHint.setText("10 latest orders · newest order ID first");
+        overviewNote.setText("Totals include historical orders for inactive shops and suppliers. Open Orders & Activity to browse all orders and their details.");
+        ordersTable.setPlaceholder(new Label("No orders in PostgreSQL yet. Confirm an allocation to create orders."));
+        TableColumn<AdminOrderRow,String> date=new TableColumn<>("Date"),total=new TableColumn<>("Total");
+        date.setId("overviewDateColumn");total.setId("overviewTotalColumn");
+        date.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().date()));date.setPrefWidth(110);
+        total.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().total()));total.setPrefWidth(120);
+        orderColumn.setPrefWidth(75);businessColumn.setPrefWidth(220);supplierColumn.setPrefWidth(220);
+        quantityColumn.setText("Lines");quantityColumn.setPrefWidth(60);statusColumn.setPrefWidth(110);
+        ordersTable.getColumns().setAll(orderColumn,date,businessColumn,supplierColumn,quantityColumn,total,statusColumn);
+        ordersTable.setPrefHeight(300);
+    }
+    @FXML private void refreshOverview() {
+        if(busy){refreshQueued=true;return;}
+        if(liveOverview==null){loadDemoOverview();return;}
+        if(AppServices.liveAdminOverview().isEmpty())return;
+        var user=AppServices.currentUser();busy=true;
+        totalOrdersLabel.setText("—");pendingOrdersLabel.setText("—");activeSuppliersLabel.setText("—");ordersTable.getItems().clear();
+        overviewStatusLabel.setText("Loading PostgreSQL overview…");refreshOverviewButton.setDisable(true);
+        Task<com.coffeeallocation.model.AdminOverviewView.Snapshot> task=new Task<>() {
+            @Override protected com.coffeeallocation.model.AdminOverviewView.Snapshot call() throws Exception {return liveOverview.load();}
+        };
+        task.setOnSucceeded(event -> {
+            busy=false;refreshOverviewButton.setDisable(false);
+            if(!AppServices.currentUser().equals(user)||AppServices.liveAdminOverview().isEmpty())return;
+            var snapshot=task.getValue();var totals=snapshot.totals();
+            totalOrdersLabel.setText(Long.toString(totals.orders()));pendingOrdersLabel.setText(Long.toString(totals.pendingOrders()));
+            activeSuppliersLabel.setText(Long.toString(totals.activeSuppliers()));
+            ordersTable.getItems().setAll(snapshot.recentOrders().stream().map(o -> new AdminOrderRow(Long.toString(o.id()),
+                    o.shopName()+" (#"+o.shopId()+")",o.supplierName()+" (#"+o.supplierId()+")",Integer.toString(o.itemCount()),
+                    o.status(),o.date().toString(),o.total().toPlainString())).toList());
+            overviewStatusLabel.setText("Loaded current totals and "+snapshot.recentOrders().size()+" recent orders from PostgreSQL.");
+            refreshQueuedIfVisible();
+        });
+        task.setOnFailed(event -> {
+            busy=false;refreshOverviewButton.setDisable(false);
+            if(AppServices.currentUser().equals(user)&&AppServices.liveAdminOverview().isPresent())overviewStatusLabel.setText(DatabaseMessages.describe(
+                    task.getException(),"Could not load the overview. Refresh before trying again."));
+            refreshQueuedIfVisible();
+        });
+        Thread.ofVirtual().name("admin-overview").start(task);
+    }
+    private void refreshQueuedIfVisible() {
+        if(!refreshQueued)return;
+        refreshQueued=false;
+        if(screenRoot.getScene()!=null&&screenRoot.getScene().getWindow()!=null&&AppServices.liveAdminOverview().isPresent())refreshOverview();
+    }
+    private void loadDemoOverview() {
         var service=AppServices.marketplace();var orders=service.adminOrders();totalOrdersLabel.setText(Integer.toString(orders.size()));pendingOrdersLabel.setText(Long.toString(orders.stream().filter(o->!o.status().equalsIgnoreCase("completed")&&!o.status().equalsIgnoreCase("cancelled")&&!o.status().equalsIgnoreCase("delivered")).count()));activeSuppliersLabel.setText(Long.toString(service.adminSuppliers().stream().filter(s->s.isActive()).count()));
         ordersTable.setItems(FXCollections.observableArrayList(orders.stream().map(o->new AdminOrderRow(o.id(),"Bếp Cà Phê",o.supplierName(),o.items().stream().map(i->i.quantity().stripTrailingZeros().toPlainString()+" "+i.unit()).reduce((a,b)->a+", "+b).orElse("—"),o.status())).toList()));ordersTable.setPlaceholder(new Label("No demo orders yet. Orders appear here after a buyer confirms allocations."));
     }
@@ -68,5 +152,9 @@ public class AdminDashboardController {
         }
     }
     private void openManagement(String section){SceneNavigator.show(screenRoot,"/com/coffeemongers/admin/AdminManagement.fxml","Coffee Mongers · Marketplace Management",controller->((AdminManagementController)controller).selectSection(section));}
-    public record AdminOrderRow(String order,String business,String supplier,String quantity,String status) { }
+    public record AdminOrderRow(String order,String business,String supplier,String quantity,String status,String date,String total) {
+        public AdminOrderRow(String order,String business,String supplier,String quantity,String status) {
+            this(order,business,supplier,quantity,status,"","");
+        }
+    }
 }

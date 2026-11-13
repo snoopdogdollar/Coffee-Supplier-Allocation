@@ -5,7 +5,7 @@ COFFEE_TEST_ADMIN_PASSWORD setting. Sign in as admin@coffeemongers.test, then op
 Coffee Products. The configured Admin in its Admin workspace accesses PostgreSQL;
 the demo Admin retains its demo catalog. Coffee Shops and Suppliers also use their
 PostgreSQL catalogs. Orders & Activity and Supply Monitoring also read PostgreSQL.
-Supplier Products and Supplier Reviews also use PostgreSQL. The overview remains labeled as demo data.
+Supplier Products, Supplier Reviews and the configured Admin Overview also use PostgreSQL.
 
 The shared catalog lists active and inactive products with ID, name, unit, variety
 and description. Search filters locally. Add Product saves a new active product;
