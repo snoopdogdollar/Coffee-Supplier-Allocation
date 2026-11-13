@@ -4,6 +4,7 @@ import com.coffeemongers.service.AppServices;
 import com.coffeemongers.view.SceneNavigator;
 import com.coffeemongers.view.DatabaseMessages;
 import com.coffeeallocation.service.AdminOverviewService;
+import com.coffeeallocation.model.SupplierPerformance;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -15,6 +16,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
+import java.util.function.Function;
 
 public class AdminDashboardController {
     @FXML private BorderPane screenRoot;
@@ -25,6 +29,9 @@ public class AdminDashboardController {
     @FXML private Label overviewSubtitle,scopeBadge,totalOrdersHint,activeSuppliersHint,recentOrdersHint,overviewNote,overviewStatusLabel;
     @FXML private HBox demoPanels;
     @FXML private VBox overviewFooter;
+    @FXML private VBox supplierRankingPanel,topSupplierRows;
+    @FXML private TableView<SupplierPerformance.Entry> supplierPerformanceTable;
+    @FXML private Label rankingStatusLabel,rankingPolicyLabel;
     @FXML private Button refreshOverviewButton;
     private AdminOverviewService liveOverview;
     private boolean busy;
@@ -56,6 +63,22 @@ public class AdminDashboardController {
     }
     private void configureLiveOverview() {
         demoPanels.setVisible(false);demoPanels.setManaged(false);
+        supplierRankingPanel.setVisible(true);supplierRankingPanel.setManaged(true);
+        rankingPolicyLabel.setText("Quality 40% · Quantity 30% · On-time 30% · Top: active suppliers with at least "
+                +com.coffeeallocation.service.SupplierRankingService.MINIMUM_REVIEWS+" reviews");
+        addPerformanceColumn("Supplier",190,e -> e.history().supplierName()+" (#"+e.history().supplierId()+")");
+        addPerformanceColumn("Score / 100",95,e -> number(e.score()));
+        addPerformanceColumn("Quality",85,e -> percent(e.qualityRate()));
+        addPerformanceColumn("Quantity",85,e -> percent(e.quantityRate()));
+        addPerformanceColumn("On-time",85,e -> percent(e.onTimeRate()));
+        addPerformanceColumn("Reviews",70,e -> Long.toString(e.history().reviewCount()));
+        addPerformanceColumn("Latest review",140,e -> e.history().latestReviewAt()==null?"—":
+                e.history().latestReviewAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        addPerformanceColumn("Status",80,e -> e.history().active()?"Active":"Inactive");
+        addPerformanceColumn("Data",150,e -> e.history().reviewCount()==0?"Insufficient data":
+                e.history().reviewCount()<com.coffeeallocation.service.SupplierRankingService.MINIMUM_REVIEWS?
+                        "Limited data (<"+com.coffeeallocation.service.SupplierRankingService.MINIMUM_REVIEWS+" reviews)":e.topEligible()?"Eligible for Top":"History only");
+        supplierPerformanceTable.setPlaceholder(new Label("No supplier performance loaded."));
         overviewFooter.setVisible(true);overviewFooter.setManaged(true);
         overviewSubtitle.setText("PostgreSQL marketplace totals and the latest orders.");
         scopeBadge.setText("All time");totalOrdersHint.setText("All saved orders");activeSuppliersHint.setText("Current supplier status");
@@ -77,6 +100,8 @@ public class AdminDashboardController {
         if(AppServices.liveAdminOverview().isEmpty())return;
         var user=AppServices.currentUser();busy=true;
         totalOrdersLabel.setText("—");pendingOrdersLabel.setText("—");activeSuppliersLabel.setText("—");ordersTable.getItems().clear();
+        supplierPerformanceTable.getItems().clear();topSupplierRows.getChildren().clear();
+        rankingStatusLabel.setText("Loading supplier reviews…");
         overviewStatusLabel.setText("Loading PostgreSQL overview…");refreshOverviewButton.setDisable(true);
         Task<com.coffeeallocation.model.AdminOverviewView.Snapshot> task=new Task<>() {
             @Override protected com.coffeeallocation.model.AdminOverviewView.Snapshot call() throws Exception {return liveOverview.load();}
@@ -87,6 +112,7 @@ public class AdminDashboardController {
             var snapshot=task.getValue();var totals=snapshot.totals();
             totalOrdersLabel.setText(Long.toString(totals.orders()));pendingOrdersLabel.setText(Long.toString(totals.pendingOrders()));
             activeSuppliersLabel.setText(Long.toString(totals.activeSuppliers()));
+            showRankings(snapshot);
             ordersTable.getItems().setAll(snapshot.recentOrders().stream().map(o -> new AdminOrderRow(Long.toString(o.id()),
                     o.shopName()+" (#"+o.shopId()+")",o.supplierName()+" (#"+o.supplierId()+")",Integer.toString(o.itemCount()),
                     o.status(),o.date().toString(),o.total().toPlainString())).toList());
@@ -95,11 +121,50 @@ public class AdminDashboardController {
         });
         task.setOnFailed(event -> {
             busy=false;refreshOverviewButton.setDisable(false);
-            if(AppServices.currentUser().equals(user)&&AppServices.liveAdminOverview().isPresent())overviewStatusLabel.setText(DatabaseMessages.describe(
-                    task.getException(),"Could not load the overview. Refresh before trying again."));
+            if(AppServices.currentUser().equals(user)&&AppServices.liveAdminOverview().isPresent()) {
+                overviewStatusLabel.setText(DatabaseMessages.describe(
+                        task.getException(),"Could not load the overview. Refresh before trying again."));
+                rankingStatusLabel.setText("Supplier performance unavailable. Refresh to try again.");
+                supplierPerformanceTable.setPlaceholder(new Label("Supplier performance unavailable."));
+            }
             refreshQueuedIfVisible();
         });
         Thread.ofVirtual().name("admin-overview").start(task);
+    }
+    private void addPerformanceColumn(String title,double width,Function<SupplierPerformance.Entry,String> value) {
+        TableColumn<SupplierPerformance.Entry,String> column=new TableColumn<>(title);
+        column.setPrefWidth(width);column.setSortable(false);
+        column.setCellValueFactory(c -> new SimpleStringProperty(value.apply(c.getValue())));
+        supplierPerformanceTable.getColumns().add(column);
+    }
+    private static String number(BigDecimal value) {return value==null?"—":value.toPlainString();}
+    private static String percent(BigDecimal value) {return value==null?"—":number(value)+"%";}
+    private void showRankings(com.coffeeallocation.model.AdminOverviewView.Snapshot snapshot) {
+        var rankings=snapshot.rankings();
+        supplierPerformanceTable.getItems().setAll(rankings.suppliers());
+        supplierPerformanceTable.setPlaceholder(new Label("No suppliers saved yet."));
+        if(rankings.topSuppliers().isEmpty()) {
+            Label empty=new Label("No eligible Top Suppliers yet. Active suppliers need at least 5 valid reviews.");
+            empty.setWrapText(true);empty.getStyleClass().add("small-text");topSupplierRows.getChildren().add(empty);
+        }
+        int rank=0;
+        for(var entry:rankings.topSuppliers()) {
+            Label position=new Label(Integer.toString(++rank));position.getStyleClass().add("rank-number");
+            Label name=new Label(entry.history().supplierName()+" (#"+entry.history().supplierId()+")");
+            name.getStyleClass().add("supplier-name");name.setWrapText(true);
+            Label score=new Label(number(entry.score())+"/100 · "+entry.history().reviewCount()+" reviews");
+            score.getStyleClass().add("score");
+            Label rates=new Label("Quality "+percent(entry.qualityRate())+" · Quantity "+percent(entry.quantityRate())
+                    +" · On-time "+percent(entry.onTimeRate()));
+            rates.getStyleClass().add("small-text");rates.setWrapText(true);
+            VBox details=new VBox(4,name,score,rates);
+            HBox row=new HBox(12,position,details);row.getStyleClass().add("supplier-row");
+            topSupplierRows.getChildren().add(row);
+        }
+        rankingStatusLabel.setText("All review history through "+snapshot.reviewCutoff().timestamp()
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))+" ("+snapshot.reviewCutoff().timeZone()
+                +"). Rates reflect shop feedback on completed orders; each order counts once. "
+                +"Suppliers with no reviews have insufficient data; inactive suppliers remain in the table.");
     }
     private void refreshQueuedIfVisible() {
         if(!refreshQueued)return;

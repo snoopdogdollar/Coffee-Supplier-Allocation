@@ -9,7 +9,8 @@ public final class AdminOverviewView {
     public record Totals(long orders,long pendingOrders,long activeSuppliers) { }
     public record RecentOrder(long id,LocalDate date,long shopId,String shopName,long supplierId,
                               String supplierName,String status,int itemCount,BigDecimal total) { }
-    public record Snapshot(Totals totals,List<RecentOrder> recentOrders) {
+    public record Snapshot(Totals totals,List<RecentOrder> recentOrders,
+                           SupplierPerformance.Rankings rankings, SupplierHistory.Cutoff reviewCutoff) {
         public Snapshot {recentOrders=List.copyOf(recentOrders);}
     }
 }

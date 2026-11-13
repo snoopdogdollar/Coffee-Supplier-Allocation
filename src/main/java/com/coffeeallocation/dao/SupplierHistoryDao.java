@@ -49,7 +49,7 @@ public final class SupplierHistoryDao {
                       AND r.created_at >= o.created_at
                     ORDER BY r.order_id, r.created_at, r.review_id
                 )
-                SELECT s.supplier_id, s.name AS supplier_name,
+                SELECT s.supplier_id, s.name AS supplier_name, s.is_active,
                        COUNT(r.order_id) AS review_count,
                        COUNT(r.order_id) FILTER (WHERE r.quality_ok)
                            AS quality_ok_count,
@@ -60,7 +60,7 @@ public final class SupplierHistoryDao {
                        MAX(r.created_at) AS latest_review_at
                 FROM suppliers s
                 LEFT JOIN first_reviews r ON r.supplier_id = s.supplier_id
-                GROUP BY s.supplier_id, s.name
+                GROUP BY s.supplier_id, s.name, s.is_active
                 ORDER BY s.supplier_id
                 """;
         List<SupplierHistory.Summary> summaries = new ArrayList<>();
@@ -75,7 +75,8 @@ public final class SupplierHistoryDao {
                             rows.getLong("quality_ok_count"),
                             rows.getLong("quantity_ok_count"),
                             rows.getLong("on_time_ok_count"),
-                            rows.getObject("latest_review_at", LocalDateTime.class)
+                            rows.getObject("latest_review_at", LocalDateTime.class),
+                            rows.getBoolean("is_active")
                     ));
                 }
             }

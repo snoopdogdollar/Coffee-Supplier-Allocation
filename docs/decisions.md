@@ -1,5 +1,18 @@
 # Project decisions
 
+## 2026-11-14 — Review-based dashboard supplier ranking
+
+- Dashboard score uses all eligible binary reviews: Quality 40%, Quantity 30%, On-time 30%.
+- Rates divide true counts by reviewed-order count, on a 0–100 scale. No-review suppliers
+  have no score; 1–4 reviews are labeled limited data. Counts appear beside Top scores.
+- Top Suppliers contains at most three active suppliers with at least five valid reviews.
+  Order by exact score descending, review count descending, supplier ID ascending.
+- Reuse the Phase 7.3 first-eligible-review-per-completed-order policy and database cutoff.
+- Inactive suppliers remain in the all-supplier performance table, excluded from Top.
+- The dashboard reads one repeatable-read snapshot; no schema, allocation algorithm or
+  historical run score changes. Price and weekly supply stay separate from this ranking.
+- See supplier-ranking.md for formula, UI behavior, verification and limitations.
+
 ## 2026-11-07 — Phase 7.2 supplier reviews
 
 - The shop identified by orders.shop_id can submit a review after the order reaches COMPLETED.

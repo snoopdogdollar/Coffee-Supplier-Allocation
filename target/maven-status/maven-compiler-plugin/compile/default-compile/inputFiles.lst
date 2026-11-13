@@ -51,6 +51,7 @@ C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\NewDemandIt
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\OpenDemandItem.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\OrderView.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\SupplierHistory.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\SupplierPerformance.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\SupplierReview.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\SupplierSupplyView.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\AdminActivityService.java
@@ -68,6 +69,7 @@ C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\OrderServ
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\SharedAllocationService.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\SupplierHistoryService.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\SupplierProductService.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\SupplierRankingService.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\SupplierReviewService.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\service\SupplierWeeklySupplyService.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\view\AllocationPanel.java

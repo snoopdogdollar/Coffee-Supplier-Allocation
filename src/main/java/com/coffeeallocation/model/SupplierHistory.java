@@ -15,7 +15,8 @@ public final class SupplierHistory {
             long qualityOkCount,
             long quantityOkCount,
             long onTimeOkCount,
-            LocalDateTime latestReviewAt) {}
+            LocalDateTime latestReviewAt,
+            boolean active) {}
 
     public record Report(Cutoff cutoff, List<Summary> suppliers) {
         public Report {
