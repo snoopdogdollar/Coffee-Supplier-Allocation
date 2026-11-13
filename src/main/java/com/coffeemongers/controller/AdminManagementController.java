@@ -58,6 +58,12 @@ public class AdminManagementController {
         return new Tab(section,body);
     }
     private Tab supplierProductsTab(){
+        if(AppServices.liveAdminSupplierProducts().isPresent()) {
+            Button open=new Button("Open Supplier Products");open.setId("openLiveSupplierProductsButton");open.getStyleClass().add("primary-button");
+            open.setOnAction(event -> SceneNavigator.show(screenRoot,"/com/coffeemongers/admin/SupplierProducts.fxml","Coffee Mongers · Supplier Products"));
+            VBox body=new VBox(12,new Label("Manage PostgreSQL supplier-product offerings."),open);body.getStyleClass().add("section-card");
+            return new Tab("Supplier Products",body);
+        }
         TableView<AdminRow> table=table("Supplier Products",new String[]{"Supplier","Product","Status"},new double[]{200,260,100});
         ComboBox<String> picker=new ComboBox<>();supplierProductPicker=picker;picker.setPromptText("Select existing product");picker.setMaxWidth(Double.MAX_VALUE);HBox.setHgrow(picker,Priority.ALWAYS);
         Button add=new Button("Add product");add.getStyleClass().add("primary-button");add.setOnAction(e->{String selected=picker.getValue();if(selected==null){error("Select a coffee product first.");return;}try{AppServices.marketplace().adminAddSupplierProduct(selected);picker.setValue(null);refresh();}catch(IllegalArgumentException ex){error(ex.getMessage());}});
@@ -76,6 +82,12 @@ public class AdminManagementController {
         VBox body=monitorBody("Weekly supplier quantity · remaining supply is allocation controlled",table);tables.put("Supply Monitoring",table);return new Tab("Supply Monitoring",body);
     }
     private Tab reviewsTab(){
+        if(AppServices.liveAdminReviews().isPresent()) {
+            Button open=new Button("Open Supplier Reviews");open.setId("openLiveReviewsButton");open.getStyleClass().add("primary-button");
+            open.setOnAction(event -> SceneNavigator.show(screenRoot,"/com/coffeemongers/admin/SupplierReviews.fxml","Coffee Mongers · Supplier Reviews"));
+            VBox body=new VBox(12,new Label("Read PostgreSQL Buyer feedback on suppliers."),open);body.getStyleClass().add("section-card");
+            return new Tab("Reviews",body);
+        }
         TableView<AdminRow> table=table("Reviews",new String[]{"Supplier","Order","Criteria","Comment","Created"},new double[]{180,140,210,280,150});
         VBox body=monitorBody("Supplier feedback based on schema review criteria",table);tables.put("Reviews",table);return new Tab("Reviews",body);
     }
@@ -104,9 +116,9 @@ public class AdminManagementController {
         sources.get("Coffee Shops").setAll(service.adminCoffeeShops().stream().map(s->new AdminRow("Coffee Shop",Long.toString(s.shopId()),s.name(),s.contactPerson()+" · "+s.phone()+" · "+s.email()+" · "+s.address(),s.isActive()?"Active":"Inactive")).toList());
         sources.get("Suppliers").setAll(service.adminSuppliers().stream().map(s->new AdminRow("Supplier",Long.toString(s.supplierId()),s.name(),s.contactPerson()+" · "+s.phone()+" · "+s.email()+" · "+s.address(),s.isActive()?"Active":"Inactive")).toList());
         sources.get("Coffee Products").setAll(service.adminCoffeeProducts().stream().map(p->new AdminRow("Coffee Product",Long.toString(p.productId()),p.name(),p.variety()+" · "+p.unit()+" · "+p.description(),p.isActive()?"Active":"Inactive")).toList());
-        tables.get("Supplier Products").getItems().setAll(service.adminSupplierProducts().stream().map(name->new AdminRow("Cau Dat Coffee Farm",name,"Active",""," ")).toList());
+        if(tables.containsKey("Supplier Products")) tables.get("Supplier Products").getItems().setAll(service.adminSupplierProducts().stream().map(name->new AdminRow("Cau Dat Coffee Farm",name,"Active",""," ")).toList());
         if(tables.containsKey("Supply Monitoring")) tables.get("Supply Monitoring").getItems().setAll(service.adminWeeklySupply().stream().map(row->new AdminRow(row.supplierId(),row.productName(),"Week "+row.week()+" · "+row.year(),row.remainingQuantity()+" "+row.unit(),"")).toList());
-        tables.get("Reviews").getItems().setAll(service.adminReviews().stream().map(row->new AdminRow(row.supplierId(),row.orderId(),"Quality "+yes(row.qualityOk())+" · Quantity "+yes(row.quantityOk())+" · On time "+yes(row.onTimeOk()),row.comment(),row.createdOn().toString())).toList());
+        if(tables.containsKey("Reviews")) tables.get("Reviews").getItems().setAll(service.adminReviews().stream().map(row->new AdminRow(row.supplierId(),row.orderId(),"Quality "+yes(row.qualityOk())+" · Quantity "+yes(row.quantityOk())+" · On time "+yes(row.onTimeOk()),row.comment(),row.createdOn().toString())).toList());
         if(tables.containsKey("Market Activity")) {
             List<AdminRow> activity=new ArrayList<>();service.adminRecentDemands().forEach(d->activity.add(new AdminRow("Demand",d.id(),d.title()+" · "+d.items().size()+" product line(s)",d.requestDate().toString(),"Submitted")));service.adminOrders().forEach(o->activity.add(new AdminRow("Order",o.id(),o.supplierName()+" · "+o.items().size()+" line(s)",o.createdOn().toString(),o.status())));tables.get("Market Activity").getItems().setAll(activity);
         }

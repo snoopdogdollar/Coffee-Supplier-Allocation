@@ -73,6 +73,16 @@ public final class AppServices {
                 ? Optional.of(new com.coffeeallocation.service.AdminSupplyService()) : Optional.empty();
     }
 
+    public static Optional<com.coffeeallocation.service.AdminSupplierProductService> liveAdminSupplierProducts() {
+        return allocationPreviewEnabled()
+                ? Optional.of(new com.coffeeallocation.service.AdminSupplierProductService()) : Optional.empty();
+    }
+
+    public static Optional<com.coffeeallocation.service.AdminReviewService> liveAdminReviews() {
+        return allocationPreviewEnabled()
+                ? Optional.of(new com.coffeeallocation.service.AdminReviewService()) : Optional.empty();
+    }
+
     public static Optional<com.coffeeallocation.service.AdminBusinessPartyService> liveAdminParties(
             com.coffeeallocation.model.BusinessPartyType type) {
         return allocationPreviewEnabled()

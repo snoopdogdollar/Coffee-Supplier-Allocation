@@ -1,0 +1,30 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coffeemongers.controller.AdminSupplierProductsController" fx:id="screenRoot" styleClass="main-layout">
+ <top><HBox spacing="10" alignment="CENTER_LEFT" styleClass="topbar">
+  <Button fx:id="backButton" text="← Back" onAction="#goBack" styleClass="back-button"/>
+  <Label text="Supplier Products" styleClass="section-title"/><Region HBox.hgrow="ALWAYS"/>
+  <Label text="POSTGRESQL TEST" styleClass="week-badge"/><Label text="☕ Coffee Mongers" styleClass="brand"/>
+ </HBox></top>
+ <center><VBox spacing="14" styleClass="content">
+  <Label text="Which supplier offers which coffee?" styleClass="page-title"/>
+  <Label text="View all supplier-product links, including stopped offerings and products without Weekly Supply." wrapText="true" styleClass="subtitle"/>
+  <HBox spacing="12" alignment="BOTTOM_LEFT">
+   <VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Supplier filter"/><TextField fx:id="supplierFilter" promptText="Name or ID · blank for all suppliers" onAction="#refresh"/></VBox>
+   <VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Product filter"/><TextField fx:id="productFilter" promptText="Name or ID · blank for all products" onAction="#refresh"/></VBox>
+   <Button fx:id="refreshButton" text="Search / Refresh" onAction="#refresh" styleClass="outline-button"/>
+  </HBox>
+  <TableView fx:id="offeringsTable" styleClass="data-table" VBox.vgrow="ALWAYS"/>
+ </VBox></center>
+ <bottom><VBox spacing="10" styleClass="content">
+  <Label text="Offer or resume a product" styleClass="section-title"/>
+  <HBox fx:id="offerForm" spacing="12" alignment="CENTER_LEFT">
+   <ComboBox fx:id="supplierPicker" promptText="Choose an active supplier" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+   <ComboBox fx:id="productPicker" promptText="Choose an active coffee product" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+   <Button fx:id="offerButton" text="Offer Product" onAction="#offerProduct" styleClass="primary-button"/>
+  </HBox>
+  <Label text="Offering a product does not declare a weekly quantity. Offer the same pair again to resume a stopped link. Weekly supply means a record exists in any week. Reactivate an inactive supplier before editing its offerings." wrapText="true" styleClass="small-text"/>
+  <HBox spacing="12"><Button fx:id="stopButton" text="Stop selected offering" onAction="#stopOffering" styleClass="outline-button"/><Button fx:id="loadMoreButton" text="Load More" onAction="#loadMore" styleClass="outline-button"/><Label text="20 links per page" styleClass="small-text"/></HBox>
+  <Label fx:id="statusLabel" wrapText="true" styleClass="status-message"/>
+ </VBox></bottom>
+</BorderPane>

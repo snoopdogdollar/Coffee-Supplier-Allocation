@@ -1,0 +1,25 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coffeemongers.controller.AdminReviewsController" fx:id="screenRoot" styleClass="main-layout">
+ <top><HBox spacing="10" alignment="CENTER_LEFT" styleClass="topbar">
+  <Button fx:id="backButton" text="← Back" onAction="#goBack" styleClass="back-button"/>
+  <Label text="Supplier Reviews" styleClass="section-title"/><Region HBox.hgrow="ALWAYS"/>
+  <Label text="POSTGRESQL TEST" styleClass="week-badge"/><Label text="☕ Coffee Mongers" styleClass="brand"/>
+ </HBox></top>
+ <center><VBox spacing="14" styleClass="content">
+  <Label text="Buyer feedback on suppliers" styleClass="page-title"/>
+  <Label text="Browse feedback on quality, quantity and on-time delivery. Select a review to read its full comment." wrapText="true" styleClass="subtitle"/>
+  <HBox spacing="12" alignment="BOTTOM_LEFT">
+   <VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Supplier"/><TextField fx:id="supplierFilter" promptText="Name or ID · blank for all" onAction="#refresh"/></VBox>
+   <VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Coffee shop"/><TextField fx:id="shopFilter" promptText="Name or ID · blank for all" onAction="#refresh"/></VBox>
+   <VBox spacing="4"><Label text="Order ID"/><TextField fx:id="orderFilter" promptText="Exact ID · optional" prefWidth="150" onAction="#refresh"/></VBox>
+   <Button fx:id="refreshButton" text="Search / Refresh" onAction="#refresh" styleClass="primary-button"/>
+  </HBox>
+  <TableView fx:id="reviewsTable" styleClass="data-table" VBox.vgrow="ALWAYS"/>
+ </VBox></center>
+ <bottom><VBox spacing="10" styleClass="content">
+  <TextArea fx:id="detailsArea" editable="false" wrapText="true" prefRowCount="5" promptText="Select a review to see its order, Buyer feedback and full comment."/>
+  <HBox spacing="12" alignment="CENTER_LEFT"><Button fx:id="loadMoreButton" text="Load More" onAction="#loadMore" styleClass="outline-button"/><Label text="20 reviews per page · monitoring only" styleClass="small-text"/></HBox>
+  <Label fx:id="statusLabel" wrapText="true" styleClass="status-message"/>
+ </VBox></bottom>
+</BorderPane>

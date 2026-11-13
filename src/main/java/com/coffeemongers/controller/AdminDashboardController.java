@@ -46,13 +46,21 @@ public class AdminDashboardController {
             SceneNavigator.show(screenRoot,"/com/coffeemongers/admin/CoffeeProducts.fxml","Coffee Mongers · Coffee Products");
         } else openManagement("Coffee Products");
     }
-    @FXML private void openSupplierProducts(){openManagement("Supplier Products");}
+    @FXML private void openSupplierProducts(){
+        if(AppServices.liveAdminSupplierProducts().isPresent()) {
+            SceneNavigator.show(screenRoot,"/com/coffeemongers/admin/SupplierProducts.fxml","Coffee Mongers · Supplier Products");
+        } else openManagement("Supplier Products");
+    }
     @FXML private void openSupply(){
         if(AppServices.liveAdminSupply().isPresent()) {
             SceneNavigator.show(screenRoot,"/com/coffeemongers/admin/SupplyMonitoring.fxml","Coffee Mongers · Supply Monitoring");
         } else openManagement("Supply Monitoring");
     }
-    @FXML private void openReviews(){openManagement("Reviews");}
+    @FXML private void openReviews(){
+        if(AppServices.liveAdminReviews().isPresent()) {
+            SceneNavigator.show(screenRoot,"/com/coffeemongers/admin/SupplierReviews.fxml","Coffee Mongers · Supplier Reviews");
+        } else openManagement("Reviews");
+    }
     @FXML private void openAllocationPreview() {
         if (AppServices.allocationPreviewEnabled()) {
             SceneNavigator.show(screenRoot, "/com/coffeemongers/admin/AllocationPreview.fxml",
