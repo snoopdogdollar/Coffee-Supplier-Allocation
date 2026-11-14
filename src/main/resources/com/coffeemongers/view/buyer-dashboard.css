@@ -454,3 +454,47 @@
 .auth-hero-eyebrow { -fx-text-fill: #F0E5D3; -fx-font-size: 11px; -fx-font-weight: bold; }
 .auth-hero-title { -fx-text-fill: white; -fx-font-size: 34px; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 4, 0.2, 0, 1); }
 .auth-hero-subtitle { -fx-text-fill: #F6F1E9; -fx-font-size: 14px; }
+
+/* Paired bars compare the same product and unit in each ISO delivery week. */
+.weekly-market-chart { -fx-padding: 4 0 0 0; -fx-background-color: transparent; }
+.weekly-market-chart .chart-plot-background { -fx-background-color: #FAF8F4; }
+.weekly-market-chart .chart-vertical-grid-lines { -fx-stroke: transparent; }
+.weekly-market-chart .chart-horizontal-grid-lines { -fx-stroke: #E8E6DF; }
+.weekly-market-chart .default-color0.chart-bar,
+.weekly-market-chart .default-color0.chart-legend-item-symbol { -fx-bar-fill: #71916A; -fx-background-color: #71916A; }
+.weekly-market-chart .default-color1.chart-bar,
+.weekly-market-chart .default-color1.chart-legend-item-symbol { -fx-bar-fill: #B89A75; -fx-background-color: #B89A75; }
+.weekly-market-chart .chart-bar { -fx-background-radius: 4 4 0 0; }
+.weekly-market-chart .axis { -fx-tick-label-fill: #655B51; -fx-tick-label-font-size: 11px; }
+.weekly-market-chart .chart-legend { -fx-background-color: transparent; -fx-padding: 10 0 0 0; }
+
+/* Buyer sourcing workspace: scoped so Admin and Supplier keep their existing layout. */
+.buyer-workspace { -fx-font-size: 13px; }
+.buyer-workspace .content { -fx-padding: 28; -fx-spacing: 20; }
+.buyer-workspace .page-title { -fx-font-size: 28px; -fx-font-weight: bold; }
+.buyer-workspace .section-title { -fx-font-size: 17px; -fx-font-weight: bold; }
+.buyer-workspace .subtitle { -fx-font-size: 14px; -fx-text-fill: #736D64; }
+.buyer-workspace .small-text { -fx-font-size: 12px; -fx-text-fill: #736D64; }
+.buyer-workspace .stat-number { -fx-font-size: 32px; -fx-font-weight: bold; }
+.buyer-workspace .stat-label { -fx-font-size: 13px; }
+.buyer-workspace .stat-card { -fx-padding: 20; -fx-min-width: 0; }
+.buyer-workspace .section-card { -fx-padding: 22; }
+.buyer-workspace .table-view { -fx-font-size: 13px; -fx-fixed-cell-size: 44px; }
+.buyer-workspace .table-cell { -fx-padding: 12 10; }
+.buyer-workspace .column-header .label { -fx-font-size: 12px; -fx-font-weight: bold; }
+.buyer-workspace .primary-button, .buyer-workspace .outline-button { -fx-padding: 10 16; -fx-font-size: 13px; -fx-cursor: hand; }
+.buyer-sidebar { -fx-background-color: white; -fx-padding: 28 16 20 16; -fx-border-color: transparent #E8E6DF transparent transparent; }
+.buyer-sidebar .nav-button, .buyer-sidebar .nav-active { -fx-font-size: 14px; -fx-padding: 13 14; -fx-alignment: CENTER_LEFT; -fx-cursor: hand; }
+.buyer-sidebar .brand { -fx-font-size: 16px; -fx-font-weight: bold; }
+.buyer-sidebar .brand-subtitle { -fx-font-size: 10px; }
+.buyer-sidebar .small-text { -fx-font-size: 12px; }
+.buyer-brand-icon { -fx-background-color: #F1ECE4; -fx-background-radius: 12; -fx-padding: 9; -fx-text-fill: #604537; -fx-font-size: 21px; }
+.buyer-sidebar-note { -fx-background-color: #EDF2EB; -fx-background-radius: 12; -fx-padding: 16; }
+.buyer-profile { -fx-background-color: #FAF8F4; -fx-background-radius: 12; -fx-padding: 16; }
+.buyer-journey { -fx-background-color: #EDF2EB; -fx-background-radius: 12; -fx-padding: 16 20; -fx-text-fill: #476B3F; -fx-font-size: 13px; }
+.buyer-journey-step { -fx-text-fill: #476B3F; -fx-font-size: 13px; -fx-font-weight: bold; }
+.buyer-eyebrow { -fx-text-fill: #71916A; -fx-font-size: 11px; -fx-font-weight: bold; }
+.buyer-topbar-title { -fx-font-size: 13px; -fx-text-fill: #655B51; }
+.buyer-delivery-note { -fx-text-fill: #476B3F; -fx-font-size: 13px; }
+.buyer-quantity { -fx-text-fill: #302C28; -fx-font-size: 13px; }
+.buyer-workspace .demand-actions { -fx-background-color: white; -fx-border-color: #E8E6DF transparent transparent transparent; -fx-padding: 16 24; }

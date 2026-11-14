@@ -53,10 +53,10 @@ public final class InMemoryMarketplaceService implements MarketplaceService {
             supply.set(supply.indexOf(row), new WeeklySupplyRecord(row.id(), row.supplierId(), row.productName(), week,
                     row.initialQuantity(), row.remainingQuantity(), row.unitPrice(), row.unit()));
         }
-        demands.add(new DemandRequest("#DM-001", "November Robusta", LocalDate.now().plusDays(10),
-                "Bếp Cà Phê, Quận 3", "Demo preview record", List.of(new DemandItem(products.get(0), BigDecimal.valueOf(500), "kg"))));
-        demands.add(new DemandRequest("#DM-002", "Arabica restock", LocalDate.now().plusDays(14),
-                "Bếp Cà Phê, Quận 3", "Demo preview record", List.of(new DemandItem(products.get(5), BigDecimal.valueOf(200), "kg"))));
+        demands.add(new DemandRequest("#DM-001", "November Robusta", LocalDate.now(),
+                "Bếp Cà Phê, Quận 3", "Demo preview record", List.of(new DemandItem(products.get(0), BigDecimal.valueOf(500), "kg")),LocalDate.now().plusDays(10)));
+        demands.add(new DemandRequest("#DM-002", "Arabica restock", LocalDate.now(),
+                "Bếp Cà Phê, Quận 3", "Demo preview record", List.of(new DemandItem(products.get(5), BigDecimal.valueOf(200), "kg")),LocalDate.now().plusDays(14)));
     }
 
     private void seedSupplier(String id, String name, String location, String varieties, String price, String score) {
@@ -94,7 +94,7 @@ public final class InMemoryMarketplaceService implements MarketplaceService {
         for(DemandItem item:request.items())if(!distinctProducts.add(item.productName()))throw new IllegalArgumentException("Each coffee product can appear once in a demand.");
         String id = "#DM-%03d".formatted(demandSequence++);
         DemandRequest saved = new DemandRequest(id, request.title(), request.requestDate(),
-                request.shopAddress(), request.notes(), request.items());
+                request.shopAddress(), request.notes(), request.items(),request.requiredDeliveryDate());
         demands.add(0, saved);
         return saved;
     }

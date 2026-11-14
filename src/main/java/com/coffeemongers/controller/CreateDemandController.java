@@ -32,10 +32,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CreateDemandController {
+    @FXML private BuyerSidebarController buyerSidebarController;
     @FXML private DatePicker requestDatePicker;
     @FXML private TextArea notesField;
     @FXML private VBox productRowsContainer;
-    @FXML private Label productErrorLabel, catalogStatusLabel, previewNotice, shopLabel, dateLabel;
+    @FXML private Label productErrorLabel, catalogStatusLabel, previewNotice, shopLabel, dateLabel,requiredWeekPreview;
     @FXML private Button reviewDemandButton, addProductButton;
     private final List<ProductRow> productRows = new ArrayList<>();
     private final Map<String, Product> products = new LinkedHashMap<>();
@@ -43,7 +44,10 @@ public class CreateDemandController {
 
     @FXML
     public void initialize() {
+        buyerSidebarController.setActive("create");
+        dateLabel.setText("Required Delivery Date *");
         requestDatePicker.setValue(LocalDate.now());
+        updateWeek();requestDatePicker.valueProperty().addListener((o,old,date) -> updateWeek());
         boolean readOnly = AppServices.isReadOnlyWorkspacePreview();
         previewNotice.setVisible(readOnly);
         previewNotice.setManaged(readOnly);
@@ -55,7 +59,7 @@ public class CreateDemandController {
         var service = AppServices.liveBuyerDemands();
         liveBuyer = service.isPresent();
         if (liveBuyer) {
-            shopLabel.setText("Test shop linked to your buyer account");
+            shopLabel.setText("Your linked coffee shop");
             dateLabel.setText("Required Delivery Date *");
             requestDatePicker.setPromptText("Select a date in the week you need the coffee");
             loadCatalog(service.orElseThrow());
@@ -71,7 +75,7 @@ public class CreateDemandController {
     private void loadCatalog(BuyerDemandService service) {
         addProductButton.setDisable(true);
         reviewDemandButton.setDisable(true);
-        showCatalogStatus("Loading active coffee products from PostgreSQL…");
+        showCatalogStatus("Loading available coffee products…");
         Task<List<Product>> task = new Task<>() {
             @Override
             protected List<Product> call() throws Exception {
@@ -83,7 +87,7 @@ public class CreateDemandController {
                 products.put(product.name() + " · #" + product.id(), product);
             }
             if (products.isEmpty()) {
-                showCatalogStatus("No active coffee products in this database. Check the coffee_products table, then reopen this form.");
+                showCatalogStatus("No active coffee products are available. Contact Admin and reopen this form.");
                 return;
             }
             showCatalogStatus("");
@@ -112,6 +116,8 @@ public class CreateDemandController {
         catalogStatusLabel.setVisible(!message.isEmpty());
         catalogStatusLabel.setManaged(!message.isEmpty());
     }
+
+    private void updateWeek(){var date=requestDatePicker.getValue();requiredWeekPreview.setText(date==null?"Choose a delivery date.":"Delivery week: %04d-W%02d · Admin allocates weekly supply for this week.".formatted(date.get(java.time.temporal.IsoFields.WEEK_BASED_YEAR),date.get(java.time.temporal.IsoFields.WEEK_OF_WEEK_BASED_YEAR)));}
 
     @FXML
     private void addProductRow() {
@@ -171,7 +177,7 @@ public class CreateDemandController {
     private void submitDemand() {
         productErrorLabel.setText("");
         LocalDate selectedDate = requestDatePicker.getValue();
-        String field = liveBuyer ? "Required delivery date" : "Request date";
+        String field = "Required delivery date";
         if (selectedDate == null || selectedDate.isBefore(LocalDate.now())) {
             showError(field + " must be today or later.");
             return;
@@ -207,8 +213,8 @@ public class CreateDemandController {
         }
 
         String title = items.stream().map(DemandItem::productName).distinct().collect(Collectors.joining(", "));
-        DemandRequest draft = new DemandRequest("", title, liveBuyer ? LocalDate.now() : selectedDate,
-                liveBuyer ? "" : "Bếp Cà Phê · Ho Chi Minh City", notesField.getText().trim(), items);
+        DemandRequest draft = new DemandRequest("", title, LocalDate.now(),
+                liveBuyer ? "" : "Demo coffee shop", notesField.getText().trim(), items,selectedDate);
         try {
             SceneNavigator.show(productRowsContainer, "/com/coffeemongers/createdemand/DemandDetails.fxml",
                     "Coffee Mongers · Demand Details", controller -> {

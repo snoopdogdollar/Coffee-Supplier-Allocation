@@ -4,8 +4,6 @@ import com.coffeemongers.model.*;
 import com.coffeemongers.service.AppServices;
 import com.coffeemongers.service.BuyerOrderService;
 import com.coffeemongers.view.SceneNavigator;
-import com.coffeemongers.model.auth.DemoUser;
-import com.coffeemongers.model.viewmodel.SupplierAdvertisement;
 import javafx.fxml.FXML;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -14,11 +12,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.util.Duration;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import java.math.BigDecimal;
@@ -32,10 +25,7 @@ public class MyOrdersController {
     @FXML private VBox orderCardsContainer;
     @FXML private Label emptyLabel;
     @FXML private javafx.scene.layout.BorderPane screenRoot;
-    @FXML private Label adHeadlineLabel,adMessageLabel;
-    @FXML private ImageView adImage;
-    @FXML private Button adActionButton;
-    @FXML private HBox adBanner;
+
     @FXML private VBox liveOrderControls;
     @FXML private Label ordersStatusLabel;
     @FXML private Button loadMoreOrdersButton;
@@ -44,18 +34,18 @@ public class MyOrdersController {
     private boolean busy;
     private Window requestWindow;
     private final EventHandler<WindowEvent> blockClose = WindowEvent::consume;
-    private List<SupplierAdvertisement> advertisements=List.of();
-    private int currentAd;
-    private Timeline adRotation;
+
+    @FXML private BuyerSidebarController buyerSidebarController;
     @FXML public void initialize() {
+        buyerSidebarController.setActive("orders");
         liveOrders = AppServices.liveBuyerOrders().orElse(null);
         if (liveOrders == null) {
             loadOrders();
-            setupAdvertisements();
+            ordersStatusLabel.setText("Demo session · orders appear after Admin confirms allocation in the connected workspace.");
+
             return;
         }
-        adBanner.setVisible(false);
-        adBanner.setManaged(false);
+
         liveOrderControls.setVisible(true);
         liveOrderControls.setManaged(true);
         emptyLabel.setText("This shop has no orders yet.");
@@ -64,6 +54,7 @@ public class MyOrdersController {
 
     @FXML
     private void refreshOrders() {
+        if(liveOrders==null){loadOrders();return;}
         if (liveOrders != null && !busy) {
             loadPage(null, false, "");
         }
@@ -77,6 +68,7 @@ public class MyOrdersController {
     }
 
     private void loadPage(Long beforeId, boolean append, String notice) {
+        if(!append){orderCardsContainer.getChildren().clear();nextBeforeId=null;}
         emptyLabel.setVisible(false);
         emptyLabel.setManaged(false);
         runLiveTask("Loading orders…", () -> liveOrders.page(beforeId), page -> {
@@ -141,13 +133,6 @@ public class MyOrdersController {
             requestWindow = null;
         }
     }
-    private void setupAdvertisements(){
-        advertisements=AppServices.marketplace().featuredSupplierAdvertisements();if(advertisements.isEmpty())return;
-        renderAdvertisement(0);adActionButton.setOnAction(e->showAdvertisementDetails(advertisements.get(currentAd)));
-        adRotation=new Timeline(new KeyFrame(Duration.seconds(6),event->renderAdvertisement((currentAd+1)%advertisements.size())));adRotation.setCycleCount(Timeline.INDEFINITE);adRotation.play();
-    }
-    private void renderAdvertisement(int index){currentAd=index;SupplierAdvertisement ad=advertisements.get(index);adHeadlineLabel.setText(ad.headline());adMessageLabel.setText(ad.message());adActionButton.setText(ad.actionText());var resource=getClass().getResource(ad.imageResource());if(resource!=null)adImage.setImage(new Image(resource.toExternalForm(),true));}
-    private void showAdvertisementDetails(SupplierAdvertisement ad){Alert details=new Alert(Alert.AlertType.INFORMATION,ad.message()+"\n\nFeatured supplier campaign in the demo marketplace.");details.setTitle("Featured supplier");details.setHeaderText(ad.supplierName());details.showAndWait();}
     private void loadOrders(){orderCardsContainer.getChildren().clear();var orders=AppServices.marketplace().buyerOrders();emptyLabel.setVisible(orders.isEmpty());emptyLabel.setManaged(orders.isEmpty());for(OrderRecord order:orders)addOrder(order);}
     private void addOrder(OrderRecord order){
         VBox card=new VBox(12);card.getStyleClass().add("order-card");card.setPadding(new Insets(18));
@@ -256,11 +241,7 @@ public class MyOrdersController {
     }
     @FXML private void goToDashboard(){
         if (busy) return;
-        if (liveOrders != null) {
-            SceneNavigator.clearAndShow(orderCardsContainer,"/com/coffeemongers/view/BuyerDashboard.fxml","Coffee Mongers · Buyer Dashboard");
-        } else {
-            SceneNavigator.back(orderCardsContainer,"/com/coffeemongers/view/BuyerDashboard.fxml","Coffee Mongers · Buyer Dashboard");
-        }
+        com.coffeemongers.view.WorkspaceRouter.openHome(screenRoot);
     }
     @FXML private void goToCreateDemand(){SceneNavigator.show(orderCardsContainer,"/com/coffeemongers/createdemand/CreateDemand.fxml","Coffee Mongers · Create Demand");}
     private static final class NumberFormatters {static String money(BigDecimal amount){return String.format(Locale.US,"%,.2f",amount);}}

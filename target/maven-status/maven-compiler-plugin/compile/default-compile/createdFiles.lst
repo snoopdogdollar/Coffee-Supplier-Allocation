@@ -18,13 +18,11 @@ com\coffeemongers\model\OrderItem.class
 com\coffeemongers\service\InMemorySessionService.class
 com\coffeemongers\view\UndoHistory$Entry.class
 com\coffeemongers\controller\AdminDashboardController$AdminOrderRow.class
-com\coffeemongers\controller\BuyerDashboardController$DemandRow.class
 com\coffeemongers\controller\RoleSwitcherController.class
 com\coffeeallocation\dao\DemandDao$RecentDemand.class
 com\coffeemongers\service\InMemoryAuthenticationService$Credential.class
 com\coffeeallocation\dao\DemandItemDao.class
 com\coffeemongers\model\schema\SupplierScore.class
-com\coffeemongers\controller\BuyerDashboardController$OrderRow.class
 com\coffeeallocation\algorithm\SharedSupplyAllocator.class
 com\coffeemongers\controller\AdminManagementController$AdminRow.class
 com\coffeemongers\controller\BuyerProfileController.class

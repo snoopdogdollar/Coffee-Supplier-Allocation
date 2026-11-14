@@ -5,6 +5,8 @@ import com.coffeemongers.view.SceneNavigator;
 import com.coffeemongers.view.DatabaseMessages;
 import com.coffeeallocation.service.AdminOverviewService;
 import com.coffeeallocation.model.SupplierPerformance;
+import com.coffeeallocation.model.WeeklyMarketView;
+import com.coffeeallocation.service.WeeklyMarketService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -14,6 +16,12 @@ import javafx.scene.control.TableColumn;
 import javafx.collections.FXCollections;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import java.math.BigDecimal;
@@ -27,7 +35,12 @@ public class AdminDashboardController {
     @FXML private TableColumn<AdminOrderRow,String> orderColumn,businessColumn,supplierColumn,quantityColumn,statusColumn;
     @FXML private Label totalOrdersLabel,pendingOrdersLabel,activeSuppliersLabel;
     @FXML private Label overviewSubtitle,scopeBadge,totalOrdersHint,activeSuppliersHint,recentOrdersHint,overviewNote,overviewStatusLabel;
-    @FXML private HBox demoPanels;
+    @FXML private BarChart<String,Number> weeklyMarketChart;
+    @FXML private NumberAxis weeklyQuantityAxis;
+    @FXML private ComboBox<WeeklyMarketView.Product> chartProduct;
+    @FXML private TextField chartEndYear,chartEndWeek;
+    @FXML private Button applyChartButton;
+    @FXML private Label weeklyChartStatus,weeklyChartScope;
     @FXML private VBox overviewFooter;
     @FXML private VBox supplierRankingPanel,topSupplierRows;
     @FXML private TableView<SupplierPerformance.Entry> supplierPerformanceTable;
@@ -62,7 +75,6 @@ public class AdminDashboardController {
         refreshOverview();
     }
     private void configureLiveOverview() {
-        demoPanels.setVisible(false);demoPanels.setManaged(false);
         supplierRankingPanel.setVisible(true);supplierRankingPanel.setManaged(true);
         rankingPolicyLabel.setText("Quality 40% · Quantity 30% · On-time 30% · Top: active suppliers with at least "
                 +com.coffeeallocation.service.SupplierRankingService.MINIMUM_REVIEWS+" reviews");
@@ -98,21 +110,35 @@ public class AdminDashboardController {
         if(busy){refreshQueued=true;return;}
         if(liveOverview==null){loadDemoOverview();return;}
         if(AppServices.liveAdminOverview().isEmpty())return;
+        Long productId=chartProduct.getValue()==null?null:chartProduct.getValue().id();
+        Integer endYear,endWeek;
+        try {
+            endYear=chartEndYear.getText().isBlank()?null:Integer.valueOf(chartEndYear.getText().strip());
+            endWeek=chartEndWeek.getText().isBlank()?null:Integer.valueOf(chartEndWeek.getText().strip());
+            WeeklyMarketService.validate(productId,endYear,endWeek);
+        } catch(NumberFormatException exception) {
+            weeklyChartStatus.setText("Enter whole numbers for the ending ISO year and week.");return;
+        } catch(IllegalArgumentException exception) {
+            weeklyChartStatus.setText(exception.getMessage());return;
+        }
         var user=AppServices.currentUser();busy=true;
         totalOrdersLabel.setText("—");pendingOrdersLabel.setText("—");activeSuppliersLabel.setText("—");ordersTable.getItems().clear();
         supplierPerformanceTable.getItems().clear();topSupplierRows.getChildren().clear();
         rankingStatusLabel.setText("Loading supplier reviews…");
+        weeklyMarketChart.getData().clear();weeklyMarketChart.setVisible(false);weeklyMarketChart.setManaged(false);
+        weeklyChartScope.setText("");weeklyChartStatus.setText("Loading weekly supply and demand…");setChartFiltersDisabled(true);
         overviewStatusLabel.setText("Loading PostgreSQL overview…");refreshOverviewButton.setDisable(true);
         Task<com.coffeeallocation.model.AdminOverviewView.Snapshot> task=new Task<>() {
-            @Override protected com.coffeeallocation.model.AdminOverviewView.Snapshot call() throws Exception {return liveOverview.load();}
+            @Override protected com.coffeeallocation.model.AdminOverviewView.Snapshot call() throws Exception {return liveOverview.load(productId,endYear,endWeek);}
         };
         task.setOnSucceeded(event -> {
-            busy=false;refreshOverviewButton.setDisable(false);
+            busy=false;refreshOverviewButton.setDisable(false);setChartFiltersDisabled(false);
             if(!AppServices.currentUser().equals(user)||AppServices.liveAdminOverview().isEmpty())return;
             var snapshot=task.getValue();var totals=snapshot.totals();
             totalOrdersLabel.setText(Long.toString(totals.orders()));pendingOrdersLabel.setText(Long.toString(totals.pendingOrders()));
             activeSuppliersLabel.setText(Long.toString(totals.activeSuppliers()));
             showRankings(snapshot);
+            showWeeklyMarket(snapshot.weeklyMarket(),false);
             ordersTable.getItems().setAll(snapshot.recentOrders().stream().map(o -> new AdminOrderRow(Long.toString(o.id()),
                     o.shopName()+" (#"+o.shopId()+")",o.supplierName()+" (#"+o.supplierId()+")",Integer.toString(o.itemCount()),
                     o.status(),o.date().toString(),o.total().toPlainString())).toList());
@@ -120,16 +146,57 @@ public class AdminDashboardController {
             refreshQueuedIfVisible();
         });
         task.setOnFailed(event -> {
-            busy=false;refreshOverviewButton.setDisable(false);
+            busy=false;refreshOverviewButton.setDisable(false);setChartFiltersDisabled(false);
             if(AppServices.currentUser().equals(user)&&AppServices.liveAdminOverview().isPresent()) {
                 overviewStatusLabel.setText(DatabaseMessages.describe(
                         task.getException(),"Could not load the overview. Refresh before trying again."));
                 rankingStatusLabel.setText("Supplier performance unavailable. Refresh to try again.");
                 supplierPerformanceTable.setPlaceholder(new Label("Supplier performance unavailable."));
+                weeklyChartStatus.setText("Weekly supply and demand unavailable. Refresh to try again.");
             }
             refreshQueuedIfVisible();
         });
         Thread.ofVirtual().name("admin-overview").start(task);
+    }
+    private void setChartFiltersDisabled(boolean disabled) {
+        chartProduct.setDisable(disabled);chartEndYear.setDisable(disabled);chartEndWeek.setDisable(disabled);
+        applyChartButton.setDisable(disabled);
+    }
+    private void showWeeklyMarket(WeeklyMarketView.Chart chart,boolean demo) {
+        chartProduct.getItems().setAll(chart.products());chartProduct.setValue(chart.product());
+        chartEndYear.setText(Integer.toString(chart.endYear()));chartEndWeek.setText(Integer.toString(chart.endWeek()));
+        weeklyMarketChart.getData().clear();
+        boolean hasProduct=chart.product()!=null;
+        weeklyMarketChart.setVisible(hasProduct);weeklyMarketChart.setManaged(hasProduct);
+        if(!hasProduct) {
+            weeklyChartScope.setText("No products available.");
+            weeklyChartStatus.setText("Add a coffee product to view weekly supply and demand.");return;
+        }
+        var supply=new XYChart.Series<String,Number>();supply.setName("Supply (declared)");
+        var demand=new XYChart.Series<String,Number>();demand.setName("Demand (requested)");
+        for(var week:chart.weeks()) {
+            addBar(supply,week.label(),week.supply(),chart.product().unit());
+            addBar(demand,week.label(),week.demand(),chart.product().unit());
+        }
+        weeklyQuantityAxis.setLabel("Quantity ("+chart.product().unit()+")");
+        weeklyMarketChart.getData().add(supply);weeklyMarketChart.getData().add(demand);
+        weeklyChartScope.setText(chart.product().name()+" · "+chart.product().unit()+" · "
+                +chart.weeks().getFirst().label()+" to "+chart.weeks().getLast().label());
+        boolean empty=chart.weeks().stream().allMatch(w -> w.supply().signum()==0&&w.demand().signum()==0);
+        weeklyChartStatus.setText(demo?"Illustrative weekly values · demo only. Sign in as the configured PostgreSQL Admin for saved data.":
+                (empty?"No supply or demand recorded for this product in these weeks. ":"")
+                +"Supply = total declared quantity. Demand = requested quantity for the delivery week, excluding cancelled demands. "
+                +"Includes historical records for inactive businesses and offerings.");
+    }
+    private void addBar(XYChart.Series<String,Number> series,String week,BigDecimal quantity,String unit) {
+        var data=new XYChart.Data<String,Number>(week,quantity.doubleValue());
+        data.nodeProperty().addListener((observable,previous,node) -> {
+            if(node!=null) {
+                String description=week+" · "+series.getName()+": "+quantity.toPlainString()+" "+unit;
+                Tooltip.install(node,new Tooltip(description));
+            }
+        });
+        series.getData().add(data);
     }
     private void addPerformanceColumn(String title,double width,Function<SupplierPerformance.Entry,String> value) {
         TableColumn<SupplierPerformance.Entry,String> column=new TableColumn<>(title);
@@ -172,6 +239,7 @@ public class AdminDashboardController {
         if(screenRoot.getScene()!=null&&screenRoot.getScene().getWindow()!=null&&AppServices.liveAdminOverview().isPresent())refreshOverview();
     }
     private void loadDemoOverview() {
+        showWeeklyMarket(new WeeklyMarketService().demo(java.time.LocalDate.now()),true);setChartFiltersDisabled(true);
         var service=AppServices.marketplace();var orders=service.adminOrders();totalOrdersLabel.setText(Integer.toString(orders.size()));pendingOrdersLabel.setText(Long.toString(orders.stream().filter(o->!o.status().equalsIgnoreCase("completed")&&!o.status().equalsIgnoreCase("cancelled")&&!o.status().equalsIgnoreCase("delivered")).count()));activeSuppliersLabel.setText(Long.toString(service.adminSuppliers().stream().filter(s->s.isActive()).count()));
         ordersTable.setItems(FXCollections.observableArrayList(orders.stream().map(o->new AdminOrderRow(o.id(),"Bếp Cà Phê",o.supplierName(),o.items().stream().map(i->i.quantity().stripTrailingZeros().toPlainString()+" "+i.unit()).reduce((a,b)->a+", "+b).orElse("—"),o.status())).toList()));ordersTable.setPlaceholder(new Label("No demo orders yet. Orders appear here after a buyer confirms allocations."));
     }

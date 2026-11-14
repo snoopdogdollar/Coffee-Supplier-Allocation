@@ -1,5 +1,31 @@
 # Project decisions
 
+## 2026-11-14 — Buyer workflow and interface
+
+- Buyer submits demands and follows confirmed allocations through My Demands and My
+  Orders. Admin runs and confirms allocation. Remove the Buyer Matching Results route
+  and manual supplier-selection step.
+- Show requested, confirmed allocation and remaining quantity for each demand item,
+  preserving its unit. Allocation sums are independent of the number of linked orders.
+- Add shop-scoped all-time dashboard counts and paginated My Demands. Read snapshots
+  use repeatable read and background workers. Existing receipt and binary review
+  services remain responsible for order completion and review validation.
+- Demo submission stops at submitted without creating orders. Keep the legacy matching
+  implementation unlinked; do not change the Admin algorithm or schema.
+- See buyer-workspace.md for screen behavior and verification.
+
+## 2026-11-14 — Weekly supply and demand dashboard chart
+
+- Show two adjacent bars per ISO delivery week: declared supply from initial_quantity
+  and requested demand from demand_items, excluding cancelled demands.
+- Use one selected product/unit. Include saved historical records for inactive parties
+  and offerings; requested totals include already allocated demands.
+- Default to eight weeks ending in the current database ISO week. Permit product and
+  ending year/week selection, fill absent weeks with zero, and handle ISO year rollover.
+- Load through the overview's existing read-only snapshot. Demo values remain labeled
+  and separate. No schema, allocation algorithm or supplier ranking change.
+- See weekly-supply-demand-chart.md for behavior and verification.
+
 ## 2026-11-14 — Review-based dashboard supplier ranking
 
 - Dashboard score uses all eligible binary reviews: Quality 40%, Quantity 30%, On-time 30%.

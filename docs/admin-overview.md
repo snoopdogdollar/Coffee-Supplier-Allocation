@@ -13,22 +13,26 @@ single read-only repeatable-read snapshot from PostgreSQL, off the JavaFX thread
   Totals are from order_items; quantities with different units are not summed.
 
 Historical orders remain counted and visible when their supplier or shop is inactive.
-The All time label replaces the old illustrative 30-day label. The static trend is
-hidden in this PostgreSQL workspace. Top Suppliers and the supplier performance table
+The All time label replaces the old illustrative 30-day label for overview metrics.
+Weekly Supply & Demand now displays paired bars from saved product/week data in
+this PostgreSQL workspace. Top Suppliers and the supplier performance table
 now use eligible reviews from the same snapshot as the totals and recent orders.
 The old seeded supplier scores have been removed. Demo Admin and demo workspace
-previews retain the explicitly labeled illustrative trend without a supplier ranking. The environment
+previews display explicitly labeled weekly demo bars without a supplier ranking. The environment
 badge identifies the configured PostgreSQL Admin workspace; the load status reports
 whether the database read succeeded.
 
 See [supplier-ranking.md](supplier-ranking.md) for the 40/30/30 scoring policy,
 five-review Top eligibility and current verification.
+See [weekly-supply-demand-chart.md](weekly-supply-demand-chart.md) for the eight-week
+chart, product/unit filtering and declared/requested quantity definitions.
 
 Overview reads on entry and on reattachment of a cached dashboard when Back returns
 from another screen. A request arriving during an existing read queues one refresh.
 Refresh manually reloads the snapshot. The dashboard does not poll or mutate orders,
 supplier status, demand, allocations or reviews. On a read failure, statistics display
-em dashes and the recent and supplier performance tables are cleared; sanitized database messages explain the
+em dashes, the recent and supplier performance tables are cleared, and the chart's
+old bars are removed; sanitized database messages explain the
 failure and Refresh remains available. Demo values are not used as a live fallback.
 
 Open Orders & Activity for all orders and product details. Receipt and review stay in

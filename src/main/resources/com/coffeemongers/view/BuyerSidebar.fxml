@@ -1,0 +1,14 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox fx:id="buyerSidebarRoot" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coffeemongers.controller.BuyerSidebarController" prefWidth="240" minWidth="240" styleClass="buyer-sidebar" spacing="14">
+ <HBox spacing="10" alignment="CENTER_LEFT"><Label text="☕" styleClass="buyer-brand-icon"/><VBox spacing="3"><Label text="Coffee Mongers" styleClass="brand"/><Label text="BUYER WORKSPACE" styleClass="brand-subtitle"/></VBox></HBox>
+ <Separator/>
+ <Label text="YOUR SOURCING" styleClass="sidebar-heading"/>
+ <Button fx:id="overviewNavButton" text="▦   Overview" onAction="#overview" styleClass="nav-button" maxWidth="Infinity"/>
+ <Button fx:id="demandsNavButton" text="▤   My Demands" onAction="#demands" styleClass="nav-button" maxWidth="Infinity"/>
+ <Button fx:id="ordersNavButton" text="▣   My Orders" onAction="#orders" styleClass="nav-button" maxWidth="Infinity"/>
+ <Button fx:id="createDemandNavButton" text="＋   Create Demand" onAction="#create" styleClass="nav-button" maxWidth="Infinity"/>
+ <Region VBox.vgrow="ALWAYS"/>
+ <VBox spacing="8" styleClass="buyer-sidebar-note"><Label text="From need to delivery" styleClass="supplier-name"/><Label text="Submit your needs. Admin confirms the allocation. Track your orders here." wrapText="true" styleClass="small-text"/></VBox>
+ <VBox spacing="5" styleClass="buyer-profile"><Label fx:id="buyerNameLabel" text="Buyer" styleClass="profile-name" wrapText="true"/><Label text="Coffee shop account" styleClass="small-text"/><Label fx:id="buyerEmailLabel" wrapText="true" styleClass="small-text"/></VBox>
+</VBox>

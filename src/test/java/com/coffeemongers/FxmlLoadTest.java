@@ -31,13 +31,18 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class FxmlLoadTest {
+    private static final AtomicReference<Throwable> fxFailure = new AtomicReference<>();
     @BeforeAll
     static void startJavaFx() throws Exception {
         CountDownLatch started = new CountDownLatch(1);
-        Platform.startup(started::countDown);
+        Platform.startup(() -> {
+            Thread.currentThread().setUncaughtExceptionHandler((thread,error) -> fxFailure.compareAndSet(null,error));
+            started.countDown();
+        });
         if (!started.await(10, TimeUnit.SECONDS)) fail("JavaFX toolkit did not start");
     }
 
@@ -71,7 +76,8 @@ class FxmlLoadTest {
 
         if (!completed.await(90, TimeUnit.SECONDS)) fail("FXML load and navigation check timed out");
         if (failure.get() != null) fail("FXML load failed", failure.get());
-        assertEquals(26, count.get());
+        if (fxFailure.get() != null) fail("JavaFX reported an uncaught rendering error", fxFailure.get());
+        assertEquals(28, count.get());
     }
 
     private void verifySidebarNavigation() throws Exception {
@@ -87,15 +93,18 @@ class FxmlLoadTest {
             assertVisibleFooterAction(stage, "reviewDemandButton");
             fire(create, "reviewDemandButton");
             assertTitle(stage, "Demand Details");
-            assertVisibleFooterAction(stage, "findMatchesButton");
-            fire(stage.getScene().getRoot(), "findMatchesButton");
-            assertTitle(stage, "Matching Results");
-            assertEquals(false, ((VBox) stage.getScene().getRoot().lookup("#matchesContainer")).getChildren().isEmpty());
-            fire(stage.getScene().getRoot(), "homeButton");
-            buyer=stage.getScene().getRoot();fire(buyer,"matchingNavButton");assertTitle(stage,"Matching Results");assertEquals("#DM-004",((Label)stage.getScene().getRoot().lookup("#demandIdLabel")).getText());fireClass(stage.getScene().getRoot(),"back-button");
-            buyer=stage.getScene().getRoot();fire(buyer,"suppliersNavButton");assertTitle(stage,"Suppliers");fire(stage.getScene().getRoot(),"homeButton");assertTitle(stage,"Buyer Dashboard");
-            buyer=stage.getScene().getRoot();fire(buyer,"profileNavButton");assertTitle(stage,"Buyer Profile");fireClass(stage.getScene().getRoot(),"back-button");
-            buyer=stage.getScene().getRoot();fire(buyer,"ordersNavButton");assertTitle(stage,"My Orders");fire(stage.getScene().getRoot(),"createDemandButton");assertTitle(stage,"Create Demand");fireClass(stage.getScene().getRoot(),"back-button");
+            assertVisibleFooterAction(stage, "demandActionButton");
+            fire(stage.getScene().getRoot(), "demandActionButton");
+            assertTitle(stage, "Demand Details");
+            assertEquals("SUBMITTED · DEMO",((Label)stage.getScene().getRoot().lookup("#demandStatusLabel")).getText());
+            assertEquals(0,AppServices.marketplace().buyerOrders().size());
+            fire(stage.getScene().getRoot(),"demandActionButton");assertTitle(stage,"My Demands");
+            assertNull(stage.getScene().getRoot().lookup("#matchingNavButton"));
+            assertEquals(3,((javafx.scene.control.TableView<?>)stage.getScene().getRoot().lookup("#demandsTable")).getItems().size());
+            fire(stage.getScene().getRoot(),"overviewNavButton");assertTitle(stage,"Buyer Dashboard");
+            buyer=stage.getScene().getRoot();assertNull(buyer.lookup("#matchingNavButton"));assertNull(buyer.lookup("#supplierSection"));
+            fire(buyer,"demandsNavButton");assertTitle(stage,"My Demands");fire(stage.getScene().getRoot(),"ordersNavButton");assertTitle(stage,"My Orders");
+            fire(stage.getScene().getRoot(),"createDemandButton");assertTitle(stage,"Create Demand");fireClass(stage.getScene().getRoot(),"back-button");
 
             AppServices.session().start(new DemoUser("nav-admin","Navigation Admin","navigation-admin@example.test",AccountRole.ADMIN));
             Parent admin=show(stage,"/com/coffeemongers/admin/AdminDashboard.fxml","Admin Dashboard");

@@ -5,26 +5,15 @@
 <BorderPane fx:id="detailsRoot" xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.coffeemongers.controller.DemandDetailsController"
-            styleClass="main-layout">
+            styleClass="main-layout,buyer-workspace">
 
-    <top>
-        <VBox spacing="8" styleClass="form-header">
-            <HBox alignment="CENTER_RIGHT"><Region HBox.hgrow="ALWAYS"/><fx:include source="../view/HomeLogo.fxml"/></HBox>
-            <Button text="← Back"
-                    onAction="#goBack"
-                    styleClass="back-button"/>
-
-            <Label text="Buyer Workspace  /  Demand Details"
-                   styleClass="subtitle"/>
-            <Label text="Demand Details" styleClass="page-title"/>
-            <Label text="Review the products, requested quantities, and notes."
-                   styleClass="subtitle"/>
-        </VBox>
-    </top>
+<left><fx:include fx:id="buyerSidebar" source="../view/BuyerSidebar.fxml"/></left>
+<top><HBox alignment="CENTER_LEFT" styleClass="topbar"><Label text="Buyer Workspace / Demand Details" styleClass="buyer-topbar-title"/><Region HBox.hgrow="ALWAYS"/><fx:include source="../view/RoleSwitcher.fxml"/></HBox></top>
 
     <center>
         <ScrollPane fitToWidth="true" styleClass="content-scroll">
             <VBox spacing="18" styleClass="content">
+<HBox alignment="CENTER_LEFT" spacing="14"><Button text="← Back" onAction="#goBack" styleClass="back-button"/><VBox spacing="5"><Label text="Demand details" styleClass="page-title"/><Label text="Review your request and track the allocation confirmed by Admin." styleClass="subtitle" wrapText="true"/></VBox></HBox>
 
                 <VBox styleClass="section-card" spacing="12">
                     <HBox alignment="CENTER_LEFT">
@@ -59,9 +48,10 @@
                 <VBox styleClass="section-card" spacing="12">
                     <Label text="Coffee Products" styleClass="section-title"/>
                     <HBox styleClass="form-column-header">
-                        <Label text="Coffee Product" HBox.hgrow="ALWAYS"/>
-                        <Label text="Quantity" prefWidth="160"
-                               alignment="CENTER_RIGHT"/>
+                        <Label text="Coffee Product" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                        <Label text="Requested" minWidth="115" prefWidth="115" alignment="CENTER_RIGHT"/>
+                        <Label text="Allocated" minWidth="115" prefWidth="115" alignment="CENTER_RIGHT"/>
+                        <Label text="Remaining" minWidth="115" prefWidth="115" alignment="CENTER_RIGHT"/>
                     </HBox>
                     <VBox fx:id="detailsProductContainer" spacing="10"/>
                     <Separator/>
@@ -74,6 +64,7 @@
                     </HBox>
                 </VBox>
 
+                <VBox fx:id="allocationSection" styleClass="section-card" spacing="12" visible="false" managed="false"><Label text="Confirmed supplier allocation" styleClass="section-title"/><Label text="The allocation is confirmed by Admin. Orders show receipt and review actions." wrapText="true" styleClass="small-text"/><VBox fx:id="allocationRows" spacing="10"/></VBox>
                 <VBox styleClass="section-card" spacing="12">
                     <Label text="Request Details" styleClass="section-title"/>
 
@@ -104,8 +95,9 @@
             <Label fx:id="submissionMessage" styleClass="error-text" wrapText="true"
                    minWidth="0" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
             <Button text="Back" onAction="#goBack" styleClass="outline-button"/>
-            <Button fx:id="findMatchesButton" text="Submit Demand &amp; Find Matches"
-                    onAction="#findMatches" styleClass="primary-button"/>
+            <Button fx:id="refreshDemandButton" text="Refresh" onAction="#refreshDemand" styleClass="outline-button" visible="false" managed="false"/>
+            <Button fx:id="demandActionButton" text="Submit Demand"
+                    onAction="#demandAction" styleClass="primary-button"/>
         </HBox>
     </bottom>
 </BorderPane>

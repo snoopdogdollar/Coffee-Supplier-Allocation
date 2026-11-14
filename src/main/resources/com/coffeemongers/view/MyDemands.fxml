@@ -1,0 +1,11 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane fx:id="demandsRoot" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coffeemongers.controller.MyDemandsController" styleClass="main-layout,buyer-workspace">
+ <left><fx:include fx:id="buyerSidebar" source="BuyerSidebar.fxml"/></left>
+ <top><HBox alignment="CENTER_LEFT" styleClass="topbar"><Label text="Buyer Workspace / My Demands" styleClass="buyer-topbar-title"/><Region HBox.hgrow="ALWAYS"/><fx:include source="RoleSwitcher.fxml"/></HBox></top>
+ <center><VBox spacing="20" styleClass="content">
+  <HBox alignment="CENTER_LEFT" spacing="12"><VBox spacing="6" HBox.hgrow="ALWAYS"><Label text="PLAN &amp; TRACK" styleClass="buyer-eyebrow"/><Label text="My Demands" styleClass="page-title"/><Label text="Track your delivery weeks and the allocation confirmed by Admin." styleClass="subtitle" wrapText="true"/></VBox><Button fx:id="refreshDemandsButton" text="Refresh" onAction="#refresh" styleClass="outline-button"/><Button fx:id="createDemandButton" text="＋ Create Demand" onAction="#create" styleClass="primary-button"/></HBox>
+  <VBox spacing="14" styleClass="section-card" VBox.vgrow="ALWAYS"><Label text="Your requests" styleClass="section-title"/><TableView fx:id="demandsTable" VBox.vgrow="ALWAYS" styleClass="data-table"><columns><TableColumn fx:id="demandColumn" text="Demand" prefWidth="90"/><TableColumn fx:id="productColumn" text="Products" prefWidth="210"/><TableColumn fx:id="quantityColumn" text="Requested" prefWidth="140"/><TableColumn fx:id="weekColumn" text="Delivery week" prefWidth="120"/><TableColumn fx:id="statusColumn" text="Status" prefWidth="130"/><TableColumn fx:id="progressColumn" text="Allocation" prefWidth="190"/></columns></TableView><Label fx:id="demandsStatus" styleClass="status-message" wrapText="true"/></VBox>
+ </VBox></center>
+ <bottom><HBox alignment="CENTER_RIGHT" spacing="12" styleClass="demand-actions"><Button fx:id="loadMoreDemandsButton" text="Load More" onAction="#more" styleClass="outline-button" disable="true"/><Button fx:id="demandDetailsButton" text="View demand details →" onAction="#details" styleClass="primary-button"/></HBox></bottom>
+</BorderPane>

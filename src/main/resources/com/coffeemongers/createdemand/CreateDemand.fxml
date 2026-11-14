@@ -5,26 +5,10 @@
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.coffeemongers.controller.CreateDemandController"
-            styleClass="main-layout">
+            styleClass="main-layout,buyer-workspace">
 
-    <top>
-        <VBox styleClass="form-header" spacing="8">
-            <HBox alignment="CENTER_RIGHT"><Region HBox.hgrow="ALWAYS"/><fx:include source="../view/HomeLogo.fxml"/></HBox>
-            <Button text="← Back"
-                    onAction="#goBack"
-                    styleClass="back-button"/>
-
-            <Label text="Buyer Workspace  /  Create Demand"
-                   styleClass="subtitle"/>
-
-            <Label text="Create New Demand"
-                   styleClass="page-title"/>
-
-            <Label text="Tell us which coffee products your shop needs and the quantities to request."
-                   styleClass="subtitle"/>
-            <Label fx:id="previewNotice" text="Admin workspace preview · sign in as a Buyer to submit demands." styleClass="info-card" wrapText="true" visible="false" managed="false"/>
-        </VBox>
-    </top>
+<left><fx:include fx:id="buyerSidebar" source="../view/BuyerSidebar.fxml"/></left>
+<top><HBox alignment="CENTER_LEFT" styleClass="topbar"><Label text="Buyer Workspace / Create Demand" styleClass="buyer-topbar-title"/><Region HBox.hgrow="ALWAYS"/><fx:include source="../view/RoleSwitcher.fxml"/></HBox></top>
 
     <center>
         <ScrollPane fitToWidth="true"
@@ -32,19 +16,22 @@
                     pannable="true">
 
             <VBox spacing="18" styleClass="content">
+<HBox alignment="CENTER_LEFT" spacing="14"><Button text="← Back" onAction="#goBack" styleClass="back-button"/><VBox spacing="5"><Label text="Create a demand" styleClass="page-title"/><Label text="Choose your products, quantities and delivery week." styleClass="subtitle" wrapText="true"/></VBox></HBox>
 
-                <VBox styleClass="section-card" spacing="14">
+                <Label fx:id="previewNotice" text="Admin preview · sign in as a Buyer to submit requests." styleClass="info-card" wrapText="true" visible="false" managed="false"/>
+<VBox styleClass="section-card" spacing="14">
                     <Label text="Buyer Information"
                            styleClass="section-title"/>
-                    <Label fx:id="shopLabel" text="Bếp Cà Phê · Ho Chi Minh City"
+                    <Label fx:id="shopLabel" text="Your coffee shop"
                            styleClass="supplier-name"/>
                     <Label text="Shop details come from the selected buyer account."
                            styleClass="small-text"/>
-                    <Label fx:id="dateLabel" text="Request Date *"
+                    <Label fx:id="dateLabel" text="Required Delivery Date *"
                            styleClass="form-label"/>
                     <DatePicker fx:id="requestDatePicker"
-                                promptText="Select request date"
+                                promptText="Choose a date in the delivery week"
                                 maxWidth="Infinity"/>
+                    <Label fx:id="requiredWeekPreview" styleClass="buyer-delivery-note" wrapText="true"/>
                 </VBox>
 
                 <VBox styleClass="section-card" spacing="14">
@@ -71,7 +58,7 @@
 
                         <columnConstraints>
                             <ColumnConstraints hgrow="ALWAYS" minWidth="0"/>
-                            <ColumnConstraints minWidth="80" prefWidth="80" maxWidth="80"/>
+                            <ColumnConstraints minWidth="100" prefWidth="100" maxWidth="100"/>
                             <ColumnConstraints minWidth="55" prefWidth="55" maxWidth="55"/>
                             <ColumnConstraints minWidth="160" prefWidth="160" maxWidth="220"/>
                             <ColumnConstraints minWidth="78" prefWidth="78" maxWidth="78"/>
@@ -83,7 +70,7 @@
                         <Label text="Quantity"
                                GridPane.columnIndex="1"/>
 
-                        <Label text="Product unit"
+                        <Label text="Unit"
                                GridPane.columnIndex="2"/>
 
                         <Label text="Product note"

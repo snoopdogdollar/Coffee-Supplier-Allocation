@@ -1,6 +1,6 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.collections.FXCollections?>
+<?import javafx.scene.chart.*?>
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
  fx:controller="com.coffeemongers.controller.AdminDashboardController" fx:id="screenRoot" styleClass="main-layout">
  <left><VBox prefWidth="250" styleClass="admin-sidebar" spacing="14">
@@ -14,8 +14,21 @@
  <center><ScrollPane fitToWidth="true" styleClass="content-scroll"><VBox spacing="22" styleClass="content">
   <HBox alignment="CENTER_LEFT"><VBox spacing="4"><Label text="Platform Overview" styleClass="page-title"/><Label fx:id="overviewSubtitle" text="Monitor Coffee Mongers marketplace activity." styleClass="subtitle"/></VBox><Region HBox.hgrow="ALWAYS"/><VBox spacing="8" alignment="CENTER_RIGHT"><Label fx:id="scopeBadge" text="Demo session" styleClass="week-badge"/><Button fx:id="refreshOverviewButton" text="Refresh" onAction="#refreshOverview" styleClass="outline-button"/></VBox></HBox>
   <HBox spacing="16"><VBox styleClass="stat-card" HBox.hgrow="ALWAYS"><Label text="Total Orders" styleClass="stat-label"/><Label fx:id="totalOrdersLabel" text="0" styleClass="stat-number"/><Label fx:id="totalOrdersHint" text="This demo session" styleClass="small-text"/></VBox><VBox styleClass="stat-card" HBox.hgrow="ALWAYS"><Label text="Pending Orders" styleClass="stat-label"/><Label fx:id="pendingOrdersLabel" text="0" styleClass="stat-number"/><Label text="Current order status" styleClass="small-text"/></VBox><VBox styleClass="stat-card" HBox.hgrow="ALWAYS"><Label text="Active Suppliers" styleClass="stat-label"/><Label fx:id="activeSuppliersLabel" text="0" styleClass="stat-number"/><Label fx:id="activeSuppliersHint" text="Local demo catalog" styleClass="small-text"/></VBox></HBox>
-  <HBox fx:id="demoPanels" spacing="16"><VBox styleClass="section-card" spacing="16" HBox.hgrow="ALWAYS"><VBox><Label text="Weekly Coffee Supply &amp; Demand" styleClass="section-title"/><Label text="Illustrative activity trend · demo values" styleClass="small-text"/></VBox><HBox spacing="10" alignment="BOTTOM_LEFT" prefHeight="150"><VBox alignment="BOTTOM_CENTER" spacing="6" HBox.hgrow="ALWAYS"><Region styleClass="chart-bar-supply" prefHeight="70"/><Label text="Mon" styleClass="small-text"/></VBox><VBox alignment="BOTTOM_CENTER" spacing="6" HBox.hgrow="ALWAYS"><Region styleClass="chart-bar-demand" prefHeight="55"/><Label text="Tue" styleClass="small-text"/></VBox><VBox alignment="BOTTOM_CENTER" spacing="6" HBox.hgrow="ALWAYS"><Region styleClass="chart-bar-supply" prefHeight="92"/><Label text="Wed" styleClass="small-text"/></VBox><VBox alignment="BOTTOM_CENTER" spacing="6" HBox.hgrow="ALWAYS"><Region styleClass="chart-bar-demand" prefHeight="73"/><Label text="Thu" styleClass="small-text"/></VBox><VBox alignment="BOTTOM_CENTER" spacing="6" HBox.hgrow="ALWAYS"><Region styleClass="chart-bar-supply" prefHeight="110"/><Label text="Fri" styleClass="small-text"/></VBox><VBox alignment="BOTTOM_CENTER" spacing="6" HBox.hgrow="ALWAYS"><Region styleClass="chart-bar-demand" prefHeight="88"/><Label text="Sat" styleClass="small-text"/></VBox><VBox alignment="BOTTOM_CENTER" spacing="6" HBox.hgrow="ALWAYS"><Region styleClass="chart-bar-supply" prefHeight="80"/><Label text="Sun" styleClass="small-text"/></VBox></HBox></VBox>
-  </HBox>
+  <VBox styleClass="section-card" spacing="12">
+   <Label text="Weekly Supply &amp; Demand" styleClass="section-title"/>
+   <HBox spacing="12" alignment="BOTTOM_LEFT">
+    <VBox spacing="4"><Label text="Product" styleClass="small-text"/><ComboBox fx:id="chartProduct" prefWidth="300"/></VBox>
+    <VBox spacing="4"><Label text="Ending ISO year" styleClass="small-text"/><TextField fx:id="chartEndYear" promptText="Year" prefWidth="105" maxWidth="105"/></VBox>
+    <VBox spacing="4"><Label text="Ending week" styleClass="small-text"/><TextField fx:id="chartEndWeek" promptText="Week" prefWidth="85" maxWidth="85"/></VBox>
+    <Button fx:id="applyChartButton" text="Apply" onAction="#refreshOverview" styleClass="outline-button"/>
+   </HBox>
+   <Label fx:id="weeklyChartScope" styleClass="small-text" wrapText="true"/>
+   <BarChart fx:id="weeklyMarketChart" animated="false" legendVisible="true" prefHeight="320" minHeight="280" barGap="5" categoryGap="18" styleClass="weekly-market-chart">
+    <xAxis><CategoryAxis label="ISO delivery week" animated="false"/></xAxis>
+    <yAxis><NumberAxis fx:id="weeklyQuantityAxis" label="Quantity" forceZeroInRange="true" animated="false"/></yAxis>
+   </BarChart>
+   <Label fx:id="weeklyChartStatus" styleClass="small-text" wrapText="true"/>
+  </VBox>
   <VBox fx:id="supplierRankingPanel" visible="false" managed="false" styleClass="section-card" spacing="12">
    <Label text="Top Suppliers" styleClass="section-title"/>
    <Label fx:id="rankingPolicyLabel" wrapText="true" styleClass="small-text"/>

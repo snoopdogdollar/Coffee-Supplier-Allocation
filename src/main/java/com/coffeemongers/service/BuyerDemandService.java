@@ -43,6 +43,8 @@ public final class BuyerDemandService {
         return new BuyerOrderService(shopId);
     }
 
+    public BuyerWorkspaceService workspace() {return new BuyerWorkspaceService(shopId);}
+
     public List<Product> products() throws SQLException {
         try (Connection connection = DatabaseConnection.getConnection()) {
             connection.setReadOnly(true);

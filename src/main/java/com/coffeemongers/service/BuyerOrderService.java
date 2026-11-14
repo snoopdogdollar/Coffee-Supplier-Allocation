@@ -31,7 +31,12 @@ public final class BuyerOrderService {
     public Page page(Long beforeId) throws SQLException {
         var rows = orders.findBuyerPage(shopId, beforeId);
         var visible = rows.subList(0, Math.min(rows.size(), PAGE_SIZE));
-        List<OrderRecord> records = visible.stream().map(row -> {
+        List<OrderRecord> records = visible.stream().map(BuyerOrderService::toRecord).toList();
+        Long next = rows.size() > PAGE_SIZE ? visible.getLast().summary().orderId() : null;
+        return new Page(records, next);
+    }
+
+    public static OrderRecord toRecord(com.coffeeallocation.model.OrderView.BuyerOrder row) {
             var header = row.summary();
             List<OrderItem> items = row.items().stream().map(item ->
                     new OrderItem(item.productName(), item.quantity(), item.unit(),
@@ -39,9 +44,6 @@ public final class BuyerOrderService {
             return new OrderRecord(Long.toString(header.orderId()), Long.toString(header.demandId()),
                     Long.toString(header.supplierId()), header.supplierName(), header.orderDate(),
                     header.status(), items, header.reviewed());
-        }).toList();
-        Long next = rows.size() > PAGE_SIZE ? visible.getLast().summary().orderId() : null;
-        return new Page(records, next);
     }
 
     public void complete(long orderId) throws SQLException {
