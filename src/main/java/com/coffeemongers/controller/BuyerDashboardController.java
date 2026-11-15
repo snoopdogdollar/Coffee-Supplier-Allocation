@@ -27,6 +27,7 @@ public class BuyerDashboardController {
         demandIdColumn.setCellValueFactory(c -> text(c.getValue().id()));productColumn.setCellValueFactory(c -> text(c.getValue().products()));
         quantityColumn.setCellValueFactory(c -> text(c.getValue().quantities()));weekColumn.setCellValueFactory(c -> text(c.getValue().week()));
         statusColumn.setCellValueFactory(c -> text(c.getValue().status()));
+        statusColumn.setCellFactory(column -> DemandStatusPresentation.cell());
         orderIdColumn.setCellValueFactory(c -> text("#"+c.getValue().id()));orderDemandColumn.setCellValueFactory(c -> text(c.getValue().demandId()));
         orderSupplierColumn.setCellValueFactory(c -> text(c.getValue().supplierName()));orderStatusColumn.setCellValueFactory(c -> text(c.getValue().status()));
         recentDemandsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);

@@ -25,12 +25,13 @@ import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 public class SupplierWeeklySupplyController {
+    @FXML private SupplierSidebarController supplierSidebarController;
     @FXML private TableView<WeeklySupplyRecord> supplyTable;
-    @FXML private TableColumn<WeeklySupplyRecord,String> productColumn, weekColumn, availableColumn, priceColumn, remainingColumn;
+    @FXML private TableColumn<WeeklySupplyRecord,String> productColumn, weekColumn, availableColumn, committedColumn,priceColumn, remainingColumn;
     @FXML private ComboBox<String> productPicker;
     @FXML private DatePicker weekPicker, weekFilterPicker;
     @FXML private TextField quantityField, priceField;
-    @FXML private Label statusLabel, weekLabel, productHelpLabel;
+    @FXML private Label statusLabel, weekLabel, productHelpLabel,quantityUnitLabel,editingSupplyNotice;
     @FXML private Button saveButton,deleteButton;
     @FXML private BorderPane screenRoot;
     private String editingId;
@@ -42,10 +43,11 @@ public class SupplierWeeklySupplyController {
     private final EventHandler<WindowEvent> blockClose = WindowEvent::consume;
 
     @FXML public void initialize() {
+        supplierSidebarController.setActive("supply");
         liveSupply = AppServices.liveSupplierSupply().orElse(null);
         saveButton.setDisable(AppServices.isReadOnlyWorkspacePreview());deleteButton.setDisable(AppServices.isReadOnlyWorkspacePreview());
         if (liveSupply == null) {
-            productPicker.setItems(FXCollections.observableArrayList(AppServices.marketplace().coffeeProducts()));
+            productPicker.setItems(FXCollections.observableArrayList(AppServices.marketplace().supplierProducts()));
         } else {
             saveButton.setDisable(true);
             productHelpLabel.setText("Choose an active product already linked to your supplier account.");
@@ -55,8 +57,12 @@ public class SupplierWeeklySupplyController {
         productColumn.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().productName()));
         weekColumn.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty("Week " + c.getValue().week() + " · " + c.getValue().year()));
         availableColumn.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(format(c.getValue().initialQuantity()) + " " + c.getValue().unit()));
+        committedColumn.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(format(c.getValue().committedQuantity())+" "+c.getValue().unit()));
         priceColumn.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(format(c.getValue().unitPrice()) + " VND/" + c.getValue().unit()));
         remainingColumn.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(format(c.getValue().remainingQuantity()) + " " + c.getValue().unit()));
+        supplyTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+        productPicker.valueProperty().addListener((o,old,value) -> updateUnit());
+        updateUnit();
         supplyTable.getSelectionModel().selectedItemProperty().addListener((obs, old, row) -> { if (row != null) edit(row); });
         weekFilterPicker.valueProperty().addListener((obs, old, value) -> { if (!busy) refresh(); });
         refresh();
@@ -73,7 +79,10 @@ public class SupplierWeeklySupplyController {
             loadLive(monday, "");
             return;
         }
+        productPicker.setItems(FXCollections.observableArrayList(AppServices.marketplace().supplierProducts()));
         supplyTable.setItems(FXCollections.observableArrayList(AppServices.marketplace().weeklySupply(monday)));
+        supplyTable.setPlaceholder(new Label("No supply declared for this week."));
+        statusLabel.setText("Demo session · quantities and prices stay in this session.");
     }
 
     @FXML private void reload() {
@@ -81,6 +90,8 @@ public class SupplierWeeklySupplyController {
     }
 
     private void loadLive(LocalDate date, String notice) {
+        clear();supplyTable.getItems().clear();liveProducts.clear();productPicker.getItems().clear();
+        saveButton.setDisable(true);deleteButton.setDisable(true);
         runLiveTask("Reading this supplier's weekly supply…", () -> liveSupply.load(date), snapshot -> {
             liveProducts.clear();
             for (var product : snapshot.catalog().products()) {
@@ -88,12 +99,13 @@ public class SupplierWeeklySupplyController {
             }
             productPicker.setItems(FXCollections.observableArrayList(liveProducts.keySet()));
             supplyTable.setItems(FXCollections.observableArrayList(snapshot.rows()));
+            supplyTable.setPlaceholder(new Label("No supply declared for this week. Add a product and declare its supply below."));
             clear();
             weekPicker.setValue(date);
             var iso = java.time.temporal.WeekFields.ISO;
             weekLabel.setText("Week " + date.get(iso.weekOfWeekBasedYear()) + " · " + date.get(iso.weekBasedYear()));
             statusLabel.setText(liveProducts.isEmpty()
-                    ? "No active products are linked to this supplier. Check supplier_products in the test database."
+                    ? "No active products offered yet. Open My Products to add a product before declaring supply."
                     : notice.isEmpty() ? "Loaded supply for " + snapshot.catalog().supplierName() + "." : notice);
         });
         // The listener skips a second read while the first request is running.
@@ -179,7 +191,7 @@ public class SupplierWeeklySupplyController {
         long productId = supplierProductId;
         runLiveTask("Saving weekly supply…",
                 () -> liveSupply.save(id, productId, week, quantity, price),
-                saved -> loadLive(week, "Supply #" + saved + " saved to PostgreSQL."));
+                saved -> loadLive(week, "Weekly supply saved."));
     }
 
     @FXML private void clear() {
@@ -191,6 +203,7 @@ public class SupplierWeeklySupplyController {
         priceField.clear();
         supplyTable.getSelectionModel().clearSelection();
         weekPicker.setValue(weekFilterPicker.getValue());
+        editingSupplyNotice.setText("Declare your total supply for the week. Remaining quantity is calculated automatically.");updateUnit();
         if (liveSupply != null) {
             productPicker.setDisable(liveProducts.isEmpty());
             weekPicker.setDisable(false);
@@ -243,7 +256,10 @@ public class SupplierWeeklySupplyController {
             saveButton.setDisable(false);
         }
         statusLabel.setText("Editing " + row.productName() + " · remaining quantity is allocation controlled.");
+        quantityUnitLabel.setText("Quantity in "+row.unit()+" · unit price in VND/"+row.unit());
+        editingSupplyNotice.setText("Allocated: "+format(row.committedQuantity())+" "+row.unit()+". Declared quantity cannot be lower than this amount.");
     }
+    private void updateUnit(){String unit=null;String name=productPicker.getValue();if(name!=null){if(liveSupply!=null){var p=liveProducts.get(name);if(p!=null)unit=p.unit();}else unit=AppServices.marketplace().coffeeProductUnit(name);}quantityUnitLabel.setText(unit==null?"Select a product to see its quantity and price units.":"Quantity in "+unit+" · unit price in VND/"+unit);}
     @FXML private void openDashboard() {
         if (busy) return;
         if (liveSupply != null) {

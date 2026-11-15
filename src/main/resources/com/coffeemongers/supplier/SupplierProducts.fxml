@@ -1,25 +1,23 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coffeemongers.controller.SupplierProductsController" fx:id="screenRoot" styleClass="main-layout">
- <top><HBox alignment="CENTER_LEFT" styleClass="topbar" spacing="10">
-  <Button fx:id="backButton" text="← Back" onAction="#goBack" styleClass="back-button"/>
-  <Label text="Products" styleClass="section-title"/><Region HBox.hgrow="ALWAYS"/>
-  <fx:include source="../view/HomeLogo.fxml"/>
- </HBox></top>
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coffeemongers.controller.SupplierProductsController" fx:id="screenRoot" styleClass="main-layout,supplier-workspace">
+<left><fx:include fx:id="supplierSidebar" source="SupplierSidebar.fxml"/></left>
+ <top><HBox alignment="CENTER_LEFT" styleClass="topbar"><Label text="Supplier Workspace / My Products" styleClass="supplier-topbar-title"/><Region HBox.hgrow="ALWAYS"/><fx:include source="../view/RoleSwitcher.fxml"/></HBox></top>
  <center><ScrollPane fitToWidth="true" styleClass="content-scroll"><content><VBox spacing="18" styleClass="content">
-  <VBox spacing="4"><Label text="Your Products" styleClass="page-title"/>
+  <VBox spacing="6"><Label text="BUILD YOUR OFFERING" styleClass="supplier-eyebrow"/><Label text="My Products" styleClass="page-title"/>
    <Label text="Select existing coffee products to offer from your supplier catalog." styleClass="subtitle" wrapText="true"/>
   </VBox>
-  <Label text="Coffee products are managed centrally. Add a product here, then declare its quantity and price in Weekly Supply." styleClass="info-card" wrapText="true"/>
+  <Label text="01  Add an existing product     →     02  Declare its weekly quantity and price" styleClass="supplier-journey" wrapText="true"/>
   <VBox styleClass="section-card" spacing="12">
    <HBox alignment="CENTER_LEFT" spacing="10"><Label fx:id="catalogTitle" text="Supplier product catalog · demo preview" styleClass="section-title"/>
     <Region HBox.hgrow="ALWAYS"/><Button fx:id="refreshProductsButton" text="Refresh" onAction="#reload" styleClass="outline-button"/>
     <Button fx:id="removeButton" text="Remove selected" onAction="#removeProduct" styleClass="outline-button"/>
    </HBox>
    <ListView fx:id="productList" prefHeight="260" styleClass="data-table"/>
+   <Label fx:id="productsTotalLabel" styleClass="small-text"/>
   </VBox>
  </VBox></content></ScrollPane></center>
- <bottom><VBox spacing="10" styleClass="content">
+ <bottom><VBox spacing="10" styleClass="demand-actions">
   <Label text="Add existing product" styleClass="section-title"/>
   <HBox spacing="10"><ComboBox fx:id="catalogPicker" promptText="Select a coffee product" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
    <Button fx:id="addButton" text="Add Product" onAction="#addProduct" styleClass="primary-button"/>

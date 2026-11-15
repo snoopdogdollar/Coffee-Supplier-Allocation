@@ -17,8 +17,7 @@ import java.util.TreeSet;
 
 public class DemandService {
 
-    // OPEN is the existing demo label, not a complete production state machine.
-    private static final String DEMO_OPEN_STATUS = "OPEN";
+    private static final String OPEN_STATUS = "OPEN";
 
     public long createOpenDemand(
             long shopId,
@@ -74,10 +73,11 @@ public class DemandService {
                     }
                 }
 
+                DemandExpiryService.requireActiveWeek(connection,year,week);
                 DemandDao demandDao = new DemandDao(connection);
                 DemandItemDao itemDao = new DemandItemDao(connection);
                 long demandId = demandDao.insertDemand(
-                    shopId, requestDate, year, week, DEMO_OPEN_STATUS, note
+                    shopId, requestDate, year, week, OPEN_STATUS, note
                 );
 
                 for (NewDemandItem item : requestItems) {
@@ -86,6 +86,7 @@ public class DemandService {
                     );
                 }
 
+                DemandExpiryService.requireActiveWeek(connection,year,week);
                 connection.commit();
                 return demandId;
             } catch (SQLException | RuntimeException exception) {

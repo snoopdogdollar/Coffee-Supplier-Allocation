@@ -29,6 +29,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.function.Function;
 
 public class AdminDashboardController {
+    @FXML private SupplyCompositionController compositionController;
     @FXML private BorderPane screenRoot;
     @FXML private Button allocationPreviewNav;
     @FXML private TableView<AdminOrderRow> ordersTable;
@@ -61,6 +62,7 @@ public class AdminDashboardController {
         ordersTable.setItems(FXCollections.observableArrayList());
         liveOverview=AppServices.liveAdminOverview().orElse(null);
         if(liveOverview!=null) {
+            compositionController.configureLive();
             configureLiveOverview();
             // Cached dashboard scenes are reattached when Back restores them.
             screenRoot.sceneProperty().addListener((o,old,scene) -> {
@@ -110,6 +112,7 @@ public class AdminDashboardController {
         if(busy){refreshQueued=true;return;}
         if(liveOverview==null){loadDemoOverview();return;}
         if(AppServices.liveAdminOverview().isEmpty())return;
+        compositionController.reload();
         Long productId=chartProduct.getValue()==null?null:chartProduct.getValue().id();
         Integer endYear,endWeek;
         try {
@@ -239,6 +242,7 @@ public class AdminDashboardController {
         if(screenRoot.getScene()!=null&&screenRoot.getScene().getWindow()!=null&&AppServices.liveAdminOverview().isPresent())refreshOverview();
     }
     private void loadDemoOverview() {
+        compositionController.configureDemo();
         showWeeklyMarket(new WeeklyMarketService().demo(java.time.LocalDate.now()),true);setChartFiltersDisabled(true);
         var service=AppServices.marketplace();var orders=service.adminOrders();totalOrdersLabel.setText(Integer.toString(orders.size()));pendingOrdersLabel.setText(Long.toString(orders.stream().filter(o->!o.status().equalsIgnoreCase("completed")&&!o.status().equalsIgnoreCase("cancelled")&&!o.status().equalsIgnoreCase("delivered")).count()));activeSuppliersLabel.setText(Long.toString(service.adminSuppliers().stream().filter(s->s.isActive()).count()));
         ordersTable.setItems(FXCollections.observableArrayList(orders.stream().map(o->new AdminOrderRow(o.id(),"Bếp Cà Phê",o.supplierName(),o.items().stream().map(i->i.quantity().stripTrailingZeros().toPlainString()+" "+i.unit()).reduce((a,b)->a+", "+b).orElse("—"),o.status())).toList()));ordersTable.setPlaceholder(new Label("No demo orders yet. Orders appear here after a buyer confirms allocations."));

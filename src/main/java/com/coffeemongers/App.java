@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class App extends Application {
+    private final com.coffeemongers.service.DemandExpiryMonitor expiryMonitor=new com.coffeemongers.service.DemandExpiryMonitor();
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -45,7 +46,10 @@ public class App extends Application {
         stage.setMinHeight(720);
         stage.setResizable(true);
         stage.show();
+        expiryMonitor.start();
     }
+
+    @Override public void stop(){expiryMonitor.close();}
 
     public static void main(String[] args) {
         launch(args);

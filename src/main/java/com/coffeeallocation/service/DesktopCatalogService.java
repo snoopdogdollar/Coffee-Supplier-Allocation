@@ -52,8 +52,10 @@ public final class DesktopCatalogService {
         if (week < 1 || week > lastWeek) {
             throw new IllegalArgumentException("Tuần ISO không hợp lệ cho năm " + year + ".");
         }
+        new DemandExpiryService().expireOverdue();
         try (Connection connection = DatabaseConnection.getConnection()) {
             connection.setReadOnly(true);
+            DemandExpiryService.requireActiveWeek(connection,year,week);
             return List.copyOf(new DemandDao(connection).findOpenItemsForWeek(year, week));
         }
     }

@@ -1,0 +1,10 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox fx:id="compositionRoot" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coffeemongers.controller.SupplyCompositionController" styleClass="section-card" spacing="12">
+ <VBox spacing="5"><Label text="Supply by Coffee Type" styleClass="section-title"/><Label text="One column per active coffee type. Each colored segment is a Supplier's contribution." styleClass="small-text" wrapText="true"/></VBox>
+ <HBox spacing="12" alignment="BOTTOM_LEFT"><VBox spacing="4"><Label text="Supply week" styleClass="small-text"/><DatePicker fx:id="compositionWeek" promptText="Choose supply week" prefWidth="170"/></VBox><VBox spacing="4"><Label text="Show quantity" styleClass="small-text"/><ComboBox fx:id="compositionMeasure" prefWidth="195"/></VBox><Button fx:id="compositionRefreshButton" text="Apply / Refresh" onAction="#reload" styleClass="outline-button"/></HBox>
+ <Label fx:id="compositionScope" styleClass="small-text" wrapText="true"/>
+ <FlowPane fx:id="compositionLegend" hgap="16" vgap="8"/>
+ <VBox fx:id="compositionBody" spacing="18"/>
+ <Label fx:id="compositionStatus" styleClass="status-message" wrapText="true"/>
+</VBox>

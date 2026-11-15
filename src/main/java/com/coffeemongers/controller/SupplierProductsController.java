@@ -21,10 +21,11 @@ import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 public class SupplierProductsController {
+    @FXML private SupplierSidebarController supplierSidebarController;
     @FXML private BorderPane screenRoot;
     @FXML private ListView<String> productList;
     @FXML private ComboBox<String> catalogPicker;
-    @FXML private Label messageLabel, catalogTitle;
+    @FXML private Label messageLabel, catalogTitle,productsTotalLabel;
     @FXML private Button addButton, removeButton;
     private SupplierProductService live;
     private final Map<String, CoffeeProduct> available = new LinkedHashMap<>();
@@ -34,6 +35,7 @@ public class SupplierProductsController {
     private final EventHandler<WindowEvent> blockClose = WindowEvent::consume;
 
     @FXML public void initialize() {
+        supplierSidebarController.setActive("products");
         live = AppServices.liveSupplierProducts().orElse(null);
         productList.setPlaceholder(new Label("No active products offered yet."));
         if (live != null) {
@@ -56,16 +58,21 @@ public class SupplierProductsController {
 
     private void refreshDemo() {
         productList.setItems(FXCollections.observableArrayList(AppServices.marketplace().supplierProducts()));
+        catalogPicker.setItems(FXCollections.observableArrayList(AppServices.marketplace().coffeeProducts().stream().filter(p -> !productList.getItems().contains(p)).toList()));
+        productsTotalLabel.setText(productList.getItems().size()+" products offered · demo session");
     }
 
     private void refreshLive(String notice) {
+        productList.getItems().clear();catalogPicker.getItems().clear();available.clear();offered.clear();
+        addButton.setDisable(true);removeButton.setDisable(true);productsTotalLabel.setText("Loading offered products…");
         runTask("Loading supplier products…", live::load, catalog -> {
             available.clear(); offered.clear();
-            catalog.available().forEach(p -> available.put(label(p.getName(), p.getProductId(), p.getUnit()), p));
             catalog.offered().forEach(p -> offered.put(label(p.name(), p.productId(), p.unit()), p));
+            catalog.available().stream().filter(p -> catalog.offered().stream().noneMatch(o -> o.productId()==p.getProductId())).forEach(p -> available.put(label(p.getName(), p.getProductId(), p.getUnit()), p));
             catalogPicker.setItems(FXCollections.observableArrayList(available.keySet()));
             catalogPicker.setValue(null);
             productList.setItems(FXCollections.observableArrayList(offered.keySet()));
+            productsTotalLabel.setText(offered.size()+" active products offered");
             addButton.setDisable(available.isEmpty());
             removeButton.setDisable(offered.isEmpty());
             messageLabel.setText(notice.isEmpty() ? "Loaded products for " + catalog.supplierName() + "." : notice);
@@ -84,7 +91,7 @@ public class SupplierProductsController {
             CoffeeProduct product = available.get(name);
             if (product == null) { messageLabel.setText("Refresh and choose an active coffee product."); return; }
             runTask("Adding product…", () -> live.add(product.getProductId()), added ->
-                    refreshLive(added ? "Product saved to PostgreSQL. You can now declare its Weekly Supply."
+                    refreshLive(added ? "Product added. You can now declare its Weekly Supply."
                             : "That product is already active in your catalog."));
             return;
         }
@@ -143,6 +150,7 @@ public class SupplierProductsController {
         task.setOnFailed(event -> {
             finishRequest();
             if (AppServices.currentUser().equals(user) && AppServices.liveSupplierProducts().isPresent()) {
+                if(available.isEmpty()&&offered.isEmpty()){productsTotalLabel.setText("Products unavailable");productList.setPlaceholder(new Label("Could not load products. Refresh to try again."));}
                 messageLabel.setText(DatabaseMessages.describe(task.getException(),
                         "Could not verify the request. Refresh products before trying again."));
             }

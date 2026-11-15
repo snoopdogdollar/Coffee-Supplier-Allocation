@@ -22,6 +22,7 @@ public class MyDemandsController {
         demandColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().id()));productColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().products()));
         quantityColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().quantities()));weekColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().week()));
         statusColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().status()));progressColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().progress()));
+        statusColumn.setCellFactory(column -> DemandStatusPresentation.cell());
         demandsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         demandsTable.setRowFactory(table -> {var row=new TableRow<BuyerDemandRow>();row.setOnMouseClicked(e -> {if(e.getClickCount()==2&&!row.isEmpty())row.getItem().open(demandsRoot);});return row;});
         service=AppServices.liveBuyerDemands().map(s -> s.workspace()).orElse(null);

@@ -1,5 +1,43 @@
 # Project decisions
 
+## 2026-11-15 — EXPIRED is distinct from CANCELLED
+
+- Close overdue OPEN demand remainders as EXPIRED after their ISO delivery week,
+  using Monday 00:00 in Asia/Ho_Chi_Minh as the deadline. Preserve CANCELLED as an
+  explicit cancellation; insufficient supply before the deadline leaves demand OPEN.
+- Preserve existing confirmed allocations/orders and allow late receipt/review.
+  Never roll unmet demand into the following week. Block new past-week demand and
+  allocation, including confirmation of stale previews.
+- Run minute-based maintenance during connected desktop sessions and catch up on
+  relevant reads. No server scheduler runs while all desktop apps are closed.
+- Show separate EXPIRED/CANCELLED badges and explanations. See demand-expiry.md.
+
+## 2026-11-15 — Dynamic coffee-type/Supplier stacked chart
+
+- Show one category per active coffee product and stack each eligible Supplier's
+  contribution. Default to remaining supply after allocation for a selected ISO week;
+  offer declared supply as a display toggle. Products with no supply retain zero totals.
+- Keep Supplier colors stable and show exact quantities/share percentages in tooltips.
+  Separate different quantity units into individual charts.
+- Reflect active catalog additions/status changes automatically. Keep historical rows.
+- Refresh the composition widget every five seconds only while Admin Overview is visible,
+  and on entry/manual refresh. Display update timestamps and retry failures without a
+  Demo fallback. Keep the existing overview/trend/ranking services and algorithms intact.
+- See supply-composition-chart.md for behavior and verification.
+
+## 2026-11-15 — Supplier workspace
+
+- Unify Overview, My Products, Weekly Supply and Incoming Orders with a shared Supplier
+  sidebar and scoped styling consistent with Buyer.
+- Show selected-week supply by product/unit and all-time incoming-order counts; never
+  sum unlike quantity units. Read the dashboard in one scoped repeatable-read snapshot.
+- Preserve existing product offering and weekly supply write services. Explain declared,
+  allocated and remaining quantities, including committed minimums and price units.
+- Incoming orders are read-only for Supplier. Buyer confirms receipt and submits review.
+  Remove the old Demo-only Mark delivered button while retaining legacy service APIs.
+- Verify the Supplier → Buyer → Admin allocation → Buyer receipt/review flow on an
+  isolated database. See supplier-workspace.md for behavior and verification.
+
 ## 2026-11-14 — Buyer workflow and interface
 
 - Buyer submits demands and follows confirmed allocations through My Demands and My

@@ -1,9 +1,7 @@
 package com.coffeemongers.controller;
 
 import com.coffeemongers.model.OrderRecord;
-import com.coffeemongers.service.AppServices;
-import com.coffeemongers.service.SupplierOrderService;
-import com.coffeemongers.view.SceneNavigator;
+import com.coffeemongers.service.*;
 import com.coffeemongers.view.DatabaseMessages;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -14,175 +12,43 @@ import java.util.Locale;
 
 public class SupplierOrdersController {
     @FXML private BorderPane screenRoot;
-    @FXML private VBox ordersContainer, liveOrderControls;
-    @FXML private Label emptyLabel, ordersSubtitle, ordersStatusLabel;
+    @FXML private SupplierSidebarController supplierSidebarController;
+    @FXML private VBox ordersContainer;
+    @FXML private Label emptyLabel,ordersSubtitle,ordersStatusLabel;
     @FXML private Button loadMoreOrdersButton;
     private SupplierOrderService liveOrders;
     private Long nextBeforeId;
     private boolean busy;
-
-    @FXML
-    public void initialize() {
-        liveOrders = AppServices.liveSupplierOrders().orElse(null);
-        if (liveOrders != null) {
-            ordersSubtitle.setText("Orders assigned to your supplier account. Refresh to see Buyer receipt confirmations.");
-            emptyLabel.setText("This supplier has no incoming orders yet.");
-            liveOrderControls.setVisible(true);
-            liveOrderControls.setManaged(true);
-        }
-        refresh();
-    }
-
-    @FXML
-    private void refresh() {
-        if (busy) return;
-        if (liveOrders != null) {
-            loadPage(null, false);
-            return;
-        }
-        ordersContainer.getChildren().clear();
-        var orders = AppServices.marketplace().supplierOrders();
-        emptyLabel.setVisible(orders.isEmpty());
-        emptyLabel.setManaged(orders.isEmpty());
-        for (OrderRecord order : orders) addOrder(order, null);
-    }
-
-    @FXML
-    private void loadMore() {
-        if (!busy && liveOrders != null && nextBeforeId != null) loadPage(nextBeforeId, true);
-    }
-
-    private void loadPage(Long beforeId, boolean append) {
-        if (busy || AppServices.liveSupplierOrders().isEmpty()) return;
-        var supplier = AppServices.currentUser();
-        busy = true;
-        screenRoot.setDisable(true);
-        ordersStatusLabel.setText("Reading incoming orders from PostgreSQL…");
-        emptyLabel.setVisible(false);
-        emptyLabel.setManaged(false);
-        Task<SupplierOrderService.Page> task = new Task<>() {
-            @Override protected SupplierOrderService.Page call() throws Exception {
-                return liveOrders.page(beforeId);
-            }
-        };
-        task.setOnSucceeded(event -> {
-            busy = false;
-            screenRoot.setDisable(false);
-            if (!AppServices.currentUser().equals(supplier) || AppServices.liveSupplierOrders().isEmpty()) return;
-            var page = task.getValue();
-            if (!append) ordersContainer.getChildren().clear();
-            for (var row : page.orders()) {
-                addOrder(row.order(), row.shopName() + " (#" + row.shopId() + ")");
-            }
-            nextBeforeId = page.nextBeforeId();
-            loadMoreOrdersButton.setDisable(nextBeforeId == null);
-            boolean empty = ordersContainer.getChildren().isEmpty();
-            emptyLabel.setVisible(empty);
-            emptyLabel.setManaged(empty);
-            ordersStatusLabel.setText("Loaded " + ordersContainer.getChildren().size() + " orders for this supplier.");
-        });
-        task.setOnFailed(event -> {
-            busy = false;
-            screenRoot.setDisable(false);
-            if (AppServices.currentUser().equals(supplier) && AppServices.liveSupplierOrders().isPresent()) {
-                ordersStatusLabel.setText(DatabaseMessages.describe(task.getException(),
-                        "Could not load incoming orders. Check the PostgreSQL connection and refresh."));
-            }
-        });
+    @FXML public void initialize(){supplierSidebarController.setActive("orders");liveOrders=AppServices.liveSupplierOrders().orElse(null);refresh();}
+    @FXML private void refresh(){if(busy)return;if(liveOrders!=null){loadPage(null,false);return;}ordersContainer.getChildren().clear();var orders=AppServices.marketplace().supplierOrders();for(var order:orders)addOrder(order,"Demo buyer");showEmpty(orders.isEmpty());ordersStatusLabel.setText("Demo session · incoming orders are created by Admin allocation in the connected workspace.");loadMoreOrdersButton.setDisable(true);}
+    @FXML private void loadMore(){if(!busy&&liveOrders!=null&&nextBeforeId!=null)loadPage(nextBeforeId,true);}
+    private void loadPage(Long before,boolean append){
+        if(busy||AppServices.liveSupplierOrders().isEmpty())return;
+        var user=AppServices.currentUser();busy=true;screenRoot.setDisable(true);
+        if(!append){ordersContainer.getChildren().clear();nextBeforeId=null;loadMoreOrdersButton.setDisable(true);}
+        showEmpty(false);ordersStatusLabel.setText("Loading incoming orders…");
+        Task<SupplierOrderService.Page> task=new Task<>(){@Override protected SupplierOrderService.Page call()throws Exception{return liveOrders.page(before);}};
+        task.setOnSucceeded(event -> {finish();if(!AppServices.currentUser().equals(user)||AppServices.liveSupplierOrders().isEmpty())return;var page=task.getValue();for(var row:page.orders())addOrder(row.order(),row.shopName()+" (#"+row.shopId()+")");nextBeforeId=page.nextBeforeId();loadMoreOrdersButton.setDisable(nextBeforeId==null);showEmpty(ordersContainer.getChildren().isEmpty());ordersStatusLabel.setText("Loaded "+ordersContainer.getChildren().size()+" orders for your supplier account. Buyer confirms receipt.");});
+        task.setOnFailed(event -> {finish();if(AppServices.currentUser().equals(user)&&AppServices.liveSupplierOrders().isPresent())ordersStatusLabel.setText(DatabaseMessages.describe(task.getException(),"Could not load incoming orders. Refresh to try again."));});
         Thread.ofVirtual().name("supplier-incoming-orders").start(task);
     }
-
-    private void addOrder(OrderRecord order, String customer) {
-        VBox card = new VBox(10);
-        card.getStyleClass().add("section-card");
-        if (liveOrders != null) card.setId("supplier-order-" + order.id());
-        Label status = new Label(order.status());
-        status.getStyleClass().add("status-pill");
-        HBox header = new HBox(12, new Label("Order " + order.id()), status);
-        header.getStyleClass().add("supplier-name");
-        Label demand = new Label("Demand " + order.demandId() + " · " + order.createdOn());
-        demand.getStyleClass().add("small-text");
-        card.getChildren().addAll(header, demand);
-        if (customer != null) card.getChildren().add(new Label("Buyer: " + customer));
-        card.getChildren().add(new Separator());
-
-        GridPane products = new GridPane();
-        products.setHgap(12);
-        products.setVgap(8);
-        for (double width : new double[]{40, 20, 20, 20}) {
-            ColumnConstraints column = new ColumnConstraints();
-            column.setPercentWidth(width);
-            products.getColumnConstraints().add(column);
-        }
-        addCell(products, "Product", 0, 0);
-        addCell(products, "Quantity", 1, 0);
-        addCell(products, "Unit price", 2, 0);
-        addCell(products, "Total (VND)", 3, 0);
-        int row = 1;
-        for (var item : order.items()) {
-            addCell(products, item.productName(), 0, row);
-            addCell(products, item.quantity().stripTrailingZeros().toPlainString() + " " + item.unit(), 1, row);
-            addCell(products, money(item.unitPrice()) + " VND/" + item.unit(), 2, row);
-            addCell(products, money(item.totalPrice()), 3, row);
-            row++;
-        }
-        card.getChildren().add(products);
-        if (liveOrders == null && order.status().equalsIgnoreCase("Confirmed")) {
-            Button delivered = new Button("Mark delivered");
-            delivered.getStyleClass().add("primary-button");
-            delivered.setDisable(AppServices.isReadOnlyWorkspacePreview());
-            delivered.setOnAction(event -> {
-                Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION,
-                        "Mark order " + order.id() + " as delivered? The buyer can then submit a supplier review.",
-                        ButtonType.CANCEL, ButtonType.OK);
-                confirmation.setHeaderText("Update order status");
-                if (confirmation.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
-                try {
-                    AppServices.marketplace().markOrderDelivered(order.id());
-                    refresh();
-                } catch (RuntimeException exception) {
-                    new Alert(Alert.AlertType.ERROR, exception.getMessage()).showAndWait();
-                }
-            });
-            card.getChildren().add(delivered);
-        }
-        ordersContainer.getChildren().add(card);
+    private void finish(){busy=false;screenRoot.setDisable(false);}
+    private void showEmpty(boolean empty){emptyLabel.setVisible(empty);emptyLabel.setManaged(empty);}
+    private void addOrder(OrderRecord order,String customer){
+        VBox card=new VBox(14);card.getStyleClass().add("section-card");card.setId("supplier-order-"+order.id());
+        Label title=new Label("Order #"+order.id());title.getStyleClass().add("section-title");
+        Label status=new Label(order.status());status.getStyleClass().add("status-pill");
+        Region space=new Region();HBox.setHgrow(space,Priority.ALWAYS);HBox heading=new HBox(12,title,space,status);heading.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        Label buyer=new Label(customer);buyer.getStyleClass().add("supplier-name");buyer.setWrapText(true);
+        Label reference=new Label("Demand "+order.demandId()+" · Created "+order.createdOn());reference.getStyleClass().add("small-text");
+        card.getChildren().addAll(heading,buyer,reference,new Separator());
+        GridPane items=new GridPane();items.setHgap(12);items.setVgap(10);for(double width:new double[]{40,20,20,20}){var column=new ColumnConstraints();column.setPercentWidth(width);items.getColumnConstraints().add(column);}
+        cell(items,"Product",0,0);cell(items,"Quantity",1,0);cell(items,"Unit price",2,0);cell(items,"Total (VND)",3,0);
+        int row=1;for(var item:order.items()){cell(items,item.productName(),0,row);cell(items,item.quantity().stripTrailingZeros().toPlainString()+" "+item.unit(),1,row);cell(items,money(item.unitPrice())+" VND/"+item.unit(),2,row);cell(items,money(item.totalPrice()),3,row);row++;}
+        if(order.items().isEmpty()){Label noItems=new Label("No product lines recorded for this historical order.");noItems.getStyleClass().add("small-text");items.add(noItems,0,1,4,1);}
+        card.getChildren().add(items);
+        Label progress=new Label(order.reviewed()?"Buyer review received":("COMPLETED".equalsIgnoreCase(order.status())?"Receipt confirmed by Buyer · awaiting review":"Order status is updated when Buyer confirms receipt."));progress.getStyleClass().add("small-text");progress.setWrapText(true);card.getChildren().add(progress);ordersContainer.getChildren().add(card);
     }
-
-    private static void addCell(GridPane grid, String text, int column, int row) {
-        Label label = new Label(text);
-        label.setWrapText(true);
-        label.setMaxWidth(Double.MAX_VALUE);
-        label.getStyleClass().add(row == 0 ? "order-table-heading" : "order-table-value");
-        grid.add(label, column, row);
-    }
-
-    private static String money(BigDecimal value) {
-        return String.format(Locale.US, "%,.2f", value);
-    }
-
-    @FXML private void openDashboard() {
-        if (busy) return;
-        if (liveOrders != null) {
-            SceneNavigator.clearAndShow(screenRoot, "/com/coffeemongers/supplier/SupplierDashboard.fxml",
-                    "Coffee Mongers · Supplier Dashboard");
-        } else {
-            SceneNavigator.show(screenRoot, "/com/coffeemongers/supplier/SupplierDashboard.fxml",
-                    "Coffee Mongers · Supplier Dashboard");
-        }
-    }
-    @FXML private void goBack() {
-        if (busy) return;
-        if (liveOrders != null) openDashboard();
-        else SceneNavigator.back(screenRoot, "/com/coffeemongers/supplier/SupplierDashboard.fxml",
-                "Coffee Mongers · Supplier Dashboard");
-    }
-    @FXML private void openWeeklySupply() {
-        if (!busy) SceneNavigator.show(screenRoot, "/com/coffeemongers/supplier/WeeklySupply.fxml",
-                "Coffee Mongers · Weekly Supply");
-    }
-    @FXML private void openProducts() {
-        if (!busy && liveOrders == null) SceneNavigator.show(screenRoot,
-                "/com/coffeemongers/supplier/SupplierProducts.fxml", "Coffee Mongers · Supplier Products");
-    }
+    private static void cell(GridPane grid,String text,int column,int row){Label label=new Label(text);label.setWrapText(true);label.setMaxWidth(Double.MAX_VALUE);label.getStyleClass().add(row==0?"order-table-heading":"order-table-value");grid.add(label,column,row);}
+    private static String money(BigDecimal amount){return String.format(Locale.US,"%,.2f",amount);}
 }

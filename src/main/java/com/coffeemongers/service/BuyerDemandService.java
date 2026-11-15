@@ -78,6 +78,7 @@ public final class BuyerDemandService {
     }
 
     public List<SavedDemand> recentDemands() throws SQLException {
+        new com.coffeeallocation.service.DemandExpiryService().expireForShop(shopId);
         try (Connection connection = DatabaseConnection.getConnection()) {
             connection.setReadOnly(true);
             return new DemandDao(connection).findRecentByShop(shopId).stream()

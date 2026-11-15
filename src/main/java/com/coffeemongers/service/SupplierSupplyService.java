@@ -29,6 +29,8 @@ public final class SupplierSupplyService {
         return new SupplierOrderService(supplierId);
     }
 
+    public SupplierOverviewService overview(){return new SupplierOverviewService(supplierId);}
+
     com.coffeeallocation.service.SupplierProductService products() {
         return new com.coffeeallocation.service.SupplierProductService(supplierId);
     }

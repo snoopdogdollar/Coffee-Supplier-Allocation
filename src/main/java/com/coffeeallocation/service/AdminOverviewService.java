@@ -13,6 +13,7 @@ public final class AdminOverviewService {
     }
     public AdminOverviewView.Snapshot load(Long productId,Integer endYear,Integer endWeek) throws SQLException {
         WeeklyMarketService.validate(productId,endYear,endWeek);
+        new DemandExpiryService().expireOverdue();
         try(var connection=DatabaseConnection.getConnection()) {
             connection.setReadOnly(true);connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);connection.setAutoCommit(false);
             try {

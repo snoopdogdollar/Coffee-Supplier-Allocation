@@ -2,7 +2,8 @@
 
 Use DB_URL, DB_USER, DB_PASSWORD and the existing COFFEE_TEST_ADMIN_PASSWORD setting.
 Sign in as admin@coffeemongers.test. In the Admin workspace, Overview now reads a
-single read-only repeatable-read snapshot from PostgreSQL, off the JavaFX thread.
+single read-only repeatable-read snapshot from PostgreSQL, off the JavaFX thread,
+after catching up overdue demand expiry in a separate write transaction.
 
 - Total Orders counts all saved orders across all dates and statuses.
 - Pending Orders counts exactly status PENDING.
@@ -26,11 +27,16 @@ See [supplier-ranking.md](supplier-ranking.md) for the 40/30/30 scoring policy,
 five-review Top eligibility and current verification.
 See [weekly-supply-demand-chart.md](weekly-supply-demand-chart.md) for the eight-week
 chart, product/unit filtering and declared/requested quantity definitions.
+See [supply-composition-chart.md](supply-composition-chart.md) for the dynamically
+generated coffee-type/Supplier stacked chart and five-second visible-dashboard refresh.
 
 Overview reads on entry and on reattachment of a cached dashboard when Back returns
 from another screen. A request arriving during an existing read queues one refresh.
-Refresh manually reloads the snapshot. The dashboard does not poll or mutate orders,
-supplier status, demand, allocations or reviews. On a read failure, statistics display
+Refresh manually reloads the overview snapshot. The independent composition widget
+polls its catalog/supply data every five seconds while visible. Other metrics retain
+entry/manual refresh. Lifecycle maintenance can mark overdue unfulfilled OPEN demands
+EXPIRED; see [demand-expiry.md](demand-expiry.md). Orders, supplier status,
+allocations and reviews are untouched. On a read failure, statistics display
 em dashes, the recent and supplier performance tables are cleared, and the chart's
 old bars are removed; sanitized database messages explain the
 failure and Refresh remains available. Demo values are not used as a live fallback.

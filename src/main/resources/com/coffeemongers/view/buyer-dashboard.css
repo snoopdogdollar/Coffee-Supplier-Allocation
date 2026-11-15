@@ -433,6 +433,8 @@
 .chart-bar-supply { -fx-background-color: #71916A; -fx-background-radius: 4 4 0 0; -fx-min-width: 24; }
 .chart-bar-demand { -fx-background-color: #B89A75; -fx-background-radius: 4 4 0 0; -fx-min-width: 24; }
 .demand-status, .status-pill { -fx-background-color: #EDF2EB; -fx-background-radius: 10; -fx-padding: 4 8; -fx-text-fill: #2E6B38; -fx-font-size: 10px; -fx-font-weight: bold; }
+.demand-status.demand-expired, .status-pill.demand-expired { -fx-background-color: #FFF0D1; -fx-text-fill: #87540B; }
+.demand-status.demand-cancelled, .status-pill.demand-cancelled { -fx-background-color: #E9E9ED; -fx-text-fill: #5E606B; }
 .workspace-active { -fx-background-color: #6B4636; -fx-text-fill: white; -fx-border-color: #6B4636; -fx-font-weight: bold; }
 .workspace-active:hover { -fx-background-color: #563829; -fx-text-fill: white; }
 .logout-button { -fx-background-color: transparent; -fx-border-color: transparent; -fx-text-fill: #655B51; -fx-font-size: 11px; -fx-padding: 6 9; -fx-cursor: hand; }
@@ -498,3 +500,48 @@
 .buyer-delivery-note { -fx-text-fill: #476B3F; -fx-font-size: 13px; }
 .buyer-quantity { -fx-text-fill: #302C28; -fx-font-size: 13px; }
 .buyer-workspace .demand-actions { -fx-background-color: white; -fx-border-color: #E8E6DF transparent transparent transparent; -fx-padding: 16 24; }
+
+/* Supplier workspace: consistent typography and spacing, scoped to Supplier screens. */
+.supplier-workspace { -fx-font-size: 13px; }
+.supplier-workspace .content { -fx-padding: 28; -fx-spacing: 20; }
+.supplier-workspace .page-title { -fx-font-size: 28px; -fx-font-weight: bold; }
+.supplier-workspace .section-title { -fx-font-size: 17px; -fx-font-weight: bold; }
+.supplier-workspace .subtitle { -fx-font-size: 14px; -fx-text-fill: #736D64; }
+.supplier-workspace .small-text { -fx-font-size: 12px; -fx-text-fill: #736D64; }
+.supplier-workspace .stat-number { -fx-font-size: 32px; -fx-font-weight: bold; }
+.supplier-workspace .stat-label { -fx-font-size: 13px; }
+.supplier-workspace .stat-card { -fx-padding: 20; -fx-min-width: 0; }
+.supplier-workspace .section-card { -fx-padding: 22; }
+.supplier-workspace .table-view { -fx-font-size: 13px; -fx-fixed-cell-size: 44px; }
+.supplier-workspace .table-cell { -fx-padding: 12 10; }
+.supplier-workspace .column-header .label { -fx-font-size: 12px; -fx-font-weight: bold; }
+.supplier-workspace .primary-button, .supplier-workspace .outline-button { -fx-padding: 10 16; -fx-font-size: 13px; -fx-cursor: hand; }
+.supplier-workspace-sidebar { -fx-background-color: white; -fx-padding: 28 16 20 16; -fx-border-color: transparent #E8E6DF transparent transparent; }
+.supplier-workspace-sidebar .nav-button, .supplier-workspace-sidebar .nav-active { -fx-font-size: 14px; -fx-padding: 13 14; -fx-alignment: CENTER_LEFT; -fx-cursor: hand; }
+.supplier-workspace-sidebar .brand { -fx-font-size: 16px; -fx-font-weight: bold; }
+.supplier-workspace-sidebar .brand-subtitle { -fx-font-size: 10px; }
+.supplier-workspace-sidebar .small-text { -fx-font-size: 12px; }
+.supplier-brand-icon { -fx-background-color: #F1ECE4; -fx-background-radius: 12; -fx-padding: 9; -fx-text-fill: #604537; -fx-font-size: 21px; }
+.supplier-sidebar-note { -fx-background-color: #EDF2EB; -fx-background-radius: 12; -fx-padding: 16; }
+.supplier-profile { -fx-background-color: #FAF8F4; -fx-background-radius: 12; -fx-padding: 16; }
+.supplier-journey { -fx-background-color: #EDF2EB; -fx-background-radius: 12; -fx-padding: 16 20; -fx-text-fill: #476B3F; -fx-font-size: 13px; }
+.supplier-journey-step { -fx-text-fill: #476B3F; -fx-font-size: 13px; -fx-font-weight: bold; }
+.supplier-eyebrow { -fx-text-fill: #71916A; -fx-font-size: 11px; -fx-font-weight: bold; }
+.supplier-topbar-title { -fx-font-size: 13px; -fx-text-fill: #655B51; }
+.supplier-unit-note { -fx-text-fill: #476B3F; -fx-font-size: 13px; }
+.supplier-quantity { -fx-text-fill: #302C28; -fx-font-size: 13px; }
+.supplier-workspace .demand-actions { -fx-background-color: white; -fx-border-color: #E8E6DF transparent transparent transparent; -fx-padding: 16 24; }
+
+.supplier-workspace .list-view { -fx-font-size: 14px; }
+.supplier-workspace .list-cell { -fx-padding: 16; }
+.supplier-workspace .demand-actions .combo-box { -fx-background-color: white; -fx-border-color: #D9D5CE; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 8; }
+.supplier-workspace .demand-actions .combo-box .arrow-button { -fx-background-color: transparent; }
+
+/* Supplier stacks keep their identity across coffee types and quantity units. */
+.supply-composition-chart { -fx-padding: 4 0 0 0; }
+.supply-composition-chart .chart-plot-background { -fx-background-color: #FAF8F4; }
+.supply-composition-chart .chart-horizontal-grid-lines { -fx-stroke: #E8E6DF; }
+.supply-composition-chart .axis { -fx-tick-label-fill: #655B51; -fx-tick-label-font-size: 11px; }
+.supply-composition-chart .chart-bar { -fx-background-insets: 0; }
+.composition-scroll, .composition-scroll > .viewport { -fx-background-color: transparent; }
+.composition-total { -fx-background-color: #EDF2EB; -fx-background-radius: 6; -fx-padding: 7 10; -fx-text-fill: #476B3F; -fx-font-size: 12px; }

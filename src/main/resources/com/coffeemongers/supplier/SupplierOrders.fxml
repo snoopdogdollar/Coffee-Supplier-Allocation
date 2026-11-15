@@ -1,26 +1,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coffeemongers.controller.SupplierOrdersController" fx:id="screenRoot" styleClass="main-layout">
- <top><HBox alignment="CENTER_LEFT" styleClass="topbar" spacing="10"><Button text="← Back" onAction="#goBack" styleClass="back-button"/><Label text="My Orders" styleClass="section-title"/><Region HBox.hgrow="ALWAYS"/><fx:include source="../view/HomeLogo.fxml"/></HBox></top>
- <center>
-  <VBox spacing="18" styleClass="content">
-   <VBox spacing="4">
-    <Label text="Incoming Orders" styleClass="page-title"/>
-    <Label fx:id="ordersSubtitle" text="Confirmed buyer allocations assigned to this demo supplier." styleClass="subtitle" wrapText="true"/>
-   </VBox>
-   <Label fx:id="emptyLabel" text="No incoming orders yet. Confirm a buyer allocation for this supplier to create a demo order." styleClass="empty-state" wrapText="true"/>
-   <ScrollPane fitToWidth="true" styleClass="content-scroll" VBox.vgrow="ALWAYS" minHeight="100">
-    <VBox fx:id="ordersContainer" spacing="14"/>
-   </ScrollPane>
-  </VBox>
- </center>
- <bottom>
-  <VBox fx:id="liveOrderControls" spacing="8" styleClass="demand-actions" visible="false" managed="false">
-   <Label fx:id="ordersStatusLabel" styleClass="subtitle" wrapText="true"/>
-   <HBox alignment="CENTER_RIGHT" spacing="12">
-    <Button fx:id="refreshOrdersButton" text="Refresh Orders" onAction="#refresh" styleClass="outline-button"/>
-    <Button fx:id="loadMoreOrdersButton" text="Load More" onAction="#loadMore" styleClass="primary-button" disable="true"/>
-   </HBox>
-  </VBox>
- </bottom>
+<BorderPane fx:id="screenRoot" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coffeemongers.controller.SupplierOrdersController" styleClass="main-layout,supplier-workspace">
+ <left><fx:include fx:id="supplierSidebar" source="SupplierSidebar.fxml"/></left>
+ <top><HBox alignment="CENTER_LEFT" styleClass="topbar"><Label text="Supplier Workspace / Incoming Orders" styleClass="supplier-topbar-title"/><Region HBox.hgrow="ALWAYS"/><fx:include source="../view/RoleSwitcher.fxml"/></HBox></top>
+ <center><VBox spacing="20" styleClass="content"><VBox spacing="6"><Label text="FOLLOW YOUR DELIVERIES" styleClass="supplier-eyebrow"/><Label text="Incoming Orders" styleClass="page-title"/><Label fx:id="ordersSubtitle" text="Orders assigned to your supplier account after Admin confirms allocation." styleClass="subtitle" wrapText="true"/></VBox><Label text="Orders are created by Admin allocation. Buyer confirms receipt and submits the supplier review." wrapText="true" styleClass="supplier-journey"/><Label fx:id="emptyLabel" text="No incoming orders yet. Orders will appear after Admin confirms allocation for your supply." styleClass="empty-state" wrapText="true"/><ScrollPane fitToWidth="true" styleClass="content-scroll" VBox.vgrow="ALWAYS" minHeight="100"><VBox fx:id="ordersContainer" spacing="18"/></ScrollPane></VBox></center>
+ <bottom><VBox spacing="8" styleClass="demand-actions"><Label fx:id="ordersStatusLabel" styleClass="status-message" wrapText="true"/><HBox alignment="CENTER_RIGHT" spacing="12"><Button fx:id="refreshOrdersButton" text="Refresh Orders" onAction="#refresh" styleClass="outline-button"/><Button fx:id="loadMoreOrdersButton" text="Load More" onAction="#loadMore" styleClass="primary-button" disable="true"/></HBox></VBox></bottom>
 </BorderPane>

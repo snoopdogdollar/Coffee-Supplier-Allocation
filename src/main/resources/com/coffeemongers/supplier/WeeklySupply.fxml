@@ -1,25 +1,28 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
- fx:controller="com.coffeemongers.controller.SupplierWeeklySupplyController" fx:id="screenRoot" styleClass="main-layout">
- <top><HBox alignment="CENTER_LEFT" styleClass="topbar" spacing="10"><Button text="← Back" onAction="#goBack" styleClass="back-button"/><Label text="Weekly Supply" styleClass="section-title"/><Region HBox.hgrow="ALWAYS"/><fx:include source="../view/HomeLogo.fxml"/></HBox></top>
+ fx:controller="com.coffeemongers.controller.SupplierWeeklySupplyController" fx:id="screenRoot" styleClass="main-layout,supplier-workspace">
+<left><fx:include fx:id="supplierSidebar" source="SupplierSidebar.fxml"/></left>
+ <top><HBox alignment="CENTER_LEFT" styleClass="topbar"><Label text="Supplier Workspace / Weekly Supply" styleClass="supplier-topbar-title"/><Region HBox.hgrow="ALWAYS"/><fx:include source="../view/RoleSwitcher.fxml"/></HBox></top>
  <center><ScrollPane fitToWidth="true" styleClass="content-scroll"><VBox spacing="18" styleClass="content">
-  <VBox spacing="4"><Label text="▦  Weekly Supply" styleClass="page-title"/><Label text="Manage your weekly available quantity and unit price for each product." styleClass="subtitle"/></VBox>
+  <VBox spacing="6"><Label text="PLAN BY DELIVERY WEEK" styleClass="supplier-eyebrow"/><Label text="Weekly Supply" styleClass="page-title"/><Label text="Declare the quantity and price you can supply for each product and week." styleClass="subtitle" wrapText="true"/></VBox>
   <VBox spacing="12" styleClass="section-card">
    <HBox alignment="CENTER_LEFT" spacing="8"><Label text="▣" styleClass="section-title"/><VBox><Label text="Your Weekly Supply" styleClass="section-title"/><Label text="List of weekly supply records for your products." styleClass="small-text"/></VBox><Region HBox.hgrow="ALWAYS"/><Label fx:id="weekLabel" styleClass="week-badge"/><DatePicker fx:id="weekFilterPicker" promptText="Choose week"/></HBox>
    <TableView fx:id="supplyTable" prefHeight="235" styleClass="data-table"><columns>
-    <TableColumn fx:id="productColumn" text="Product" prefWidth="230"/><TableColumn fx:id="weekColumn" text="Week / Year" prefWidth="150"/><TableColumn fx:id="availableColumn" text="Initial quantity" prefWidth="170"/><TableColumn fx:id="priceColumn" text="Unit price" prefWidth="190"/><TableColumn fx:id="remainingColumn" text="Remaining quantity" prefWidth="180"/>
+    <TableColumn fx:id="productColumn" text="Product" prefWidth="200"/><TableColumn fx:id="weekColumn" text="Week / Year" prefWidth="115"/><TableColumn fx:id="availableColumn" text="Declared" prefWidth="115"/><TableColumn fx:id="committedColumn" text="Allocated" prefWidth="115"/><TableColumn fx:id="remainingColumn" text="Remaining" prefWidth="115"/><TableColumn fx:id="priceColumn" text="Unit price" prefWidth="155"/>
    </columns></TableView>
-   <Label text="Remaining quantity is reduced by confirmed allocations and cannot be edited here." styleClass="small-text" wrapText="true"/>
+   <Label text="Admin confirmation reduces remaining supply. Units stay separate for every product. Saved rows for stopped offerings remain visible as history." styleClass="small-text" wrapText="true"/>
   </VBox>
   <VBox spacing="14" styleClass="section-card">
-   <VBox spacing="4"><Label text="＋  Add / Update Weekly Supply" styleClass="section-title"/><Label fx:id="productHelpLabel" text="Create a weekly supply record or update an existing one. Products must already exist in the shared coffee catalog." styleClass="small-text" wrapText="true"/></VBox>
+   <HBox alignment="CENTER_LEFT" spacing="12"><VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Add / Update Weekly Supply" styleClass="section-title"/><Label fx:id="productHelpLabel" text="Choose a product from My Products, then declare its weekly quantity and price." styleClass="small-text" wrapText="true"/></VBox><Button text="My Products" onAction="#openProducts" styleClass="outline-button"/></HBox>
    <GridPane hgap="18" vgap="12"><columnConstraints><ColumnConstraints hgrow="ALWAYS"/><ColumnConstraints hgrow="ALWAYS"/></columnConstraints>
     <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0"><Label text="Product *" styleClass="form-label"/><ComboBox fx:id="productPicker" promptText="Select existing product" maxWidth="Infinity"/></VBox>
-    <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0"><Label text="Initial quantity *" styleClass="form-label"/><TextField fx:id="quantityField" promptText="Enter quantity"/></VBox>
+    <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0"><Label text="Declared quantity *" styleClass="form-label"/><TextField fx:id="quantityField" promptText="Total quantity for this week"/></VBox>
     <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1"><Label text="Supply week * (select a date in the week)" styleClass="form-label"/><DatePicker fx:id="weekPicker" promptText="Choose week" maxWidth="Infinity"/></VBox>
     <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1"><Label text="Unit price *" styleClass="form-label"/><TextField fx:id="priceField" promptText="Enter unit price"/></VBox>
    </GridPane>
+   <Label fx:id="quantityUnitLabel" styleClass="supplier-unit-note" wrapText="true"/>
+   <Label fx:id="editingSupplyNotice" text="Declare your total supply for the week. Remaining quantity is calculated automatically." styleClass="small-text" wrapText="true"/>
   </VBox>
  </VBox></ScrollPane></center>
  <bottom>

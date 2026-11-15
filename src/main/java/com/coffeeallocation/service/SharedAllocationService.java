@@ -29,11 +29,13 @@ public final class SharedAllocationService {
             throw new IllegalArgumentException("Invalid ISO week for this year.");
         }
 
+        new DemandExpiryService().expireOverdue();
         try (Connection connection = DatabaseConnection.getConnection()) {
             connection.setReadOnly(true);
             connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
             connection.setAutoCommit(false);
             try {
+                DemandExpiryService.requireActiveWeek(connection,year,week);
                 List<OpenDemandItem> items = new DemandDao(connection)
                         .findOpenUnallocatedItemsForWeek(year, week);
                 TreeSet<Long> productIds = new TreeSet<>();

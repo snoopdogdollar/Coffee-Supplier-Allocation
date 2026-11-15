@@ -77,7 +77,7 @@ class FxmlLoadTest {
         if (!completed.await(90, TimeUnit.SECONDS)) fail("FXML load and navigation check timed out");
         if (failure.get() != null) fail("FXML load failed", failure.get());
         if (fxFailure.get() != null) fail("JavaFX reported an uncaught rendering error", fxFailure.get());
-        assertEquals(28, count.get());
+        assertEquals(30, count.get());
     }
 
     private void verifySidebarNavigation() throws Exception {
@@ -119,8 +119,14 @@ class FxmlLoadTest {
 
             AppServices.session().start(new DemoUser("nav-supplier","Navigation Supplier","navigation-supplier@example.test",AccountRole.SUPPLIER));
             Parent supplier=show(stage,"/com/coffeemongers/supplier/SupplierDashboard.fxml","Supplier Dashboard");
-            String[][] supplierItems={{"weeklySupplyNav","Weekly Supply"},{"ordersNav","Supplier Orders"},{"productsNav","Supplier Products"}};
-            for(String[] item:supplierItems){fire(supplier,item[0]);assertTitle(stage,item[1]);if(item[0].equals("weeklySupplyNav")){fire(stage.getScene().getRoot(),"homeButton");assertTitle(stage,"Supplier Dashboard");}else fireClass(stage.getScene().getRoot(),"back-button");supplier=stage.getScene().getRoot();}
+            fire(supplier,"weeklySupplyNav");assertTitle(stage,"Weekly Supply");
+            assertEquals(6,((javafx.scene.control.TableView<?>)stage.getScene().getRoot().lookup("#supplyTable")).getColumns().size());
+            assertVisibleFooterAction(stage,"saveButton");
+            fire(stage.getScene().getRoot(),"productsNav");assertTitle(stage,"Supplier Products");
+            assertEquals(false,((Button)stage.getScene().getRoot().lookup("#addButton")).isDisabled());
+            fire(stage.getScene().getRoot(),"ordersNav");assertTitle(stage,"Supplier Orders");
+            assertEquals(true,((Label)stage.getScene().getRoot().lookup("#emptyLabel")).getText().contains("Admin"));
+            fire(stage.getScene().getRoot(),"dashboardNav");supplier=stage.getScene().getRoot();
             fire(supplier,"dashboardNav");assertTitle(stage,"Supplier Dashboard");
             fire(stage.getScene().getRoot(),"logoutButton");assertTitle(stage,"Sign in");
         } finally {AppServices.session().end();stage.close();}

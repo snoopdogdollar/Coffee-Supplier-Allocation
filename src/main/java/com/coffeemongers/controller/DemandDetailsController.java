@@ -7,6 +7,7 @@ import com.coffeemongers.service.BuyerDemandService.Item;
 import com.coffeemongers.view.SceneNavigator;
 import com.coffeemongers.view.BuyerDemandRow;
 import com.coffeemongers.view.DatabaseMessages;
+import com.coffeemongers.view.DemandStatusPresentation;
 import com.coffeeallocation.model.BuyerWorkspaceView;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -30,6 +31,7 @@ public class DemandDetailsController {
     @FXML private BorderPane detailsRoot;
     @FXML private Label demandIdLabel, demandTitleLabel, totalQuantityLabel, deliveryDateLabel, notesLabel, demandStatusLabel;
     @FXML private Label requiredWeekLabel, requiredWeekValue, submissionMessage, shopNameLabel, shopCityLabel;
+    @FXML private Label remainingTitle;
     @FXML private Button demandActionButton,refreshDemandButton;
     @FXML private BuyerSidebarController buyerSidebarController;
     @FXML private VBox allocationSection,allocationRows;
@@ -85,7 +87,7 @@ public class DemandDetailsController {
         var service=AppServices.liveBuyerDemands();var user=AppServices.currentUser();
         if(service.isEmpty()){submissionMessage.setText("Sign in as your linked Buyer to view this demand.");return;}
         savedDemand=true;demandActionButton.setDisable(true);refreshDemandButton.setDisable(true);
-        demandIdLabel.setText("Demand #"+demandId);demandTitleLabel.setText("Loading demand…");demandStatusLabel.setText("—");
+        demandIdLabel.setText("Demand #"+demandId);demandTitleLabel.setText("Loading demand…");DemandStatusPresentation.apply(demandStatusLabel,"—");remainingTitle.setText("Remaining");
         deliveryDateLabel.setText("—");requiredWeekValue.setText("—");notesLabel.setText("—");totalQuantityLabel.setText("—");
         detailsProductContainer.getChildren().clear();allocationRows.getChildren().clear();
         allocationSection.setVisible(false);allocationSection.setManaged(false);
@@ -94,7 +96,9 @@ public class DemandDetailsController {
         task.setOnSucceeded(event -> {
             if(!AppServices.currentUser().equals(user)||AppServices.liveBuyerDemands().isEmpty())return;
             var detail=task.getValue();demand=BuyerDemandRow.of(detail.demand()).request();renderDemand();
-            showLiveDetails(detail.demand().year(),detail.demand().week());demandStatusLabel.setText(detail.demand().status());
+            showLiveDetails(detail.demand().year(),detail.demand().week());DemandStatusPresentation.apply(demandStatusLabel,detail.demand().status());
+            boolean closed=List.of("EXPIRED","CANCELLED").contains(detail.demand().status());
+            remainingTitle.setText(closed?"Unfulfilled":"Remaining");
             shopNameLabel.setText(detail.shop().name());shopCityLabel.setText(detail.shop().address()==null?"—":detail.shop().address());
             detailsProductContainer.getChildren().clear();
             for(var item:detail.demand().items()) {
@@ -105,7 +109,7 @@ public class DemandDetailsController {
                 row.setAlignment(Pos.CENTER_LEFT);detailsProductContainer.getChildren().add(row);
             }
             allocationSection.setVisible(true);allocationSection.setManaged(true);
-            if(detail.allocations().isEmpty()){Label empty=new Label("No confirmed allocation yet. Admin will review available weekly supply.");empty.setWrapText(true);empty.getStyleClass().add("small-text");allocationRows.getChildren().add(empty);}
+            if(detail.allocations().isEmpty()){Label empty=new Label(closed?"No allocation was confirmed for this demand.":"No confirmed allocation yet. Admin will review available weekly supply.");empty.setWrapText(true);empty.getStyleClass().add("small-text");allocationRows.getChildren().add(empty);}
             for(var allocation:detail.allocations()) {
                 Label supplier=new Label(allocation.supplier()+" (#"+allocation.supplierId()+")");supplier.getStyleClass().add("supplier-name");supplier.setWrapText(true);
                 Label product=new Label(allocation.product()+" · allocation #"+allocation.id());product.getStyleClass().add("small-text");
@@ -116,7 +120,7 @@ public class DemandDetailsController {
             }
             demandActionButton.setText("View My Orders");demandActionButton.setDisable(false);
             refreshDemandButton.setVisible(true);refreshDemandButton.setManaged(true);refreshDemandButton.setDisable(false);
-            submissionMessage.setText("Requested, confirmed allocation and remaining quantities are shown separately for each product.");
+            submissionMessage.setText(DemandStatusPresentation.explanation(detail.demand().status()));
         });
         task.setOnFailed(event -> {if(!AppServices.currentUser().equals(user))return;refreshDemandButton.setDisable(false);
             refreshDemandButton.setVisible(true);refreshDemandButton.setManaged(true);

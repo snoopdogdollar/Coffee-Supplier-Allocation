@@ -30,6 +30,7 @@ public final class MatchingService {
 			throw new IllegalArgumentException("Invalid ISO week for year " + year + ".");
 		}
 
+        new DemandExpiryService().expireOverdue();
 		try (Connection connection = DatabaseConnection.getConnection()) {
 			// Both queries see the same snapshot. This does not reserve supply.
 			connection.setReadOnly(true);
@@ -37,6 +38,7 @@ public final class MatchingService {
 			connection.setAutoCommit(false);
 
 			try {
+                DemandExpiryService.requireActiveWeek(connection,year,week);
 				List<OpenDemandItem> items = new DemandDao(connection)
 				.findOpenItemsForWeek(year, week);
 				OpenDemandItem selected = null;

@@ -18,5 +18,6 @@ public record WeeklySupplyRecord(String id, String supplierId, String productNam
     }
     public WeeklySupplyRecord { unit = unit == null || unit.isBlank() ? "kg" : unit; }
     public int week() { return weekStart.get(java.time.temporal.WeekFields.ISO.weekOfWeekBasedYear()); }
+    public BigDecimal committedQuantity(){return initialQuantity.subtract(remainingQuantity);}
     public int year() { return weekStart.get(java.time.temporal.WeekFields.ISO.weekBasedYear()); }
 }

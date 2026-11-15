@@ -44,6 +44,7 @@ public final class AllocationConfirmationService {
             throws SQLException {
         validateWeek(year, week);
         Objects.requireNonNull(displayedPreview, "Displayed preview is required.");
+        new DemandExpiryService().expireOverdue();
 
         try (Connection connection = DatabaseConnection.getConnection()) {
             // Concurrent changes can cause SQLSTATE 40001. Roll back and let
@@ -56,6 +57,7 @@ public final class AllocationConfirmationService {
                 WeeklySupplyDao supplyDao = new WeeklySupplyDao(connection);
                 demandDao.lockDemandsForWeek(year, week);
                 supplyDao.lockSuppliesForWeek(year, week);
+                DemandExpiryService.requireActiveWeek(connection,year,week);
 
                 BatchAllocationPreview current = loadPreview(demandDao, supplyDao, year, week);
                 if (!stateOf(displayedPreview).equals(stateOf(current))) {
@@ -116,6 +118,8 @@ public final class AllocationConfirmationService {
 
                 ConfirmationResult result = new ConfirmationResult(
                         orderIds, allocatedItems, unallocatedItems, allocatedDemands);
+                // A long batch may cross the business-week boundary after acquiring locks.
+                DemandExpiryService.requireActiveWeek(connection,year,week);
                 connection.commit();
                 return result;
             } catch (SQLException | RuntimeException exception) {

@@ -39,7 +39,10 @@ the Admin Overview and weekly chart retain their presentation.
 ## Data and refresh
 
 BuyerWorkspaceDao reads scoped shop/demand/allocation data through PreparedStatement.
-BuyerWorkspaceService owns a read-only REPEATABLE READ transaction for dashboard,
+Before reading, BuyerWorkspaceService expires overdue unfulfilled OPEN demands for
+the linked shop in a separate write transaction. See [demand-expiry.md](demand-expiry.md)
+for the deadline and the distinction between EXPIRED and CANCELLED.
+BuyerWorkspaceService then owns a read-only REPEATABLE READ transaction for dashboard,
 demand page or detail reads. Dashboard totals, recent demands and orders share one
 snapshot. The shop ID comes from the existing configured BuyerDemandService adapter.
 Demand detail ownership is checked again on every read. This retains the existing

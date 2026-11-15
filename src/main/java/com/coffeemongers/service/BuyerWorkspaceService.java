@@ -37,6 +37,7 @@ public final class BuyerWorkspaceService {
         });
     }
     private <T>T read(Read<T> action) throws SQLException {
+        new com.coffeeallocation.service.DemandExpiryService().expireForShop(shopId);
         try(var connection=DatabaseConnection.getConnection()) {
             connection.setReadOnly(true);connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);connection.setAutoCommit(false);
             try {T result=action.run(connection,new BuyerWorkspaceDao(connection));connection.commit();return result;}

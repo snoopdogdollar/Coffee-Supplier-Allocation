@@ -1,0 +1,13 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox fx:id="supplierSidebarRoot" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coffeemongers.controller.SupplierSidebarController" prefWidth="240" minWidth="240" styleClass="supplier-workspace-sidebar" spacing="14">
+ <HBox spacing="10" alignment="CENTER_LEFT"><Label text="☕" styleClass="supplier-brand-icon"/><VBox spacing="3"><Label text="Coffee Mongers" styleClass="brand"/><Label text="SUPPLIER WORKSPACE" styleClass="brand-subtitle"/></VBox></HBox><Separator/>
+ <Label text="YOUR SUPPLY" styleClass="sidebar-heading"/>
+ <Button fx:id="dashboardNav" text="▦   Overview" onAction="#dashboard" styleClass="nav-button" maxWidth="Infinity"/>
+ <Button fx:id="productsNav" text="☕   My Products" onAction="#products" styleClass="nav-button" maxWidth="Infinity"/>
+ <Button fx:id="weeklySupplyNav" text="▤   Weekly Supply" onAction="#supply" styleClass="nav-button" maxWidth="Infinity"/>
+ <Button fx:id="ordersNav" text="▣   Incoming Orders" onAction="#orders" styleClass="nav-button" maxWidth="Infinity"/>
+ <Region VBox.vgrow="ALWAYS"/>
+ <VBox spacing="8" styleClass="supplier-sidebar-note"><Label text="Plan your supply week" styleClass="supplier-name"/><Label text="Products → Supply → Orders" wrapText="true" styleClass="small-text"/></VBox>
+ <VBox spacing="5" styleClass="supplier-profile"><Label fx:id="supplierNameLabel" text="Supplier" styleClass="profile-name" wrapText="true"/><Label text="Supplier account" styleClass="small-text"/><Label fx:id="supplierEmailLabel" wrapText="true" styleClass="small-text"/></VBox>
+</VBox>

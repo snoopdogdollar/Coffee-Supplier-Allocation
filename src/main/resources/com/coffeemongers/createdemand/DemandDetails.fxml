@@ -51,7 +51,7 @@
                         <Label text="Coffee Product" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
                         <Label text="Requested" minWidth="115" prefWidth="115" alignment="CENTER_RIGHT"/>
                         <Label text="Allocated" minWidth="115" prefWidth="115" alignment="CENTER_RIGHT"/>
-                        <Label text="Remaining" minWidth="115" prefWidth="115" alignment="CENTER_RIGHT"/>
+                        <Label fx:id="remainingTitle" text="Remaining" minWidth="115" prefWidth="115" alignment="CENTER_RIGHT"/>
                     </HBox>
                     <VBox fx:id="detailsProductContainer" spacing="10"/>
                     <Separator/>
