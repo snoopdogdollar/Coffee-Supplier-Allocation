@@ -64,14 +64,10 @@ public class AdminDashboardController {
         if(liveOverview!=null) {
             compositionController.configureLive();
             configureLiveOverview();
-            // Cached dashboard scenes are reattached when Back restores them.
-            screenRoot.sceneProperty().addListener((o,old,scene) -> {
-                if(scene!=null) scene.windowProperty().addListener((property,previous,window) -> {
-                    if(window!=null&&AppServices.liveAdminOverview().isPresent()) {
-                        if(displayedOnce)refreshOverview();
-                        else displayedOnce=true;
-                    }
-                });
+            SceneNavigator.onShown(screenRoot,() -> {
+                if(AppServices.liveAdminOverview().isPresent()) {
+                    if(displayedOnce)refreshOverview();else displayedOnce=true;
+                }
             });
         }
         refreshOverview();

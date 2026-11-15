@@ -26,7 +26,7 @@ public class MyDemandsController {
         demandsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         demandsTable.setRowFactory(table -> {var row=new TableRow<BuyerDemandRow>();row.setOnMouseClicked(e -> {if(e.getClickCount()==2&&!row.isEmpty())row.getItem().open(demandsRoot);});return row;});
         service=AppServices.liveBuyerDemands().map(s -> s.workspace()).orElse(null);
-        demandsRoot.sceneProperty().addListener((o,old,scene) -> {if(scene!=null)scene.windowProperty().addListener((p,previous,window) -> {if(window!=null){if(displayed)refresh();else displayed=true;}});});refresh();
+        SceneNavigator.onShown(demandsRoot,() -> {if(displayed)refresh();else displayed=true;});refresh();
     }
     @FXML private void refresh(){load(null,false);}
     @FXML private void more(){if(cursor!=null)load(cursor,true);}

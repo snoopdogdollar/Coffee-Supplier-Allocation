@@ -34,7 +34,7 @@ public class BuyerDashboardController {
         recentOrdersTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         recentDemandsTable.setRowFactory(table -> {var row=new TableRow<BuyerDemandRow>();row.setOnMouseClicked(event -> {if(event.getClickCount()==2&&!row.isEmpty())row.getItem().open(buyerRoot);});return row;});
         service=AppServices.liveBuyerDemands().map(s -> s.workspace()).orElse(null);
-        buyerRoot.sceneProperty().addListener((o,old,scene) -> {if(scene!=null)scene.windowProperty().addListener((p,previous,window) -> {if(window!=null){if(displayed)refresh();else displayed=true;}});});
+        SceneNavigator.onShown(buyerRoot,() -> {if(displayed)refresh();else displayed=true;});
         refresh();
     }
     private static SimpleStringProperty text(String value){return new SimpleStringProperty(value);}

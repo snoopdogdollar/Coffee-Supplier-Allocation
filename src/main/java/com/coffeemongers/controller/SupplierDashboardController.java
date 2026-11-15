@@ -38,7 +38,7 @@ public class SupplierDashboardController {
         overviewSupplyTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         recentOrdersTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         service=AppServices.liveSupplierSupply().map(SupplierSupplyService::overview).orElse(null);
-        screenRoot.sceneProperty().addListener((o,old,scene) -> {if(scene!=null)scene.windowProperty().addListener((p,previous,window) -> {if(window!=null){if(displayed)refresh();else displayed=true;}});});
+        SceneNavigator.onShown(screenRoot,() -> {if(displayed)refresh();else displayed=true;});
         refresh();
     }
     private static SimpleStringProperty text(String value){return new SimpleStringProperty(value);}

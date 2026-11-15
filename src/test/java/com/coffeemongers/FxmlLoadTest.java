@@ -152,8 +152,20 @@ class FxmlLoadTest {
 
     private Parent show(Stage stage,String resource,String title)throws Exception{Parent root=FXMLLoader.load(getClass().getResource(resource));Scene scene=new Scene(root,1280,800);var css=getClass().getResource("/com/coffeemongers/view/buyer-dashboard.css");if(css!=null)scene.getStylesheets().add(css.toExternalForm());stage.setScene(scene);stage.setTitle("Coffee Mongers · "+title);if(!stage.isShowing())stage.show();return root;}
     private static void fillProductRow(GridPane row,int productIndex,String quantity){ComboBox<String> product=(ComboBox<String>)row.getChildren().get(0);product.setValue(product.getItems().get(productIndex));((TextField)row.getChildren().get(1)).setText(quantity);}
-    private static void fire(Parent root,String id){var node=root.lookup("#"+id);if(!(node instanceof Button button))throw new AssertionError("Missing navigation button #"+id);if(button.isDisabled())throw new AssertionError("Navigation button #"+id+" is disabled");if(button.getOnAction()==null)throw new AssertionError("Navigation button #"+id+" has no action handler");button.getOnAction().handle(new ActionEvent(button,button));}
-    private static void fireClass(Parent root,String styleClass){var node=root.lookup("."+styleClass);if(!(node instanceof Button button))throw new AssertionError("Missing button with style class "+styleClass);if(button.getOnAction()==null)throw new AssertionError("Button with style class "+styleClass+" has no action handler");button.getOnAction().handle(new ActionEvent(button,button));}
+    private static void fire(Parent root,String id){var node=root.lookup("#"+id);if(!(node instanceof Button button))throw new AssertionError("Missing navigation button #"+id);if(button.isDisabled())throw new AssertionError("Navigation button #"+id+" is disabled");invokeWithoutResizing(button);}
+    private static void fireClass(Parent root,String styleClass){var node=root.lookup("."+styleClass);if(!(node instanceof Button button))throw new AssertionError("Missing button with style class "+styleClass);invokeWithoutResizing(button);}
+    private static void invokeWithoutResizing(Button button){
+        if(button.getOnAction()==null)throw new AssertionError("Missing action handler");
+        Stage stage=(Stage)button.getScene().getWindow();
+        double width=stage.getWidth(),height=stage.getHeight(),x=stage.getX(),y=stage.getY();
+        button.getOnAction().handle(new ActionEvent(button,button));
+        // Resolve the new content's control skins before the next synchronous lookup.
+        stage.getScene().getRoot().applyCss();stage.getScene().getRoot().layout();
+        assertEquals(width,stage.getWidth(),0.5,"Navigation must preserve window width");
+        assertEquals(height,stage.getHeight(),0.5,"Navigation must preserve window height");
+        assertEquals(x,stage.getX(),0.5,"Navigation must preserve window position");
+        assertEquals(y,stage.getY(),0.5,"Navigation must preserve window position");
+    }
     private static void assertTitle(Stage stage,String expected){if(!stage.getTitle().contains(expected))throw new AssertionError("Expected "+expected+" route but found "+stage.getTitle());}
 
     @AfterAll

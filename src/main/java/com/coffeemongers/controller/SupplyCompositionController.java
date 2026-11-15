@@ -35,6 +35,7 @@ public class SupplyCompositionController {
     private Optional<DemoUser> owner=Optional.empty();
     private Timeline timer;
     private Window observedWindow;
+    private final ChangeListener<Window> sceneWindowListener=(property,previous,window) -> watchWindow(window);
     private final ChangeListener<Boolean> showingListener=(o,old,showing) -> updateTimer();
     @FXML public void initialize(){
         compositionMeasure.getItems().setAll(Measure.values());compositionMeasure.setValue(Measure.REMAINING);
@@ -42,8 +43,10 @@ public class SupplyCompositionController {
         timer=new Timeline(new KeyFrame(Duration.seconds(REFRESH_SECONDS),event -> {
             if(!visibleOwner()){timer.stop();return;}if(!busy)read(false);
         }));timer.setCycleCount(Timeline.INDEFINITE);
-        compositionRoot.sceneProperty().addListener((o,old,scene) -> {if(scene==null){watchWindow(null);return;}
-            scene.windowProperty().addListener((p,previous,window) -> watchWindow(window));watchWindow(scene.getWindow());});
+        compositionRoot.sceneProperty().addListener((o,old,scene) -> {
+            if(old!=null)old.windowProperty().removeListener(sceneWindowListener);
+            if(scene==null){watchWindow(null);return;}
+            scene.windowProperty().addListener(sceneWindowListener);watchWindow(scene.getWindow());});
     }
     public void configureLive(){configured=true;live=true;owner=AppServices.currentUser();updateTimer();}
     public void configureDemo(){configured=true;live=false;owner=AppServices.currentUser();read(true);updateTimer();}

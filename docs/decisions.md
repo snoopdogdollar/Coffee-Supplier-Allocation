@@ -1,5 +1,17 @@
 # Project decisions
 
+## 2026-11-15 — Keep the window stable during navigation
+
+- Reuse each window's existing JavaFX Scene and replace only its root content.
+  Apply the initial 1280×800 scene size only when creating a scene for the first time.
+- Keep window size, position, maximize/fullscreen state and user-controlled resizing
+  across sidebar navigation, details, Back, role previews and sign-in/sign-out.
+- Cache prior view roots for Back, retaining form state. Refresh restored dashboards
+  through a shared display callback. Remove detached scene listeners and stop/restart
+  the Admin supply-chart polling when its content leaves/returns to the scene.
+- Verify navigation geometry with the existing FXML workflow checks and a separate
+  native-window check covering manual resizing, Back, maximize and fullscreen.
+
 ## 2026-11-15 — EXPIRED is distinct from CANCELLED
 
 - Close overdue OPEN demand remainders as EXPIRED after their ISO delivery week,
