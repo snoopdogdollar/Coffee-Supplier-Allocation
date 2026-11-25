@@ -45,7 +45,8 @@ public class BuyerDashboardController {
         var user=AppServices.currentUser();busy=true;refreshDemandsButton.setDisable(true);
         recentDemandsTable.getItems().clear();recentOrdersTable.getItems().clear();
         for(var label:List.of(totalDemandsLabel,pendingDemandsLabel,pendingOrdersLabel,reviewsDueLabel))label.setText("—");
-        workspaceStatus.setText("Loading your shop's activity…");
+        recentDemandsTable.setPlaceholder(new Label("Loading demands…"));recentOrdersTable.setPlaceholder(new Label("Loading orders…"));
+        ViewFeedback.show(workspaceStatus,ViewFeedback.Kind.LOADING,"Loading your shop's activity…");
         Task<BuyerWorkspaceService.Dashboard> task=new Task<>(){@Override protected BuyerWorkspaceService.Dashboard call()throws Exception{return service.dashboard();}};
         task.setOnSucceeded(e -> {
             finish();if(!AppServices.currentUser().equals(user)||AppServices.liveBuyerDemands().isEmpty())return;
@@ -57,9 +58,12 @@ public class BuyerDashboardController {
             recentDemandsTable.setPlaceholder(new Label("No demands yet. Create your first request."));
             recentOrdersTable.setPlaceholder(new Label("Orders appear after Admin confirms an allocation."));
             dashboardSubtitle.setText("Your demands, allocated orders and next steps — all in one place.");
-            workspaceStatus.setText("All-time totals for your shop · showing up to 5 latest demands and orders.");refreshQueued();
+            ViewFeedback.show(workspaceStatus,ViewFeedback.Kind.INFO,"All-time totals for your shop · showing up to 5 latest demands and orders.");refreshQueued();
         });
-        task.setOnFailed(e -> {finish();if(AppServices.currentUser().equals(user))workspaceStatus.setText(DatabaseMessages.describe(task.getException(),"Could not load your activity. Refresh to try again."));refreshQueued();});
+        task.setOnFailed(e -> {finish();if(AppServices.currentUser().equals(user)){
+            ViewFeedback.show(workspaceStatus,ViewFeedback.Kind.ERROR,DatabaseMessages.describe(task.getException(),"Could not load your activity. Refresh to try again."));
+            recentDemandsTable.setPlaceholder(new Label("Demands unavailable. Refresh to retry."));recentOrdersTable.setPlaceholder(new Label("Orders unavailable. Refresh to retry."));
+        }refreshQueued();});
         Thread.ofVirtual().name("buyer-overview").start(task);
     }
     private void finish(){busy=false;refreshDemandsButton.setDisable(false);}

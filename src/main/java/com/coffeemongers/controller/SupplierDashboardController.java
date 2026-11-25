@@ -51,7 +51,8 @@ public class SupplierDashboardController {
         busy=true;refreshDashboardButton.setDisable(true);dashboardWeekPicker.setDisable(true);
         for(var label:List.of(productsCount,supplyCount,pendingOrdersCount,completedOrdersCount))label.setText("—");
         overviewSupplyTable.getItems().clear();recentOrdersTable.getItems().clear();ordersScopeLabel.setText("");
-        supplierStatusLabel.setText("Loading your products, weekly supply and incoming orders…");
+        overviewSupplyTable.setPlaceholder(new Label("Loading supply…"));recentOrdersTable.setPlaceholder(new Label("Loading orders…"));
+        ViewFeedback.show(supplierStatusLabel,ViewFeedback.Kind.LOADING,"Loading your products, weekly supply and incoming orders…");
         Task<SupplierOverviewView.Snapshot> task=new Task<>(){@Override protected SupplierOverviewView.Snapshot call()throws Exception{return service.load(selected);}};
         task.setOnSucceeded(event -> {
             finish();if(!AppServices.currentUser().equals(user)||AppServices.liveSupplierSupply().isEmpty())return;
@@ -63,10 +64,13 @@ public class SupplierDashboardController {
             overviewSupplyTable.setPlaceholder(new Label("No supply declared for this week. Open Weekly Supply to add a record."));
             recentOrdersTable.setPlaceholder(new Label("Orders appear after Admin confirms an allocation."));
             ordersScopeLabel.setText("All-time orders: "+snapshot.totals().orders()+" · showing up to 5 latest orders");
-            supplierStatusLabel.setText("Supply is shown for the selected week. Order totals cover all dates. Buyer receipt updates order status.");
+            ViewFeedback.show(supplierStatusLabel,ViewFeedback.Kind.INFO,"Supply is shown for the selected week. Order totals cover all dates. Buyer receipt updates order status.");
             refreshQueued();
         });
-        task.setOnFailed(event -> {finish();if(AppServices.currentUser().equals(user)&&AppServices.liveSupplierSupply().isPresent())supplierStatusLabel.setText(DatabaseMessages.describe(task.getException(),"Could not load supplier activity. Refresh to try again."));refreshQueued();});
+        task.setOnFailed(event -> {finish();if(AppServices.currentUser().equals(user)&&AppServices.liveSupplierSupply().isPresent()){
+            ViewFeedback.show(supplierStatusLabel,ViewFeedback.Kind.ERROR,DatabaseMessages.describe(task.getException(),"Could not load supplier activity. Refresh to try again."));
+            overviewSupplyTable.setPlaceholder(new Label("Supply unavailable. Refresh to retry."));recentOrdersTable.setPlaceholder(new Label("Orders unavailable. Refresh to retry."));
+        }refreshQueued();});
         Thread.ofVirtual().name("supplier-overview").start(task);
     }
     private void finish(){busy=false;refreshDashboardButton.setDisable(false);dashboardWeekPicker.setDisable(false);}

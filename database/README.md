@@ -1,5 +1,19 @@
 # Database v1 — Coffee Supplier Allocation
 
+## Current/future-week demo (2026-11-22)
+
+For a working demonstration on a **new empty development/test database**, run
+`01_schema.sql`, then **either** `04_current_demo_data.sql` (current and next ISO
+delivery weeks from the database clock in `Asia/Ho_Chi_Minh`) **or**
+`02_seed_data.sql` (fixed historical weeks 41–43/2026). Do not run both seeds in
+the same database. Both refuse populated project tables; neither resets data.
+The rolling seed creates no orders/allocations/reviews in advance. Use console
+menu **13** to select a delivery year/week, or the existing JavaFX/Swing selectors.
+Past weeks still cannot be used for new demands or allocation.
+See [the rolling demo guide](../docs/current-demo.md) and [root README](../README.md)
+for current run instructions. The schema-phase notes below describe the earlier
+database design milestone; later services and workflows are documented at the root.
+
 Bản SQL này dựa trên ảnh `db_schema.png` của bạn và ba bổ sung đã được chấp thuận trong chat. Đây là bước tạo cấu trúc database; chưa phải toàn bộ nghiệp vụ allocation hoặc ứng dụng Java.
 
 ## Các file

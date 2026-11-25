@@ -31,6 +31,7 @@
                     <DatePicker fx:id="requestDatePicker"
                                 promptText="Choose a date in the delivery week"
                                 maxWidth="Infinity"/>
+                    <Label fx:id="dateErrorLabel" visible="false" managed="false" wrapText="true"/>
                     <Label fx:id="requiredWeekPreview" styleClass="buyer-delivery-note" wrapText="true"/>
                 </VBox>
 
@@ -84,21 +85,22 @@
                     <VBox fx:id="productRowsContainer"
                           spacing="10"/>
 
-                    <Label fx:id="catalogStatusLabel" styleClass="info-card" wrapText="true"
-                           visible="false" managed="false"/>
+                    <HBox alignment="CENTER_LEFT" spacing="12"><Label fx:id="catalogStatusLabel" wrapText="true" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                           visible="false" managed="false"/><Button fx:id="retryCatalogButton" text="Retry products" onAction="#retryCatalog" styleClass="outline-button" visible="false" managed="false"/></HBox>
                 </VBox>
 
                 <VBox styleClass="section-card" spacing="12">
                     <Label text="Additional Notes"
                            styleClass="section-title"/>
 
-                    <Label text="Provide any quality requirements or special instructions."
+                    <Label text="Optional · up to 255 characters. Add quality requirements or special instructions."
                            styleClass="small-text"/>
 
                     <TextArea fx:id="notesField"
                               promptText="e.g. Prefer consistent bean size, moisture level, and natural processing..."
                               prefRowCount="4"
                               wrapText="true"/>
+                    <Label fx:id="notesErrorLabel" visible="false" managed="false" wrapText="true"/>
                 </VBox>
 
                 <Label text="Product quantities use the unit defined in the coffee product catalog."
@@ -115,7 +117,7 @@
                 <Label fx:id="productErrorLabel" styleClass="error-text" wrapText="true"/>
             </VBox>
             <Button text="Cancel" onAction="#goBack" styleClass="outline-button"/>
-            <Button fx:id="reviewDemandButton" text="Review Demand →"
+            <Button fx:id="reviewDemandButton" text="Review demand →"
                     onAction="#submitDemand" styleClass="primary-button"/>
         </HBox>
     </bottom>

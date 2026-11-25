@@ -17,23 +17,24 @@ import com.coffeeallocation.model.CoffeeProduct;
 import com.coffeeallocation.model.OpenDemandItem;
 import com.coffeeallocation.dao.CoffeeShopDao;
 import com.coffeeallocation.model.CoffeeShop;
+import com.coffeeallocation.model.DeliveryWeek;
+import com.coffeeallocation.model.DemandExpiryPolicy;
+import com.coffeeallocation.console.DeliveryWeekConsole;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
 
-	// Fixed period used by the demo seed data.
-	private static final int DEMO_YEAR = 2026;
-	private static final int DEMO_WEEK = 42;
-
 	public static void main(String[] args) {
+		DeliveryWeek selectedWeek = DeliveryWeek.from(LocalDate.now(DemandExpiryPolicy.BUSINESS_ZONE));
 		try (Scanner scanner = new Scanner(System.in)) {
 			while (true) {
-				printMenu();
+				printMenu(selectedWeek);
 
 				if (!scanner.hasNextLine()) {
 					return;
@@ -44,17 +45,18 @@ public class Main {
 				try {
 					switch (choice) {
 					case "1" -> showProducts();
-					case "2" -> showWeeklySupply(scanner);
-					case "3" -> showOpenDemandItems();
+					case "2" -> showWeeklySupply(scanner, selectedWeek);
+					case "3" -> showOpenDemandItems(selectedWeek);
 					case "4" -> showShops();
-					case "5" -> CreateDemandConsole.run(scanner, DEMO_YEAR, DEMO_WEEK);
-					case "6" -> MatchingConsole.run(scanner, DEMO_YEAR, DEMO_WEEK);
-					case "7" -> SharedAllocationConsole.run(DEMO_YEAR, DEMO_WEEK);
-					case "8" -> AllocationConfirmationConsole.run(scanner, DEMO_YEAR, DEMO_WEEK);
+					case "5" -> CreateDemandConsole.run(scanner, selectedWeek.year(), selectedWeek.week());
+					case "6" -> MatchingConsole.run(scanner, selectedWeek.year(), selectedWeek.week());
+					case "7" -> SharedAllocationConsole.run(selectedWeek.year(), selectedWeek.week());
+					case "8" -> AllocationConfirmationConsole.run(scanner, selectedWeek.year(), selectedWeek.week());
 					case "9" -> OrderConsole.run(scanner);
 					case "10" -> OrderCompletionConsole.run(scanner);
 					case "11" -> SupplierReviewConsole.run(scanner);
 					case "12" -> SupplierHistoryConsole.run(scanner);
+					case "13" -> selectedWeek = DeliveryWeekConsole.select(scanner, System.out, selectedWeek);
 					case "0" -> {
 							    System.out.println("Goodbye!");
 							    return;
@@ -65,20 +67,23 @@ public class Main {
 					System.out.println("Database error: " + exception.getMessage());
 				} catch (IllegalStateException exception) {
 					System.out.println("Configuration error: " + exception.getMessage());
+				} catch (IllegalArgumentException exception) {
+					System.out.println("Request rejected: " + exception.getMessage());
 				}
 			}
 		}
 	}
 
-	private static void printMenu() {
+	private static void printMenu(DeliveryWeek selectedWeek) {
 		System.out.println();
 		System.out.println("=== Coffee Supplier Allocation ===");
-		System.out.println("Demo period: ISO week " + DEMO_WEEK + "/" + DEMO_YEAR);
+		System.out.println("Selected delivery period: ISO week " + selectedWeek.week() + "/" + selectedWeek.year());
+		System.out.println("Startup default: current week in Asia/Ho_Chi_Minh. Use menu 13 to change it.");
 		System.out.println("1. Show active products");
 		System.out.println("2. Show weekly supply for a product");
 		System.out.println("3. Show open demand items");
 		System.out.println("4. Show active coffee shops");
-		System.out.println("5. Create demo OPEN demand");
+		System.out.println("5. Create OPEN demand");
 		System.out.println("6. Match an OPEN demand item to suppliers");
 		System.out.println("7. Preview shared allocation for OPEN demand items");
 		System.out.println("8. Preview and confirm allocations / create orders");
@@ -86,6 +91,7 @@ public class Main {
 		System.out.println("10. Complete a pending order");
 		System.out.println("11. Review supplier / view order reviews");
 		System.out.println("12. View supplier review history");
+		System.out.println("13. Change delivery ISO year/week");
 		System.out.println("0. Exit");
 		System.out.print("Choose: ");
 	}
@@ -144,7 +150,7 @@ public class Main {
 		}
 	}
 
-	private static void showWeeklySupply(Scanner scanner) throws SQLException {
+	private static void showWeeklySupply(Scanner scanner, DeliveryWeek selectedWeek) throws SQLException {
 		// loadProducts closes its connection before waiting for user input.
 		List<CoffeeProduct> products = loadProducts();
 		if (products.isEmpty()) {
@@ -161,7 +167,7 @@ public class Main {
 		List<AvailableSupply> supplies;
 		try (Connection connection = DatabaseConnection.getConnection()) {
 			supplies = new WeeklySupplyDao(connection).findEligible(
-			    product.getProductId(), DEMO_YEAR, DEMO_WEEK
+			    product.getProductId(), selectedWeek.year(), selectedWeek.week()
 			);
 		}
 
@@ -184,11 +190,11 @@ public class Main {
 		System.out.println("Total available: " + total + " " + product.getUnit());
 	}
 
-	private static void showOpenDemandItems() throws SQLException {
+	private static void showOpenDemandItems(DeliveryWeek selectedWeek) throws SQLException {
 		List<OpenDemandItem> items;
 		try (Connection connection = DatabaseConnection.getConnection()) {
 			items = new DemandDao(connection).findOpenItemsForWeek(
-			    DEMO_YEAR, DEMO_WEEK
+			    selectedWeek.year(), selectedWeek.week()
 			);
 		}
 

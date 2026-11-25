@@ -36,13 +36,14 @@ public class MyDemandsController {
         if(AppServices.liveBuyerDemands().isEmpty())return;
         var user=AppServices.currentUser();busy=true;refreshDemandsButton.setDisable(true);loadMoreDemandsButton.setDisable(true);
         if(!append){demandsTable.getItems().clear();cursor=null;}
-        demandsStatus.setText("Loading your demands…");
+        if(!append)demandsTable.setPlaceholder(new Label("Loading demands…"));
+        ViewFeedback.show(demandsStatus,ViewFeedback.Kind.LOADING,"Loading your demands…");
         Task<Page> task=new Task<>(){@Override protected Page call()throws Exception{return service.demands(before);}};
         task.setOnSucceeded(e -> {finish();if(!AppServices.currentUser().equals(user)||AppServices.liveBuyerDemands().isEmpty())return;
             demandsTable.getItems().addAll(task.getValue().demands().stream().map(BuyerDemandRow::of).toList());cursor=task.getValue().nextBeforeId();loadMoreDemandsButton.setDisable(cursor==null);
             demandsTable.setPlaceholder(new Label("No demands yet. Create your first request."));
-            demandsStatus.setText("Showing "+demandsTable.getItems().size()+" demands · newest first. Select a demand to see its allocation details.");refreshQueued();});
-        task.setOnFailed(e -> {finish();if(AppServices.currentUser().equals(user)){loadMoreDemandsButton.setDisable(cursor==null);demandsStatus.setText(DatabaseMessages.describe(task.getException(),"Could not load demands. Refresh to try again."));}refreshQueued();});
+            ViewFeedback.show(demandsStatus,ViewFeedback.Kind.INFO,"Showing "+demandsTable.getItems().size()+" demands · newest first. Select a demand to see its allocation details.");refreshQueued();});
+        task.setOnFailed(e -> {finish();if(AppServices.currentUser().equals(user)){loadMoreDemandsButton.setDisable(cursor==null);ViewFeedback.show(demandsStatus,ViewFeedback.Kind.ERROR,DatabaseMessages.describe(task.getException(),"Could not load demands. Refresh to try again."));if(demandsTable.getItems().isEmpty())demandsTable.setPlaceholder(new Label("Demands unavailable. Refresh to retry."));}refreshQueued();});
         Thread.ofVirtual().name("buyer-demands").start(task);
     }
     private void finish(){busy=false;refreshDemandsButton.setDisable(false);}

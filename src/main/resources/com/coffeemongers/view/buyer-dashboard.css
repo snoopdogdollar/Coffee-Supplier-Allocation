@@ -545,3 +545,33 @@
 .supply-composition-chart .chart-bar { -fx-background-insets: 0; }
 .composition-scroll, .composition-scroll > .viewport { -fx-background-color: transparent; }
 .composition-total { -fx-background-color: #EDF2EB; -fx-background-radius: 6; -fx-padding: 7 10; -fx-text-fill: #476B3F; -fx-font-size: 12px; }
+
+/* Shared workspace rhythm and feedback, including Admin forms and tables. */
+.main-layout { -fx-font-family: "Arial"; -fx-font-size: 13px; }
+.main-layout .content { -fx-padding: 28; -fx-spacing: 20; }
+.main-layout .page-title { -fx-font-size: 28px; }
+.main-layout .section-title { -fx-font-size: 17px; }
+.main-layout .content .subtitle, .main-layout .demand-actions .subtitle { -fx-font-size: 13px; -fx-text-fill: #736D64; }
+.main-layout .content .small-text { -fx-font-size: 12px; -fx-text-fill: #736D64; }
+.main-layout .section-card { -fx-padding: 22; }
+.main-layout .primary-button, .main-layout .outline-button { -fx-font-size: 13px; -fx-min-height: 38; -fx-padding: 9 14; }
+.main-layout .form-label { -fx-font-size: 12px; }
+.main-layout .data-table { -fx-fixed-cell-size: 44px; }
+.main-layout .data-table .table-cell { -fx-font-size: 13px; -fx-padding: 10; }
+.main-layout .data-table .column-header .label { -fx-font-size: 12px; }
+.main-layout .section-card .text-field, .main-layout .section-card .text-area,
+.main-layout .section-card .combo-box, .main-layout .section-card .date-picker { -fx-font-size: 13px; }
+.main-layout .section-card .text-field { -fx-min-height: 38; }
+.main-layout .section-card .combo-box, .main-layout .section-card .date-picker { -fx-padding: 0; -fx-min-height: 38; }
+.main-layout .section-card .combo-box > .list-cell { -fx-padding: 8 10; }
+.main-layout .section-card .date-picker > .text-field { -fx-border-color: transparent; -fx-background-insets: 0; -fx-padding: 8 10; }
+.main-layout .section-card .text-field:focused, .main-layout .section-card .text-area:focused,
+.main-layout .section-card .combo-box:focused, .main-layout .section-card .date-picker:focused { -fx-border-color: #71916A; }
+.main-layout .section-card .text-field:invalid, .main-layout .section-card .text-area:invalid,
+.main-layout .section-card .combo-box:invalid, .main-layout .section-card .date-picker:invalid { -fx-border-color: #B84A3C; -fx-background-color: #FFF9F7; }
+.main-layout .field-error { -fx-font-size: 12px; -fx-text-fill: #A1372B; -fx-padding: 2 0 0 0; -fx-min-width: 0; }
+.main-layout .feedback { -fx-font-size: 13px; -fx-padding: 5 0; -fx-min-width: 0; }
+.main-layout .feedback-info, .main-layout .feedback-loading { -fx-text-fill: #655B51; }
+.main-layout .feedback-success { -fx-text-fill: #2E6B38; }
+.main-layout .feedback-error { -fx-text-fill: #A1372B; }
+.main-layout .feedback .progress-indicator { -fx-progress-color: #71916A; }

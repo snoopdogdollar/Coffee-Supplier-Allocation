@@ -7,6 +7,9 @@ import com.coffeeallocation.model.SupplierSupplyView;
 import com.coffeemongers.view.SceneNavigator;
 import com.coffeemongers.view.DatabaseMessages;
 import com.coffeemongers.view.UndoHistory;
+import com.coffeemongers.view.FormFeedback;
+import com.coffeemongers.view.ViewFeedback;
+import static com.coffeemongers.view.ViewFeedback.Kind.*;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.concurrent.Task;
@@ -32,6 +35,7 @@ public class SupplierWeeklySupplyController {
     @FXML private DatePicker weekPicker, weekFilterPicker;
     @FXML private TextField quantityField, priceField;
     @FXML private Label statusLabel, weekLabel, productHelpLabel,quantityUnitLabel,editingSupplyNotice;
+    @FXML private Label productError,quantityError,weekError,priceError;
     @FXML private Button saveButton,deleteButton;
     @FXML private BorderPane screenRoot;
     private String editingId;
@@ -39,13 +43,18 @@ public class SupplierWeeklySupplyController {
     private SupplierSupplyService liveSupply;
     private final Map<String, SupplierSupplyView.Product> liveProducts = new LinkedHashMap<>();
     private boolean busy;
+    private final FormFeedback feedback=new FormFeedback();
     private Window requestWindow;
     private final EventHandler<WindowEvent> blockClose = WindowEvent::consume;
 
     @FXML public void initialize() {
         supplierSidebarController.setActive("supply");
+        feedback.register(productPicker,productError,productPicker.valueProperty());
+        feedback.register(quantityField,quantityError,quantityField.textProperty());
+        feedback.register(priceField,priceError,priceField.textProperty());
+        feedback.register(weekPicker,weekError,weekPicker.valueProperty(),weekPicker.getEditor().textProperty());
         liveSupply = AppServices.liveSupplierSupply().orElse(null);
-        saveButton.setDisable(AppServices.isReadOnlyWorkspacePreview());deleteButton.setDisable(AppServices.isReadOnlyWorkspacePreview());
+        saveButton.setDisable(AppServices.isReadOnlyWorkspacePreview());deleteButton.setDisable(true);
         if (liveSupply == null) {
             productPicker.setItems(FXCollections.observableArrayList(AppServices.marketplace().supplierProducts()));
         } else {
@@ -82,7 +91,7 @@ public class SupplierWeeklySupplyController {
         productPicker.setItems(FXCollections.observableArrayList(AppServices.marketplace().supplierProducts()));
         supplyTable.setItems(FXCollections.observableArrayList(AppServices.marketplace().weeklySupply(monday)));
         supplyTable.setPlaceholder(new Label("No supply declared for this week."));
-        statusLabel.setText("Demo session · quantities and prices stay in this session.");
+        ViewFeedback.show(statusLabel,INFO,"Demo session · quantities and prices stay in this session.");
     }
 
     @FXML private void reload() {
@@ -91,6 +100,7 @@ public class SupplierWeeklySupplyController {
 
     private void loadLive(LocalDate date, String notice) {
         clear();supplyTable.getItems().clear();liveProducts.clear();productPicker.getItems().clear();
+        supplyTable.setPlaceholder(new Label("Loading weekly supply…"));
         saveButton.setDisable(true);deleteButton.setDisable(true);
         runLiveTask("Reading this supplier's weekly supply…", () -> liveSupply.load(date), snapshot -> {
             liveProducts.clear();
@@ -104,7 +114,7 @@ public class SupplierWeeklySupplyController {
             weekPicker.setValue(date);
             var iso = java.time.temporal.WeekFields.ISO;
             weekLabel.setText("Week " + date.get(iso.weekOfWeekBasedYear()) + " · " + date.get(iso.weekBasedYear()));
-            statusLabel.setText(liveProducts.isEmpty()
+            ViewFeedback.show(statusLabel,notice.isEmpty()?INFO:SUCCESS,liveProducts.isEmpty()
                     ? "No active products offered yet. Open My Products to add a product before declaring supply."
                     : notice.isEmpty() ? "Loaded supply for " + snapshot.catalog().supplierName() + "." : notice);
         });
@@ -117,7 +127,8 @@ public class SupplierWeeklySupplyController {
         var supplier = AppServices.currentUser();
         busy = true;
         screenRoot.setDisable(true);
-        statusLabel.setText(message);
+        saveButton.setText(message.startsWith("Saving")?"Saving…":"Please wait…");
+        ViewFeedback.show(statusLabel,LOADING,message);
         if (screenRoot.getScene() != null) {
             requestWindow = screenRoot.getScene().getWindow();
             if (requestWindow != null) {
@@ -137,8 +148,9 @@ public class SupplierWeeklySupplyController {
             finishRequest();
             if (AppServices.currentUser().equals(supplier) && AppServices.liveSupplierSupply().isPresent()) {
                 Throwable error = task.getException();
-                statusLabel.setText(DatabaseMessages.describe(error,
+                ViewFeedback.show(statusLabel,ERROR,DatabaseMessages.describe(error,
                         "Could not verify the request. Refresh supply before trying again."));
+                if(supplyTable.getItems().isEmpty())supplyTable.setPlaceholder(new Label("Supply could not be loaded. Use Refresh to try again."));
             }
         });
         Thread.ofVirtual().name("supplier-weekly-supply").start(task);
@@ -147,46 +159,51 @@ public class SupplierWeeklySupplyController {
     private void finishRequest() {
         busy = false;
         screenRoot.setDisable(false);
+        saveButton.setText(editingId==null?"Save supply":"Save changes");
         if (requestWindow != null) {
             requestWindow.removeEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, blockClose);
             requestWindow = null;
         }
     }
     @FXML private void save() {
-        if (busy) return;
+        if (busy||AppServices.isReadOnlyWorkspacePreview()) return;
+        feedback.clearAll();
+        if(editingId==null&&(productPicker.getValue()==null||(liveSupply!=null&&!liveProducts.containsKey(productPicker.getValue()))))feedback.error(productPicker,"Choose an active product from My Products.");
+        LocalDate inputWeek=null;BigDecimal inputQuantity=null,inputPrice=null;
+        try{inputWeek=FormFeedback.date(weekPicker);}catch(IllegalArgumentException error){feedback.error(weekPicker,error.getMessage());}
+        try{inputQuantity=FormFeedback.amount(quantityField.getText(),"Declared quantity",liveSupply!=null);}catch(IllegalArgumentException error){feedback.error(quantityField,error.getMessage());}
+        try{inputPrice=FormFeedback.amount(priceField.getText(),"Unit price",liveSupply!=null);}catch(IllegalArgumentException error){feedback.error(priceField,error.getMessage());}
+        WeeklySupplyRecord selected=editingId==null?null:supplyTable.getItems().stream().filter(row -> row.id().equals(editingId)).findFirst().orElse(null);
+        if(selected!=null&&inputQuantity!=null&&inputQuantity.compareTo(selected.committedQuantity())<0)feedback.error(quantityField,"Must cover the allocated quantity: "+format(selected.committedQuantity())+" "+selected.unit()+".");
+        if(!feedback.valid()){ViewFeedback.show(statusLabel,ERROR,"Check the highlighted fields before saving.");feedback.focusFirst();return;}
         try {
             if (liveSupply != null) {
-                saveLive();
+                saveLive(inputWeek,inputQuantity,inputPrice);
                 return;
             }
             String product = productPicker.getValue();
             if (product == null) throw new IllegalArgumentException("Choose an existing coffee product.");
-            BigDecimal quantity = new BigDecimal(quantityField.getText().trim());
-            BigDecimal price = new BigDecimal(priceField.getText().trim());
+            BigDecimal quantity = inputQuantity;
+            BigDecimal price = inputPrice;
             WeeklySupplyRecord previous=editingId==null?null:supplyTable.getItems().stream().filter(row->row.id().equals(editingId)).findFirst().orElse(null);
             if(previous!=null&&previous.remainingQuantity().compareTo(previous.initialQuantity())<0)previous=null;
-            WeeklySupplyRecord saved=AppServices.marketplace().saveWeeklySupply(editingId, product, selectedWeek(), quantity, price);
+            WeeklySupplyRecord saved=AppServices.marketplace().saveWeeklySupply(editingId, product, inputWeek.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)), quantity, price);
             if(editingId==null){
                 UndoHistory.register(screenRoot,"creation of "+product+" weekly supply",()->{WeeklySupplyRecord current=AppServices.marketplace().weeklySupply(saved.weekStart()).stream().filter(row->row.productName().equals(saved.productName())).findFirst().orElseThrow(()->new IllegalStateException("The supply record no longer exists."));if(current.remainingQuantity().compareTo(current.initialQuantity())<0)throw new IllegalStateException("The supply has already been allocated and cannot be undone safely.");AppServices.marketplace().deleteWeeklySupply(current.id());refresh();},statusLabel::setText);
             }else if(previous!=null){
                 WeeklySupplyRecord original=previous;
                 UndoHistory.register(screenRoot,"edit to "+original.productName()+" weekly supply",()->{AppServices.marketplace().saveWeeklySupply(saved.id(),original.productName(),original.weekStart(),original.initialQuantity(),original.unitPrice());refresh();},statusLabel::setText);
             }
-            clear(); refresh(); statusLabel.setText("Weekly supply saved to this demo session.");
-        } catch (NumberFormatException e) { statusLabel.setText("Enter valid numeric quantity and unit price."); }
-        catch (IllegalArgumentException e) { statusLabel.setText(e.getMessage()); }
+            clear(); refresh(); ViewFeedback.show(statusLabel,SUCCESS,"Weekly supply saved to this demo session.");
+        } catch (IllegalArgumentException e) { ViewFeedback.show(statusLabel,ERROR,e.getMessage()); }
     }
-    private void saveLive() {
+    private void saveLive(LocalDate week,BigDecimal quantity,BigDecimal price) {
         long supplierProductId = editingSupplierProductId;
         if (editingId == null) {
             var product = liveProducts.get(productPicker.getValue());
             if (product == null) throw new IllegalArgumentException("Choose one of this supplier's active products.");
             supplierProductId = product.supplierProductId();
         }
-        LocalDate week = weekPicker.getValue();
-        if (week == null) throw new IllegalArgumentException("Choose a date in the supply week.");
-        BigDecimal quantity = new BigDecimal(quantityField.getText().strip());
-        BigDecimal price = new BigDecimal(priceField.getText().strip());
         Long id = editingId == null ? null : Long.valueOf(editingId);
         long productId = supplierProductId;
         runLiveTask("Saving weekly supply…",
@@ -196,6 +213,7 @@ public class SupplierWeeklySupplyController {
 
     @FXML private void clear() {
         if (busy) return;
+        feedback.clearAll();saveButton.setText("Save supply");deleteButton.setDisable(true);
         editingId=null;
         editingSupplierProductId=0;
         productPicker.setValue(null);
@@ -212,9 +230,10 @@ public class SupplierWeeklySupplyController {
         }
     }
     @FXML private void deleteSelected() {
-        if (busy) return;
+        if (busy||AppServices.isReadOnlyWorkspacePreview()) return;
         WeeklySupplyRecord selected=supplyTable.getSelectionModel().getSelectedItem();
-        if(selected==null){statusLabel.setText("Select a weekly supply record first.");return;}
+        if(selected==null){ViewFeedback.show(statusLabel,INFO,"Select a weekly supply record first.");return;}
+        if(selected.committedQuantity().signum()>0){ViewFeedback.show(statusLabel,ERROR,"Allocated supply cannot be deleted. Its confirmed orders must be preserved.");return;}
         if (liveSupply != null) {
             Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION,
                     "Delete unused weekly supply #" + selected.id() + " for " + selected.productName() + "?",
@@ -236,11 +255,12 @@ public class SupplierWeeklySupplyController {
         AppServices.marketplace().deleteWeeklySupply(selected.id());
         if(selected.remainingQuantity().compareTo(selected.initialQuantity())==0){
             UndoHistory.register(screenRoot,"deletion of "+selected.productName()+" supply",()->AppServices.marketplace().saveWeeklySupply(null,selected.productName(),selected.weekStart(),selected.initialQuantity(),selected.unitPrice()),statusLabel::setText);
-            statusLabel.setText("Supply record removed. Press ⌘Z (macOS) or Ctrl+Z to restore it.");
-        }else statusLabel.setText("Supply record removed. Undo is unavailable after stock has been allocated.");
-        clear(); refresh();
+        }
+        clear(); refresh();ViewFeedback.show(statusLabel,SUCCESS,"Supply record removed. Press Ctrl+Z to restore it.");
     }
     private void edit(WeeklySupplyRecord row) {
+        if(busy)return;
+        feedback.clearAll();saveButton.setText("Save changes");
         editingId=row.id();
         editingSupplierProductId=row.supplierProductId();
         String productLabel = liveSupply == null ? row.productName() : liveProducts.entrySet().stream()
@@ -255,7 +275,9 @@ public class SupplierWeeklySupplyController {
             deleteButton.setDisable(false);
             saveButton.setDisable(false);
         }
-        statusLabel.setText("Editing " + row.productName() + " · remaining quantity is allocation controlled.");
+        saveButton.setDisable(AppServices.isReadOnlyWorkspacePreview());
+        deleteButton.setDisable(AppServices.isReadOnlyWorkspacePreview()||row.committedQuantity().signum()>0);
+        ViewFeedback.show(statusLabel,INFO,"Editing " + row.productName() + " · remaining quantity is allocation controlled.");
         quantityUnitLabel.setText("Quantity in "+row.unit()+" · unit price in VND/"+row.unit());
         editingSupplyNotice.setText("Allocated: "+format(row.committedQuantity())+" "+row.unit()+". Declared quantity cannot be lower than this amount.");
     }

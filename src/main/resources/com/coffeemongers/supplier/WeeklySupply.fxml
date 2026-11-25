@@ -15,11 +15,11 @@
   </VBox>
   <VBox spacing="14" styleClass="section-card">
    <HBox alignment="CENTER_LEFT" spacing="12"><VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Add / Update Weekly Supply" styleClass="section-title"/><Label fx:id="productHelpLabel" text="Choose a product from My Products, then declare its weekly quantity and price." styleClass="small-text" wrapText="true"/></VBox><Button text="My Products" onAction="#openProducts" styleClass="outline-button"/></HBox>
-   <GridPane hgap="18" vgap="12"><columnConstraints><ColumnConstraints hgrow="ALWAYS"/><ColumnConstraints hgrow="ALWAYS"/></columnConstraints>
-    <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0"><Label text="Product *" styleClass="form-label"/><ComboBox fx:id="productPicker" promptText="Select existing product" maxWidth="Infinity"/></VBox>
-    <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0"><Label text="Declared quantity *" styleClass="form-label"/><TextField fx:id="quantityField" promptText="Total quantity for this week"/></VBox>
-    <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1"><Label text="Supply week * (select a date in the week)" styleClass="form-label"/><DatePicker fx:id="weekPicker" promptText="Choose week" maxWidth="Infinity"/></VBox>
-    <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1"><Label text="Unit price *" styleClass="form-label"/><TextField fx:id="priceField" promptText="Enter unit price"/></VBox>
+   <GridPane hgap="18" vgap="12"><columnConstraints><ColumnConstraints percentWidth="50" minWidth="0"/><ColumnConstraints percentWidth="50" minWidth="0"/></columnConstraints>
+    <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0"><Label text="Product *" styleClass="form-label"/><ComboBox fx:id="productPicker" promptText="Select existing product" maxWidth="Infinity"/><Label fx:id="productError" visible="false" managed="false" wrapText="true"/></VBox>
+    <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0"><Label text="Declared quantity *" styleClass="form-label"/><TextField fx:id="quantityField" promptText="e.g. 120.50"/><Label fx:id="quantityError" visible="false" managed="false" wrapText="true"/></VBox>
+    <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1"><Label text="Supply week *" styleClass="form-label"/><DatePicker fx:id="weekPicker" promptText="Choose a date in the supply week" maxWidth="Infinity"/><Label fx:id="weekError" visible="false" managed="false" wrapText="true"/></VBox>
+    <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1"><Label text="Unit price *" styleClass="form-label"/><TextField fx:id="priceField" promptText="VND per product unit"/><Label fx:id="priceError" visible="false" managed="false" wrapText="true"/></VBox>
    </GridPane>
    <Label fx:id="quantityUnitLabel" styleClass="supplier-unit-note" wrapText="true"/>
    <Label fx:id="editingSupplyNotice" text="Declare your total supply for the week. Remaining quantity is calculated automatically." styleClass="small-text" wrapText="true"/>
@@ -31,7 +31,7 @@
    <Button fx:id="refreshSupplyButton" text="Refresh" onAction="#reload" styleClass="outline-button"/>
    <Button fx:id="deleteButton" text="Delete selected" onAction="#deleteSelected" styleClass="outline-button"/>
    <Button fx:id="clearButton" text="Clear" onAction="#clear" styleClass="outline-button"/>
-   <Button fx:id="saveButton" text="Save" onAction="#save" styleClass="primary-button"/>
+   <Button fx:id="saveButton" text="Save supply" onAction="#save" styleClass="primary-button"/>
   </HBox>
  </bottom>
 </BorderPane>

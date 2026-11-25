@@ -35,7 +35,7 @@ public class CreateDemandConsole {
 
         Map<Long, CoffeeShop> shopsById = new LinkedHashMap<>();
         Map<Long, CoffeeProduct> productsById = new LinkedHashMap<>();
-        System.out.println("=== Create demo OPEN demand ===");
+        System.out.println("=== Create OPEN demand ===");
         System.out.println("Required ISO week: " + week + "/" + year);
         for (CoffeeShop shop : shops) {
             shopsById.put(shop.getShopId(), shop);

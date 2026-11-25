@@ -1,5 +1,34 @@
 # Project decisions
 
+## 2026-11-22 — Selectable console weeks and a rolling demo fixture
+
+- Console startup uses the current ISO week/year in `Asia/Ho_Chi_Minh`. Menu 13
+  changes the selected delivery period without renumbering existing actions.
+  Supply, demand, matching and allocation paths all use that selection. Historical
+  weeks remain selectable for viewing; existing backend expiry guards still apply.
+- `DeliveryWeek` validates the ISO year and the actual maximum week for that year.
+  Blank input/EOF cancels a selection, and invalid input is retried. A rejected
+  past-week operation returns to the menu instead of ending the console.
+- Preserve the historical `02_seed_data.sql` unchanged. Add
+  `04_current_demo_data.sql` as an alternative for a new empty demo database,
+  deriving current/next week from the database business clock, not fixed years.
+  It uses returned identity IDs, one transaction and locked empty-table checks.
+- No schema, allocation ordering, all-or-nothing policy, expiry deadline, saved
+  business data or historical record is changed. The rolling fixture is not a
+  migration or live-data update. See [current-demo.md](current-demo.md).
+
+## 2026-11-15 — Form validation and consistent workspace feedback
+
+- Prioritize Create Demand and Weekly Supply: put validation by each field, focus
+  and reveal the first invalid field, and validate decimal/date/note input before
+  review or saving. Follow existing service limits and allocated supply minimums.
+- Add recoverable Buyer catalog loading, error and empty states with Retry products.
+  Show busy action labels, explicit success/error messages and guarded submissions.
+- Use shared workspace spacing, typography, button sizes and feedback styles across
+  Buyer, Supplier and Admin; distinguish failed table reads from empty results.
+- Validate the full Supplier → Buyer → Admin allocation → receipt/review workflow
+  on isolated local PostgreSQL data. See ui-ux-polish.md for scope and verification.
+
 ## 2026-11-15 — Keep the window stable during navigation
 
 - Reuse each window's existing JavaFX Scene and replace only its root content.

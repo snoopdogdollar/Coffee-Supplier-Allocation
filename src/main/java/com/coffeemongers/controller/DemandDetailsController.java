@@ -8,6 +8,7 @@ import com.coffeemongers.view.SceneNavigator;
 import com.coffeemongers.view.BuyerDemandRow;
 import com.coffeemongers.view.DatabaseMessages;
 import com.coffeemongers.view.DemandStatusPresentation;
+import com.coffeemongers.view.ViewFeedback;
 import com.coffeeallocation.model.BuyerWorkspaceView;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -55,7 +56,7 @@ public class DemandDetailsController {
         shopCityLabel.setText(demand.shopAddress().isBlank()?"—":demand.shopAddress());
         demandActionButton.setText(draft ? "Submit Demand" : "Back to My Demands");
         demandActionButton.setDisable(draft&&AppServices.isReadOnlyWorkspacePreview());
-        submissionMessage.setText(draft?"Review your request before submitting.":"Submitted in this demo session. Allocation is managed by Admin in the connected workspace.");
+        ViewFeedback.show(submissionMessage,draft?ViewFeedback.Kind.INFO:ViewFeedback.Kind.SUCCESS,draft?"Review your request before submitting.":"Submitted in this demo session. Allocation is managed by Admin in the connected workspace.");
     }
 
     public void setLiveDraft(DemandRequest draft, LocalDate requiredDate, List<Item> items) {
@@ -69,6 +70,7 @@ public class DemandDetailsController {
         demandStatusLabel.setText("DRAFT");
         savedDemand=false;
         demandActionButton.setText("Submit Demand");
+        ViewFeedback.show(submissionMessage,ViewFeedback.Kind.INFO,"Step 2 of 2 · Check your products and delivery week, then submit your demand.");
     }
 
     public void setSavedDemand(DemandRequest demand, String status, int requiredYear, int requiredWeek) {
@@ -85,13 +87,13 @@ public class DemandDetailsController {
 
     public void showSavedDemand(long demandId) {
         var service=AppServices.liveBuyerDemands();var user=AppServices.currentUser();
-        if(service.isEmpty()){submissionMessage.setText("Sign in as your linked Buyer to view this demand.");return;}
+        if(service.isEmpty()){ViewFeedback.show(submissionMessage,ViewFeedback.Kind.ERROR,"Sign in as your linked Buyer to view this demand.");return;}
         savedDemand=true;demandActionButton.setDisable(true);refreshDemandButton.setDisable(true);
         demandIdLabel.setText("Demand #"+demandId);demandTitleLabel.setText("Loading demand…");DemandStatusPresentation.apply(demandStatusLabel,"—");remainingTitle.setText("Remaining");
         deliveryDateLabel.setText("—");requiredWeekValue.setText("—");notesLabel.setText("—");totalQuantityLabel.setText("—");
         detailsProductContainer.getChildren().clear();allocationRows.getChildren().clear();
         allocationSection.setVisible(false);allocationSection.setManaged(false);
-        submissionMessage.setText("Loading demand and confirmed allocation…");
+        ViewFeedback.show(submissionMessage,ViewFeedback.Kind.LOADING,"Loading demand and confirmed allocation…");
         Task<BuyerWorkspaceView.Detail> task=new Task<>(){@Override protected BuyerWorkspaceView.Detail call()throws Exception{return service.get().workspace().detail(demandId);}};
         task.setOnSucceeded(event -> {
             if(!AppServices.currentUser().equals(user)||AppServices.liveBuyerDemands().isEmpty())return;
@@ -120,11 +122,12 @@ public class DemandDetailsController {
             }
             demandActionButton.setText("View My Orders");demandActionButton.setDisable(false);
             refreshDemandButton.setVisible(true);refreshDemandButton.setManaged(true);refreshDemandButton.setDisable(false);
-            submissionMessage.setText(DemandStatusPresentation.explanation(detail.demand().status()));
+            ViewFeedback.show(submissionMessage,refreshDashboardOnExit?ViewFeedback.Kind.SUCCESS:ViewFeedback.Kind.INFO,
+                    (refreshDashboardOnExit?"Demand saved. ":"")+DemandStatusPresentation.explanation(detail.demand().status()));
         });
         task.setOnFailed(event -> {if(!AppServices.currentUser().equals(user))return;refreshDemandButton.setDisable(false);
             refreshDemandButton.setVisible(true);refreshDemandButton.setManaged(true);
-            refreshDemandButton.setUserData(demandId);submissionMessage.setText(DatabaseMessages.describe(task.getException(),"Could not load this demand. Refresh to try again."));});
+            refreshDemandButton.setUserData(demandId);ViewFeedback.show(submissionMessage,ViewFeedback.Kind.ERROR,DatabaseMessages.describe(task.getException(),"Could not load this demand. Refresh to try again."));});
         refreshDemandButton.setUserData(demandId);Thread.ofVirtual().name("buyer-demand-detail").start(task);
     }
     private Label amount(java.math.BigDecimal value,String unit){Label label=new Label(value.stripTrailingZeros().toPlainString()+" "+unit);label.setMinWidth(115);label.setPrefWidth(115);label.setAlignment(Pos.CENTER_RIGHT);label.getStyleClass().add("buyer-quantity");return label;}
@@ -192,7 +195,7 @@ public class DemandDetailsController {
         var service = AppServices.liveBuyerDemands();
         var currentBuyer = AppServices.currentUser();
         if (service.isEmpty() || currentBuyer.isEmpty()) {
-            submissionMessage.setText("Sign in as the configured test buyer to submit this demand.");
+            ViewFeedback.show(submissionMessage,ViewFeedback.Kind.ERROR,"Sign in as the configured test buyer to submit this demand.");
             return;
         }
 
@@ -201,7 +204,8 @@ public class DemandDetailsController {
         List<Item> items = liveItems;
         submitting = true;
         detailsRoot.setDisable(true);
-        submissionMessage.setText("Saving demand…");
+        demandActionButton.setText("Submitting…");
+        ViewFeedback.show(submissionMessage,ViewFeedback.Kind.LOADING,"Saving demand…");
 
         Task<Long> task = new Task<>() {
             @Override
@@ -226,7 +230,7 @@ public class DemandDetailsController {
                 return;
             }
             Throwable failure = task.getException();
-            submissionMessage.setText(failure instanceof IllegalArgumentException
+            ViewFeedback.show(submissionMessage,ViewFeedback.Kind.ERROR,failure instanceof IllegalArgumentException
                     ? failure.getMessage()
                     : "Could not confirm the save. Check your Buyer Dashboard before trying again.");
         });
@@ -238,6 +242,7 @@ public class DemandDetailsController {
     private void finishSubmission() {
         submitting = false;
         detailsRoot.setDisable(false);
+        demandActionButton.setText("Submit Demand");
     }
 
     private void submitDemoDemand() {
@@ -250,7 +255,7 @@ public class DemandDetailsController {
             refreshDashboardOnExit=true;
             setDemand(demand);
         } catch (RuntimeException ex) {
-            submissionMessage.setText("Could not submit this demand: " + ex.getMessage());
+            ViewFeedback.show(submissionMessage,ViewFeedback.Kind.ERROR,"Could not submit this demand: " + ex.getMessage());
         }
     }
 
