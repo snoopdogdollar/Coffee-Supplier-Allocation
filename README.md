@@ -49,7 +49,7 @@ Versions below come from this repository's build files, rather than a claim that
 | Database | PostgreSQL; the schema uses identity and stored generated columns, requiring PostgreSQL 12 or newer at the schema level. See [database validation](database/VALIDATION.md) for recorded verification. |
 | PostgreSQL driver | pgJDBC **42.7.14**. |
 | Tests | JUnit Jupiter API **5.11.0**, Maven Surefire **3.3.0**. |
-| Node.js | **22.20.0 or newer**, only for npm launchers and Neon tooling. Not required for the direct Maven/JavaFX launch. |
+| Node.js | **22.20.0 or newer**, required by `run-javafx.ps1`, npm launchers and Node checks. Not required for a direct Maven launch. |
 | Optional tools | Git, an IDE, pgAdmin or `psql`. |
 
 The desktop interface needs a graphical desktop session. Initial Maven dependency downloads and `npm ci` need network access.
@@ -95,6 +95,14 @@ mvn -version
 Replace that directory if your JDK is installed elsewhere. These environment changes apply to the current terminal and processes started from it.
 
 ## Quick start: JavaFX demo
+
+On Windows, the launcher checks JDK 26, Maven and Node.js 22.20+, then compiles and opens JavaFX with the Java backend in the same application:
+
+```powershell
+.\run-javafx.ps1 -Demo
+```
+
+`-Demo` ignores local database files and removes configured PostgreSQL test identities only from the launched process. To use the existing database settings instead, run `.\run-javafx.ps1`. See [the launcher guide](docs/javafx-launcher.md) for setup, checks and options.
 
 To explore the interface without setting up PostgreSQL, open a new terminal with no `COFFEE_TEST_*` account settings and run:
 
@@ -162,6 +170,19 @@ Choose an active shop and supplier. If you did not seed the database, the config
 
 ## Run JavaFX with PostgreSQL
 
+### Windows launcher (recommended)
+
+From the project root, run:
+
+```powershell
+.\run-javafx.ps1 -Check
+.\run-javafx.ps1
+```
+
+The launcher loads the existing database environment adapter: process `DATABASE_URL`, otherwise the process JDBC triple, otherwise `.env` or `.env.local`. It also passes the configured `COFFEE_TEST_*` identities to JavaFX. Node.js 22.20+ is required; `npm ci` is not required just to launch, because the helper uses Node built-ins. The database must already be available. This command does not start PostgreSQL, provision Neon, change schema or seed data. Backend services run inside the JavaFX process.
+
+`-Check` verifies tool availability, Java versions and configuration parsing; it does not open JavaFX or test a database connection. An equivalent Windows command is `npm.cmd run javafx`. For direct Maven launching, configure the JDBC variables below; Maven by itself still does not load `.env.local`.
+
 ### 1. Set the JDBC connection
 
 In the same PowerShell terminal used to launch Maven, replace the example values with your database settings:
@@ -198,9 +219,13 @@ You can enable only the roles you need. Buyer requires its shop ID and password;
 
 ### 3. Start the app and sign in
 
+Use the launcher after configuring the connection and test identities:
+
 ```powershell
-mvn javafx:run
+.\run-javafx.ps1
 ```
+
+Direct `mvn javafx:run` remains available when the JDBC variables and test identities are already set in that terminal.
 
 | PostgreSQL test login | Password | Database scope |
 | --- | --- | --- |
@@ -421,6 +446,7 @@ Services own validation and transaction boundaries. DAOs use prepared SQL and ma
 pom.xml                         Maven dependencies, compiler, JavaFX entry point
 package.json                    Optional npm launch/build/check commands
 run-desktop.ps1                 Windows Swing launcher
+run-javafx.ps1                  Windows JavaFX launcher with environment loading
 database/                       Schema, seed and SQL validation
 docs/                           Feature decisions and verification records
 scripts/                        npm/JDBC environment adapter and smoke check
@@ -477,7 +503,7 @@ Timestamps are PostgreSQL `TIMESTAMP` without time zone. Historical cutoff repor
 
 | Variable / file | Used for |
 | --- | --- |
-| `JAVA_HOME` | JDK selection for Maven and the Swing launcher. |
+| `JAVA_HOME` | JDK selection for Maven and desktop launchers. |
 | `DB_URL` | Java JDBC URL, including the `jdbc:postgresql://` prefix. |
 | `DB_USER`, `DB_PASSWORD` | Database role and password read by Java. |
 | `DATABASE_URL` | Postgres URI consumed by the optional npm environment adapter. |
@@ -488,7 +514,7 @@ Timestamps are PostgreSQL `TIMESTAMP` without time zone. Historical cutoff repor
 | `COFFEE_TEST_SUPPLIER_ID` | Active supplier mapped to the configured Supplier account. |
 | `COFFEE_TEST_SUPPLIER_PASSWORD` | Enables the mapped Supplier login together with its supplier ID. |
 | `COFFEE_TEST_ADMIN_PASSWORD` | Enables the PostgreSQL test Admin login. |
-| `.env` / `.env.local` | Optional local database settings loaded by npm launchers, not by Java/Maven automatically. |
+| `.env` / `.env.local` | Optional local database settings loaded by npm launchers and run-javafx.ps1, not by Java/Maven automatically. |
 | `.env.example` | Tracked placeholder example. |
 | `.neon`, `neon.ts` | Local Neon context and repository Neon configuration; see [NEON.md](NEON.md). |
 
@@ -501,6 +527,7 @@ Timestamps are PostgreSQL `TIMESTAMP` without time zone. Historical cutoff repor
 | `release version 26 not supported`, class-version error, or Maven uses Java 8 | Set `JAVA_HOME` and put its `bin` first on `PATH`; confirm `java`, `javac` and Maven all use 26. Check the IDE's Maven runner too. |
 | `mvn` is not recognized | Install/configure Maven on `PATH`; open a new terminal and confirm `mvn -version`. |
 | PowerShell blocks `npm.ps1` | Use `npm.cmd` as in this guide. |
+| PowerShell blocks `run-javafx.ps1` | Use `npm.cmd run javafx`, or `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\run-javafx.ps1` for this invocation. Organizational policy can still restrict scripts. |
 | PowerShell blocks `run-desktop.ps1` | Use `npm.cmd run desktop`, whose Windows launcher supplies a process-level execution-policy option. Organizational policies can still restrict execution. |
 | `Missing environment variable: DB_URL` | Set all three JDBC variables in the same process that starts Java/Maven. A `.env.local` file alone does not configure `mvn javafx:run`. |
 | `relation ... does not exist` | Verify host/database/schema and apply `01_schema.sql` once to the intended empty development database. |
@@ -518,11 +545,11 @@ Timestamps are PostgreSQL `TIMESTAMP` without time zone. Historical cutoff repor
 | FXML tests fail on a server/headless terminal | They start JavaFX and require a graphical session. Inspect `target/surefire-reports` for the actual failure. |
 | Double-clicking the packaged JAR does not launch the app | Use `mvn javafx:run` or the documented classpath/launcher commands. |
 
-### README verification on 2026-11-21
+### Recorded verification
 
-The current source was copied to a separate validation directory without database credentials. With JDK 26.0.2.1 and Maven 3.10.0, Maven packaging and runtime dependency copying succeeded: 64 tests were discovered, 58 passed, six opt-in PostgreSQL tests skipped, and none failed. The JavaFX FXML/navigation test passed. All 11 Node environment-adapter tests also passed.
+On **2026-11-21**, the source was copied to a separate validation directory without database credentials. With JDK 26.0.2.1 and Maven 3.10.0, Maven packaging and runtime dependency copying succeeded: 64 tests were discovered, 58 passed, six opt-in PostgreSQL tests skipped, and none failed. The JavaFX FXML/navigation test passed. All 11 Node environment-adapter tests also passed.
 
-Existing JavaFX native-access/deprecation and chart CSS warnings appeared during tests. No live database integration, Neon smoke check or full manual role workflow was rerun for this documentation update; the walkthrough above is the procedure to follow on your development database.
+Existing JavaFX native-access/deprecation and chart CSS warnings appeared during tests. No live database integration, Neon smoke check or full manual role workflow was rerun for that November 21 README update; the walkthrough above is the procedure to follow on your development database.
 
 On **2026-11-22**, the selectable console-week change passed 65 regular tests,
 including seven new selection/ISO-week tests. The rolling fixture and actual
@@ -538,7 +565,7 @@ shifted IDs, ISO rollover, repeat-seed refusal and supply reconciliation; see
 - JavaFX, Swing and the console expose different subsets of functionality. JavaFX is the broadest role-based interface; the console supports selecting the delivery ISO year/week through menu 13.
 - Catalog deactivation and offering-stop actions retain historical data. A general cancellation/refund workflow is not added merely because a CANCELLED state exists.
 - Allocation follows price/demand priority; dashboard reputation ranking is a separate report. Full persisted scoring snapshots/configuration are not claimed by the presence of the `supplier_scores` table.
-- There is no always-running maintenance server or automatic cross-session screen synchronization. Use Refresh/reopen views to observe other users' changes.
+- There is no always-running maintenance server or server-push synchronization. The Admin Supply by Coffee Type widget polls every five seconds while its dashboard is visible; other views use entry/manual refresh except their separately documented timers.
 - Existing feature documents include historical verification reports and earlier implementation notes. Check their dates and the current source; those results do not mean the current README work reran every live database/UI scenario.
 
 ## Further documentation
@@ -556,6 +583,7 @@ shifted IDs, ISO rollover, repeat-seed refusal and supply reconciliation; see
 - [UI feedback](docs/ui-ux-polish.md) and [window/navigation behavior](docs/window-navigation.md)
 - [Swing interface](docs/phase8-desktop.md) and [historical verification](docs/phase8-verification.md)
 - [Neon setup](NEON.md) and [Neon verification](NEON_VERIFICATION.md)
+- [JavaFX launcher](docs/javafx-launcher.md)
 - [Development guidance](AGENTS.md)
 
-This README was updated on **2026-11-22** for selectable console weeks and the rolling demo fixture. Older database/phase documents sometimes describe earlier milestones; use the actual source and the rules above for current launch and workflow behavior.
+Documentation was reconciled with the repository on **2026-11-26**, including the JavaFX launcher, account setup, selectable weeks, seed choices and chart refresh scope. The developer guide and database README now describe implemented behavior. Dated verification reports retain their historical scope; no new application/database test result is claimed by this documentation-only update.

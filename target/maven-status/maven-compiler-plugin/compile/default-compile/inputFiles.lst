@@ -4,6 +4,7 @@ C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\algorithm\SharedS
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\config\DatabaseConnection.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\console\AllocationConfirmationConsole.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\console\CreateDemandConsole.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\console\DeliveryWeekConsole.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\console\MatchingConsole.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\console\OrderCompletionConsole.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\console\OrderConsole.java
@@ -52,6 +53,7 @@ C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\BuyerWorksp
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\CoffeeProduct.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\CoffeeProductDetails.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\CoffeeShop.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\DeliveryWeek.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\DemandExpiryPolicy.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\DemandSupplyMatch.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeeallocation\model\NewDemandItem.java
@@ -168,6 +170,8 @@ C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\service\SupplyCompos
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\view\BuyerDemandRow.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\view\DatabaseMessages.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\view\DemandStatusPresentation.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\view\FormFeedback.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\view\SceneNavigator.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\view\UndoHistory.java
+C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\view\ViewFeedback.java
 C:\Users\MY PC\Desktop\java\src\main\java\com\coffeemongers\view\WorkspaceRouter.java

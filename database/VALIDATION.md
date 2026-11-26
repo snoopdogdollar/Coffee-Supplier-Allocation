@@ -1,6 +1,12 @@
-# Kết quả kiểm chứng
+# Kết quả kiểm chứng DDL — báo cáo lịch sử
 
 Ngày: 15/10/2026.
+
+**Phạm vi lịch sử:** giữ nguyên kết quả của lần kiểm chứng DDL này. Source hiện
+nay đã có Java/JDBC services, confirmation, reviews, các interface và hai seed.
+Xem [database README](README.md), [README gốc](../README.md) và
+[rolling demo](../docs/current-demo.md) cho trạng thái/hướng dẫn hiện hành.
+Bản cập nhật tài liệu 26/11/2026 không chạy lại các kiểm thử bên dưới.
 
 Đã chạy trực tiếp với **PostgreSQL 18.1, Windows x64** trong một cluster kiểm thử tách biệt, chỉ lắng nghe localhost. Không sử dụng hoặc sửa database đang có của người dùng. Server kiểm thử đã dừng sau khi chạy.
 
@@ -18,6 +24,6 @@ Ngày: 15/10/2026.
 
 ## Giới hạn
 
-Đây là kiểm chứng DDL và constraints, không phải kiểm thử Java/JDBC hoặc concurrency với hai kết nối xác nhận đồng thời. Chưa có API xác nhận allocation, idempotency, state machine, scoring algorithm hoặc bộ seed hoàn chỉnh. Các quy tắc liên bảng và aggregate chưa được DDL bảo vệ được liệt kê rõ trong README.md.
+Đây là kiểm chứng DDL và constraints, không phải kiểm thử Java/JDBC hoặc concurrency với hai kết nối xác nhận đồng thời. Các kiểm thử Java confirmation/idempotency, lifecycle, dashboard ranking và các seed được bổ sung sau mốc này không nằm trong bằng chứng của báo cáo DDL này. Các quy tắc liên bảng và aggregate chưa được DDL bảo vệ được liệt kê rõ trong README.md.
 
-Các dòng TEST_* chỉ dùng để chứng minh status không bị tự khóa vào một workflow chưa thống nhất. Không coi chúng là trạng thái nghiệp vụ chính thức.
+Các dòng TEST_* chỉ dùng để chứng minh status không bị khóa cứng bằng PostgreSQL enum tại mốc kiểm chứng DDL. Không coi chúng là trạng thái nghiệp vụ chính thức.

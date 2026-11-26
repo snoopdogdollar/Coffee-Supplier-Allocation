@@ -1,143 +1,119 @@
-# Phase 8 — Giao diện Java desktop
+# Giao diện desktop: JavaFX và Swing
 
-Giao diện dùng Swing có sẵn trong JDK 26. Điểm vào là `com.coffeeallocation.DesktopMain`; chương trình console `Main` và menu 1–12 vẫn chạy riêng như trước.
+Cập nhật **26/11/2026**. JavaFX có các workspace Buyer/Supplier/Admin; Swing là
+interface riêng vẫn dùng backend JDBC hiện có. Console có menu 0–13. Không nhầm
+`npm run desktop` (Swing) với JavaFX.
 
-## Chạy trên Windows
+## Chọn lệnh chạy
 
-Mở terminal trong thư mục dự án và chạy:
+Chạy từ repository root chứa `pom.xml`:
 
-```powershell
-npm run desktop
-```
+| Interface | Lệnh PowerShell | Cấu hình |
+| --- | --- | --- |
+| JavaFX với database settings | `.\run-javafx.ps1` hoặc `npm.cmd run javafx` | JDK 26/Maven/Node 22.20+; database có sẵn và test identities. |
+| JavaFX demo | `.\run-javafx.ps1 -Demo` | Dữ liệu/account session-only, không cần database. |
+| JavaFX direct Maven | `mvn javafx:run` | JDK 26; tự đặt JDBC/test-account variables nếu dùng PostgreSQL. |
+| Swing | `npm.cmd run desktop` | Environment adapter của npm nạp settings. |
+| Swing direct script | `.\run-desktop.ps1` | Đã đặt `DB_URL`, `DB_USER`, `DB_PASSWORD`; pgJDBC đã có trong Maven cache. |
+| Console | `npm.cmd run build` rồi `npm.cmd start` | Console chọn tuần qua menu 13. |
 
-Lệnh này dùng lại bộ nạp cấu hình của console: `DATABASE_URL`, hoặc bộ `DB_URL`/`DB_USER`/`DB_PASSWORD` từ môi trường hoặc `.env`/`.env.local` theo quy tắc hiện có. Không chép thông tin đăng nhập vào source hoặc tài liệu. Các lệnh `npm start`, `npm run build` vẫn giữ nguyên.
+JavaFX entry point là `com.coffeemongers.App`; Swing là
+`com.coffeeallocation.DesktopMain`; console là `com.coffeeallocation.Main`.
+Backend Java chạy trong cùng ứng dụng; không có API server riêng cần mở thêm.
+Launcher không start PostgreSQL, provision Neon, tạo schema hoặc seed.
 
-Nếu đã đặt ba biến `DB_URL`, `DB_USER`, `DB_PASSWORD` trong PowerShell, có thể gọi launcher trực tiếp:
+## JavaFX và tài khoản PostgreSQL thử nghiệm
 
-```powershell
-.\run-desktop.ps1
-```
+Theo [launcher guide](javafx-launcher.md), chuẩn bị database connection và các
+account settings trước khi mở app. JavaFX launcher dùng environment adapter:
+process `DATABASE_URL` → process JDBC triple → `.env` hoặc `.env.local`. Maven
+trực tiếp không tự đọc các file đó.
 
-Launcher Windows biên dịch source vào `target/desktop-classes` rồi mở giao diện. Cần JDK 26 và pgJDBC đúng phiên bản trong `pom.xml` đã có trong Maven cache (chạy `mvn compile` lần đầu nếu chưa có). Launcher ưu tiên `JAVA_HOME`, sau đó JDK 26 trong `Program Files/Java`, cuối cùng mới dùng Java trong PATH. Có thể chọn đường dẫn JDK rõ ràng:
+| Login | Variables cần có trước startup |
+| --- | --- |
+| `buyer@coffeemongers.test` | `COFFEE_TEST_SHOP_ID` và `COFFEE_TEST_BUYER_PASSWORD` |
+| `supplier@coffeemongers.test` | `COFFEE_TEST_SUPPLIER_ID` và `COFFEE_TEST_SUPPLIER_PASSWORD` |
+| `admin@coffeemongers.test` | `COFFEE_TEST_ADMIN_PASSWORD` |
+
+Passwords do người chạy đặt, ít nhất 10 ký tự với chữ hoa/thường/số/ký tự đặc
+biệt. IDs lấy từ business records thực tế; tạo shop/supplier không tạo login.
+Đổi ID/password cần restart; dùng Sign out để chuyển giữa các role đã bật.
+Admin workspace previews không thay cho test Buyer/Supplier login.
+
+`.\run-javafx.ps1 -Check` kiểm tra tools/settings, không kiểm tra database
+reachability hoặc quyền sở hữu record. Khi đăng nhập test account, kiểm tra
+badge `POSTGRESQL TEST`. Public registration và built-in demo Admin vẫn dùng
+in-memory services; dữ liệu đó không chứng minh JDBC persistence.
+
+## Luồng JavaFX hiện tại
+
+1. **Supplier**: My Products offer một central product đang active; Weekly Supply
+   khai báo quantity/price cho một tuần giao hàng hiện tại hoặc tương lai.
+2. **Buyer**: Create Demand cho cùng sản phẩm/tuần, review rồi Submit Demand;
+   My Demands/Demand Details đọc demand đã lưu. Submission chưa tạo orders.
+3. **Admin**: Allocation Preview cho tuần đó; kiểm tra từng line và giá. Confirm
+   Allocation áp dụng mọi line đủ cung trong batch tuần, không chỉ line đang chọn.
+   Preview không reserve supply. Catch-up expiry có thể chạy trước read preview;
+   transaction confirmation revalidate snapshot và ghi atomically.
+4. **Supplier**: Refresh Incoming Orders và Weekly Supply để xem orders/remaining.
+   Incoming Orders là chỉ đọc; Supplier không mark delivered.
+5. **Buyer**: My Orders → Confirm received chuyển PENDING sang COMPLETED; Review
+   supplier gửi ba Boolean criteria và comment. Service chặn sai ownership/status
+   và review trùng.
+6. **Admin**: Orders & Activity, Supplier Reviews và Overview đọc dữ liệu đã lưu.
+   Dashboard ranking dùng review; allocation vẫn price-first. Supply composition
+   poll riêng mỗi 5 giây khi dashboard hiển thị; không auto-refresh mọi view.
+
+Chi tiết: [Buyer](buyer-workspace.md), [Supplier](supplier-workspace.md),
+[Admin Overview](admin-overview.md), [ranking](supplier-ranking.md),
+[expiry](demand-expiry.md) và [supply composition](supply-composition-chart.md).
+
+## Swing: phạm vi và launcher
+
+Swing launcher Windows compile backend/Swing vào `target/desktop-classes`, dùng
+pgJDBC từ Maven cache; chạy `mvn compile` lần đầu nếu thiếu driver. Có thể chọn
+JDK rõ ràng, thay đường dẫn theo máy:
 
 ```powershell
 .\run-desktop.ps1 -JavaHome 'C:\Program Files\Java\jdk-26.0.2.1'
 ```
 
-## Các màn hình
+| Màn hình Swing | Chức năng |
+| --- | --- |
+| Nhu cầu | Tạo nhiều product lines; chọn ISO delivery year/week; xem OPEN demands. |
+| Phân bổ & nguồn cung | Shared preview, chi tiết supply/price, confirm mọi line đủ cung của tuần. |
+| Đơn hàng | Danh sách/details, receipt với đúng shop ID. |
+| Đánh giá | Xem/gửi một review cho completed order của shop đã nhập. |
+| Lịch sử supplier | Hợp lệ theo cutoff, counts/rates và database session timezone. |
 
-| Màn hình | Thao tác |
-|---|---|
-| Nhu cầu | Tải quán/sản phẩm đang hoạt động; tạo demand nhiều dòng với ngày yêu cầu, năm/tuần ISO, lượng thập phân và ghi chú; xem các dòng OPEN theo tuần |
-| Phân bổ & nguồn cung | Xem preview dùng chung nguồn cung; chọn dòng để xem supplier, giá, lượng cấp và phần còn lại sau toàn lượt; xác nhận tất cả dòng đủ cung của tuần |
-| Đơn hàng | Tải danh sách có phân trang, chọn hoặc nhập mã đơn để xem chi tiết, nhập đúng mã quán để xác nhận đơn PENDING đã giao |
-| Đánh giá | Nhập mã quán/đơn; xem review đã lưu; trả lời Có/Không cho cả ba tiêu chí và gửi một review cho đơn COMPLETED |
-| Lịch sử supplier | Xem tổng hợp các review hợp lệ tại cutoff, số lượt đạt/tổng và phần trăm; supplier chưa có review hiển thị N/A |
+Shop ID trong Swing là ngữ cảnh nhập thủ công, không phải JavaFX authentication.
+Swing không có toàn bộ Admin catalog/Supplier workspace của JavaFX. `UiTasks`
+chạy service ngoài EDT; UI disable controls khi pending và giữ backend transaction
+rules. Giá VND theo demo convention, quantity unit lấy từ product.
 
-Năm/tuần mặc định lấy theo lịch ISO hiện tại. Bộ seed minh họa cũ dùng tuần **42/2026**; cần nhập đúng tuần đó khi thử trên database seed.
+## Chọn tuần và dữ liệu demo
 
-## Kịch bản thử với dữ liệu demo
+Dùng database demo mới với `01_schema.sql` rồi **một** seed: ưu tiên
+`04_current_demo_data.sql` cho current/next week. `02_seed_data.sql` giữ lịch sử
+41–43/2026 và không phù hợp tạo/allocate demand mới khi các tuần đó đã qua.
+Không chạy seed vào database đã có dữ liệu hoặc dịch chuyển records lịch sử.
 
-1. Chọn database thử đã nạp schema và seed. Mở Nhu cầu, chọn 2026/42 rồi tải OPEN để xem mã quán và dòng demand.
-2. Tạo demand với một hoặc nhiều dòng sản phẩm. Kiểm tra phần xác nhận; chỉ sau khi service commit thành công mới báo mã demand và xóa nội dung đã gửi. Nếu lỗi, form giữ lại dữ liệu.
-3. Mở Phân bổ & nguồn cung, nhập cùng năm/tuần và xem preview. Kiểm tra lượng cần, lượng đề xuất, lượng chưa cấp và thiếu cung. Chọn từng dòng để xem supplier và đơn giá.
-4. Nút xác nhận áp dụng cho **toàn bộ dòng đủ cung của tuần**, không chỉ dòng đang chọn. Preview không giữ nguồn cung; service kiểm tra lại đúng snapshot đã hiển thị trước khi ghi. Khi có xung đột, kiểm tra đơn hàng rồi tải preview mới.
-5. Mở Đơn hàng, bấm tải và xem chi tiết mã đơn vừa tạo. Nhập Shop ID của đúng quán trong đơn rồi xác nhận đã giao để chuyển sang COMPLETED.
-6. Mở Đánh giá, nhập Shop ID và Order ID đó; chọn ba câu trả lời và gửi. Tải lại đánh giá; service chặn gửi lần thứ hai.
-7. Mở Lịch sử supplier. Để cutoff trống dùng đồng hồ database, hoặc nhập thời gian local ISO như `2026-11-07T14:30:00`. UI hiển thị mốc và múi giờ do service trả về.
+Trong Swing, chọn cùng delivery ISO year/week cho demand và allocation; trong
+JavaFX dùng date/week selector; trong console dùng menu 13. Backend vẫn chặn
+tuần quá hạn theo `Asia/Ho_Chi_Minh`, bất kể interface. Nếu thiếu nguồn cung,
+line không nhận partial allocation; dòng khác đủ cung vẫn có thể confirm.
+Xem [rolling demo guide](current-demo.md) cho fixture và expected results.
 
-## Quy tắc kỹ thuật và phạm vi
+Khi preview thay đổi, load và xem lại trước khi confirm. Khi mất kết nối sau
+write, refresh orders/demands/supply để xác định kết quả trước khi gửi lại;
+không tự retry approval hoặc dùng UI Undo để hoàn tác database.
 
-- UI gọi các service hiện có; SQL vẫn ở DAO. `DesktopCatalogService` bổ sung lớp đọc danh mục và các dòng demand OPEN cho UI.
-- `UiTasks` chạy dịch vụ trên worker, cập nhật UI trên EDT, khóa điều khiển trong từng màn hình khi đang chờ và ngăn thao tác lặp trong cùng màn hình. Database/service vẫn quyết định transaction và xử lý cạnh tranh.
-- Không giữ transaction khi chờ hộp thoại xác nhận. Mỗi lần xác nhận phân bổ dùng đúng object preview đã xem; sau mỗi lần thử phải xem preview mới.
-- Đóng cửa sổ bị chặn trong lúc một tác vụ còn chạy để người dùng có thể nhận kết quả.
-- Đây là giao diện cho nghiệp vụ hiện có: phân bổ theo giá, nhu cầu cũ trước, đủ toàn bộ từng dòng. Không hiển thị score giả hoặc thêm công thức đánh giá supplier chưa chốt.
-- Shop ID là ngữ cảnh demo nhập thủ công, chưa phải đăng nhập/phân quyền. Không bổ sung quản trị danh mục, sửa nguồn cung hoặc hủy đơn khi service tương ứng chưa có.
-- Nhãn tiền VND theo quy ước console/demo hiện có; đơn vị lượng lấy từ sản phẩm. Lịch sử phản ánh ba tiêu chí do quán báo cáo, không phải đo độc lập thời gian giao hàng.
-- Nếu kết nối mất ngay sau một thao tác ghi, kiểm tra lại danh sách trước khi gửi lại; UI không tự lặp yêu cầu ghi.
+## Kiểm chứng và phạm vi bằng chứng
 
-Kết quả kiểm chứng thực tế được ghi riêng trong `phase8-verification.md`.
+[phase8-verification.md](phase8-verification.md) là báo cáo Swing ngày 08/11/2026,
+không phải kết quả chạy lại JavaFX hiện tại. Các feature docs có ngày kiểm chứng
+riêng; [README](../README.md) liệt kê test commands và integration flags.
 
-## Chạy giao diện JavaFX của nhóm
-
-Chạy `mvn javafx:run` bằng JDK 26 từ thư mục project. JavaFX và backend được biên dịch chung trong Maven. Lần chạy mặc định dùng dữ liệu demo.
-
-Để thử luồng Buyer với PostgreSQL, chọn một database test có `database/01_schema.sql`, một shop đang hoạt động và ít nhất một sản phẩm đang hoạt động. Nếu database test mới chỉ có schema, có thể tạo dữ liệu tối thiểu như sau:
-
-```sql
-INSERT INTO coffee_shops (name) VALUES ('Integration Test Shop') RETURNING shop_id;
-INSERT INTO coffee_products (name, unit) VALUES ('Integration Test Coffee', 'kg');
-```
-
-Trong PowerShell 7, đặt cấu hình database test và mã shop vừa chọn:
-
-```powershell
-$env:DB_URL = 'jdbc:postgresql://localhost:5432/coffee_test'
-$env:DB_USER = Read-Host 'PostgreSQL user'
-$env:DB_PASSWORD = Read-Host 'PostgreSQL password' -MaskInput
-$env:COFFEE_TEST_SHOP_ID = Read-Host 'Test shop ID'
-$env:COFFEE_TEST_BUYER_PASSWORD = Read-Host 'Test Buyer password' -MaskInput
-mvn javafx:run
-```
-
-Đăng nhập bằng `buyer@coffeemongers.test`. Mật khẩu Buyer cần ít nhất 10 ký tự, có chữ hoa, chữ thường, số và ký tự đặc biệt. Tạo demand, kiểm tra mã và trạng thái `OPEN`, rồi mở lại app trong cùng terminal để xem demand đã lưu trên dashboard. Chế độ PostgreSQL thử nghiệm áp dụng cho danh mục, demand và My Orders của shop được cấu hình.
-
-## Xem trước phân bổ theo tuần trong JavaFX
-
-Dùng cùng database PostgreSQL thử nghiệm và cấu hình `DB_URL`, `DB_USER`, `DB_PASSWORD` như ở trên. Tạo mật khẩu riêng cho Admin thử nghiệm trong terminal trước khi mở app:
-
-```powershell
-$env:COFFEE_TEST_ADMIN_PASSWORD = [System.Net.NetworkCredential]::new('', (Read-Host 'Test Admin password' -AsSecureString)).Password
-mvn javafx:run
-```
-
-Mật khẩu cần ít nhất 10 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt. Đăng nhập bằng `admin@coffeemongers.test` rồi mở **Allocation Preview**. Nhập năm ISO và tuần ISO cần hàng của demand. Hai giá trị này được lưu trong `demands.required_year` và `demands.required_week`. Nguồn cung của supplier cần nằm trong đúng tuần đó và đúng sản phẩm.
-
-Bảng trên hiển thị các dòng demand đang mở và chưa được cấp. Chọn một dòng để xem số lượng đề xuất từ từng supplier. **Unallocated** là lượng chưa được đề xuất cấp cho dòng đó. **Supply Shortfall** là lượng thiếu so với nguồn cung còn tại lượt xử lý. Một dòng thiếu cung sẽ để lại toàn bộ lượng yêu cầu chưa được cấp theo chính sách đủ toàn bộ từng dòng.
-
-Khi có ít nhất một dòng đủ cung, nút **Confirm Allocation** ở thanh cố định dưới màn hình được bật. Hộp thoại xác nhận nêu rõ tuần, số dòng đủ cung và số order dự kiến cho toàn bộ tuần đã xem. Sau khi đồng ý, backend kiểm tra lại snapshot, trừ nguồn cung, ghi allocations, tạo order `PENDING` và chuyển các demand được đáp ứng đầy đủ sang `ALLOCATED` trong cùng transaction.
-
-Kết quả hiển thị mã order, mã demand đã cập nhật và số dòng đã/chưa phân bổ. Bấm **Load Preview** để xem các dòng còn lại. Khi preview đã thay đổi, cần tải lại và xem xét trước khi xác nhận lần nữa. Nếu app báo kết quả ghi chưa được xác minh do mất kết nối, kiểm tra `orders` và nguồn cung trong pgAdmin trước khi thực hiện thêm thao tác. Tài khoản được phép xác nhận là Admin thử nghiệm đã cấu hình ở trên.
-
-## Buyer My Orders, nhận hàng và review
-
-Đăng nhập `buyer@coffeemongers.test` với `COFFEE_TEST_SHOP_ID` của shop đã tạo demand. Mở **My Orders** từ Buyer Dashboard. Màn hình đọc order theo shop, gồm mã demand, supplier, ngày tạo, trạng thái và các dòng sản phẩm với số lượng, đơn giá, thành tiền đã lưu. **Load More** tải tiếp từng trang 20 order; **Refresh Orders** tải lại từ trang mới nhất.
-
-Đối với order `PENDING`, bấm **Confirm received** và xác nhận đã nhận hàng để chuyển sang `COMPLETED`. Sau đó bấm **Review supplier**, chọn ba tiêu chí chất lượng, số lượng, đúng hẹn và nhập ghi chú tối đa 255 ký tự. Sau khi lưu thành công, nút hiển thị **Review submitted**. Backend kiểm tra shop sở hữu order, trạng thái và review đã có trong transaction.
-
-Nếu mất kết nối khi ghi, tải lại danh sách để kiểm tra trạng thái trước khi thử thêm thao tác. Một review đã lưu sẽ tiếp tục hiển thị sau khi khởi động lại app. My Orders dùng dữ liệu của shop đang được cấu hình cho tài khoản Buyer thử nghiệm.
-
-## Supplier Weekly Supply dùng PostgreSQL
-
-Trong cùng terminal đã cấu hình `DB_URL`, `DB_USER`, `DB_PASSWORD` của database thử nghiệm, chọn một supplier đang hoạt động và đặt tài khoản Supplier thử nghiệm:
-
-```powershell
-$env:COFFEE_TEST_SUPPLIER_ID = Read-Host 'Supplier ID'
-$env:COFFEE_TEST_SUPPLIER_PASSWORD = [System.Net.NetworkCredential]::new('', (Read-Host 'Test Supplier password' -AsSecureString)).Password
-mvn javafx:run
-```
-
-Mật khẩu có ít nhất 10 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt. Đăng nhập `supplier@coffeemongers.test`, mở **Weekly Supply**, chọn ngày trong tuần cần cung và sản phẩm đã được liên kết với supplier. Có thể xem các liên kết đang hoạt động trong pgAdmin bằng:
-
-```sql
-SELECT s.supplier_id, s.name AS supplier_name,
-       sp.supplier_product_id, p.product_id, p.name AS product_name, p.unit
-FROM suppliers s
-JOIN supplier_products sp ON sp.supplier_id = s.supplier_id
-JOIN coffee_products p ON p.product_id = sp.product_id
-WHERE s.is_active AND sp.is_active AND p.is_active
-ORDER BY s.supplier_id, p.product_id;
-```
-
-Nhập lượng cung ban đầu và đơn giá rồi bấm **Save**. Chọn một dòng để sửa lượng và giá cho đúng sản phẩm, tuần của dòng đó. **Clear** chuyển về tạo mới. **Refresh** đọc lại dữ liệu. Số lượng và giá hỗ trợ hai chữ số thập phân. Mỗi supplier-product có một bản ghi cho mỗi tuần ISO.
-
-Khi sửa, transaction khóa bản ghi rồi tính lượng đã cam kết bằng `initial_quantity - remaining_quantity`. Lượng mới phải đủ cho phần đã cam kết. Phần còn lại được tính lại từ lượng mới. **Delete selected** chỉ xóa được bản ghi chưa có lượng cam kết và chưa có lịch sử allocation.
-
-Để kiểm tra xuyên luồng, lưu nguồn cung đúng sản phẩm và tuần của một demand đang mở, đăng nhập Admin thử nghiệm rồi tải lại **Allocation Preview** cho tuần đó. Sau xác nhận, Supplier tải lại Weekly Supply để kiểm tra lượng còn lại. Các màn demo vẫn có thể sử dụng bằng tài khoản demo riêng.
-
-## Supplier My Orders
-
-Dùng cùng tài khoản `supplier@coffeemongers.test` và `COFFEE_TEST_SUPPLIER_ID` đã cấu hình. Mở **My Orders** trên Supplier Dashboard để đọc order thuộc supplier đó. Mỗi thẻ hiển thị Buyer, mã order/demand, ngày tạo, trạng thái và sản phẩm với số lượng, đơn giá, thành tiền đã lưu.
-
-**Load More** tải tiếp từng trang 20 order. **Refresh Orders** tải lại từ trang mới nhất. Sau khi Buyer bấm **Confirm received**, Supplier bấm **Refresh Orders** để thấy trạng thái `COMPLETED` trong cùng database. Mở lại app cũng đọc trạng thái hiện tại từ PostgreSQL.
+Bản cập nhật tài liệu này không chạy UI, database writes hoặc full regression.
+Cấu hình thật và workflow cần được kiểm tra trên database demo riêng trước buổi
+trình bày; một successful `-Check` chưa chứng minh kết nối/persistence.

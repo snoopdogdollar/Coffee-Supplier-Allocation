@@ -1,5 +1,11 @@
 # Neon verification — 2026-10-27
 
+> Historical verification report. Preserve the recorded dates, identifiers and results below.
+> Current launch/configuration instructions are in [NEON.md](NEON.md) and
+> [README.md](README.md). This is not a request to redeploy, reseed or rerun writes
+> against the currently selected database. The documentation refresh on 2026-11-26
+> did not rerun these checks.
+
 App: `C:\Users\MY PC\Desktop\java` (Java 26 / Maven console application).
 
 Organization: `org-shiny-rain-78483303`; project: `flat-credit-48009839`; branch: `production`.

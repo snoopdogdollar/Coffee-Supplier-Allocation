@@ -1,111 +1,180 @@
-# Database v1 — Coffee Supplier Allocation
+# Database — Coffee Supplier Allocation
 
-## Current/future-week demo (2026-11-22)
-
-For a working demonstration on a **new empty development/test database**, run
-`01_schema.sql`, then **either** `04_current_demo_data.sql` (current and next ISO
-delivery weeks from the database clock in `Asia/Ho_Chi_Minh`) **or**
-`02_seed_data.sql` (fixed historical weeks 41–43/2026). Do not run both seeds in
-the same database. Both refuse populated project tables; neither resets data.
-The rolling seed creates no orders/allocations/reviews in advance. Use console
-menu **13** to select a delivery year/week, or the existing JavaFX/Swing selectors.
-Past weeks still cannot be used for new demands or allocation.
-See [the rolling demo guide](../docs/current-demo.md) and [root README](../README.md)
-for current run instructions. The schema-phase notes below describe the earlier
-database design milestone; later services and workflows are documented at the root.
-
-Bản SQL này dựa trên ảnh `db_schema.png` của bạn và ba bổ sung đã được chấp thuận trong chat. Đây là bước tạo cấu trúc database; chưa phải toàn bộ nghiệp vụ allocation hoặc ứng dụng Java.
+Cập nhật **26/11/2026**, đối chiếu DDL và Java services hiện có. Database dùng
+PostgreSQL/JDBC, đúng 13 application tables. Chạy app và cấu hình tài khoản theo
+[README gốc](../README.md) và [JavaFX launcher](../docs/javafx-launcher.md).
 
 ## Các file
 
-- `01_schema.sql`: tạo đúng 13 bảng, primary key, foreign key, unique/check constraints, indexes và comments. Toàn bộ DDL nằm trong một transaction.
-- `03_test_queries.sql`: tạo dữ liệu nhỏ để kiểm tra luồng và constraints, sau đó `ROLLBACK`. Không phải seed data sử dụng lâu dài; bộ seed đầy đủ là bước sau. Sequence identity có thể tăng dù dữ liệu rollback, đây là hành vi bình thường.
+| File | Mục đích |
+| --- | --- |
+| [01_schema.sql](01_schema.sql) | Tạo schema một lần trên database development/test trống; DDL nằm trong một transaction. |
+| [02_seed_data.sql](02_seed_data.sql) | Fixture lịch sử cố định tuần 41–43/2026, có handcrafted historical transactions/reviews. |
+| [03_test_queries.sql](03_test_queries.sql) | Fixture kiểm tra DDL/constraints có `ROLLBACK`; không phải seed lâu dài. |
+| [04_current_demo_data.sql](04_current_demo_data.sql) | Fixture hiện tại/tuần sau từ database clock theo `Asia/Ho_Chi_Minh`; không tạo sẵn orders, allocations hoặc reviews. |
+| [VALIDATION.md](VALIDATION.md) | Báo cáo DDL ngày 15/10/2026, không đại diện toàn bộ application hiện tại. |
 
-## So với sơ đồ
+Chọn **một seed**: `02` hoặc `04`; không chạy cả hai vào cùng database. Cả hai
+kiểm tra project tables trống dưới lock, từ chối toàn bộ nếu có data và không
+reset/delete. Dữ liệu đã lưu không tự chuyển tuần khi thời gian trôi qua.
 
-Giữ nguyên tên và các cột của 13 bảng. Có những bổ sung/chi tiết triển khai sau:
+## Khởi tạo database demo mới
 
-1. `demands.required_week`, `required_year`: tuần cần hàng, tách khỏi `request_date`.
-2. `allocations.run_id`: lần chạy tạo allocation. Composite FK `(run_id, demand_item_id)` bảo đảm allocation thuộc đúng item của run.
-3. `allocations.supply_id`: dòng nguồn cung tuần cụ thể được sử dụng.
-4. Khóa BIGINT tự sinh bằng `GENERATED ALWAYS AS IDENTITY`. Khi INSERT, bỏ cột ID và dùng `RETURNING ..._id` để lấy giá trị.
-5. `order_items.total_price` giữ kiểu `DECIMAL(15,2)` nhưng là generated column: `round(quantity * unit_price, 2)`. Không truyền giá trị cho cột này khi INSERT/UPDATE. Giá trị vượt khả năng kiểu số sẽ bị từ chối.
-6. Composite FK bảo đảm supplier của order khớp allocation; supplier của review khớp order. Các unique hỗ trợ composite FK không đổi cardinality trong ảnh.
+Trong pgAdmin:
 
-Không thêm bảng thứ 14. Không thêm inventory, distance hoặc rating sao. Giữ quan hệ **một allocation → nhiều orders**, **một order → nhiều reviews** như ảnh; chưa đặt `UNIQUE(allocation_id)` hoặc `UNIQUE(order_id)` làm thay đổi chúng.
+1. Tạo database development/demo **mới và trống**, ví dụ `coffee_supplier_allocation_demo`.
+2. Chọn đúng database, mở Query Tool, chạy **toàn bộ** `01_schema.sql`.
+3. Chạy **toàn bộ** `04_current_demo_data.sql` để có dữ liệu hiện tại/tuần sau.
+   Nếu cần phân tích fixture October 2026, dùng `02_seed_data.sql` thay thế.
+4. Dùng ID thực tế từ kết quả seed để cấu hình Buyer/Supplier thử nghiệm.
 
-## Quy ước triển khai v1
-
-Đây là lựa chọn triển khai có thể điều chỉnh, không phải tất cả đều được ghi trong ảnh:
-
-- Tuần theo ISO 8601, bắt đầu thứ Hai; `year` là ISO week-numbering year. Một số ngày cuối/tháng đầu năm thuộc ISO year khác năm lịch. SQL kiểm tra đúng số tuần của từng năm, không luôn cho phép tuần 53.
-- Mọi item của một demand cần hàng cùng tuần. Nếu cần nhiều tuần, tạo demand riêng; chưa mô hình hóa nhiều tuần trên một item.
-- `allocated_price` được hiểu là **đơn giá đã thỏa thuận**, không phải tổng tiền allocation.
-- Lượng/giá giữ `DECIMAL(15,2)` theo ảnh. Mọi lượng của một product dùng `coffee_products.unit`; ứng dụng không tự đổi đơn vị. Tất cả giá phải dùng một loại tiền tệ chung do nhóm xác định trước khi seed thật.
-- Điểm giữ `DECIMAL(5,4)`, không âm, không NaN. Chưa ép 0..1 và chưa đặt công thức/trọng số. Kiểu này không chứa được score 100; phải thống nhất normalization trước scoring.
-- Trạng thái giữ `VARCHAR(20) NOT NULL`, không rỗng; **chưa có enum hoặc state machine** vì chưa chốt vòng đời. `TEST_*` trong test chỉ là dữ liệu kiểm thử, không phải danh sách trạng thái production.
-- Contact fields, description, variety, note, comment là optional. Không tự áp unique cho email/phone/name.
-- Các cột timestamp giữ `TIMESTAMP` không timezone theo ảnh. Phải dùng một quy ước timezone thống nhất cho các kết nối; đề xuất UTC. Không trộn giờ local từ nhiều máy. `run_time` là cutoff quy ước cho scoring, không tự lọc lịch sử bằng constraint.
-- Không cascade delete lịch sử. Foreign key dùng hành vi mặc định `NO ACTION`; có bản ghi tham chiếu thì thao tác xóa bị chặn.
-- `remaining_quantity` được truyền rõ khi tạo supply; lần khai báo mới thông thường bằng `initial_quantity`. Không đặt default 0 gây hiểu sai còn hàng.
-
-## Chạy bằng pgAdmin
-
-1. Tạo một database development trống, ví dụ `coffee_supplier_allocation`.
-2. Chọn đúng database, mở Query Tool.
-3. Mở `01_schema.sql` rồi chạy toàn bộ file.
-4. Mở `03_test_queries.sql` rồi chạy toàn bộ file trên database test. Thành công sẽ có thông báo `PASS` và kết thúc bằng `ROLLBACK`.
-
-`01_schema.sql` chỉ chạy một lần trên database trống. Nếu chạy lại sẽ báo bảng đã tồn tại và transaction bị hủy; không có câu lệnh xóa hoặc reset dữ liệu. Nếu Query Tool còn ở failed transaction, chạy `ROLLBACK;` trước thao tác tiếp theo. Thay đổi database có dữ liệu cần migration riêng.
-
-## Chạy bằng PowerShell và psql
-
-Các lệnh dưới là ví dụ: thay đường dẫn PostgreSQL, host, port, username và tên database theo máy. Database cần được tạo trước. Không đưa mật khẩu vào command hoặc commit vào Git.
+Với PostgreSQL tools trên PATH, chạy từ repository root:
 
 ```powershell
-$psqlPath = 'C:\Program Files\PostgreSQL\18\bin\psql.exe'
-& $psqlPath -X -h localhost -p 5432 -U postgres -d coffee_supplier_allocation_test -v ON_ERROR_STOP=1 -f .\database\01_schema.sql
-& $psqlPath -X -h localhost -p 5432 -U postgres -d coffee_supplier_allocation_test -v ON_ERROR_STOP=1 -f .\database\03_test_queries.sql
+createdb -h localhost -p 5432 -U postgres coffee_supplier_allocation_demo
+psql -X -h localhost -p 5432 -U postgres -d coffee_supplier_allocation_demo -v ON_ERROR_STOP=1 -f .\database\01_schema.sql
+psql -X -h localhost -p 5432 -U postgres -d coffee_supplier_allocation_demo -v ON_ERROR_STOP=1 -f .\database\04_current_demo_data.sql
 ```
 
-Hai lệnh trên chạy vào database test riêng. Khi tạo database development chính thức, chỉ chạy `01_schema.sql` với tên database development tương ứng. `-X` bỏ qua psql startup config; `ON_ERROR_STOP=1` dừng khi có lỗi. Schema dùng identity/generated stored columns: cần PostgreSQL 12 trở lên; kết quả kiểm thử thực tế ghi trong `VALIDATION.md`.
+Thay host, port và user theo database development. Nếu tools chưa trên PATH, dùng
+đường dẫn đầy đủ trong PostgreSQL `bin` hoặc pgAdmin. Công cụ yêu cầu password
+khi cần; không nhúng password vào command/commit.
 
-## Phần database đã bảo vệ
+Database đã có dữ liệu cần cấu hình hiện có hoặc migration được xem xét riêng;
+không chạy lại DDL/seed để reset. Nếu pgAdmin đang trong failed transaction,
+chạy `ROLLBACK;` trước lệnh tiếp theo rồi xử lý nguyên nhân.
 
-- ID, tham chiếu tồn tại và các composite FK nêu trên.
-- Supplier-product không trùng; supply không trùng supplier-product-tuần; score không trùng supplier trong một run.
-- Nhu cầu/allocation/order quantity dương, giá không âm; remaining nằm trong khoảng 0..initial.
-- Tuần/năm hợp lệ; score không âm; rank dương; các giá trị bắt buộc không NULL.
-- Tổng tiền order item luôn được tính từ quantity và unit_price.
+Để kiểm chứng DDL riêng, tạo database test khác, chạy `01_schema.sql` rồi
+`03_test_queries.sql`; script báo `PASS` và rollback fixture. Identity sequences
+vẫn có thể tăng sau rollback: không giả định IDs bắt đầu từ 1.
 
-## Transaction allocation: phần bắt buộc khi viết JDBC Service
+Schema dùng identity và stored generated column, yêu cầu PostgreSQL 12+ ở mức
+DDL. Báo cáo lịch sử đã chạy PostgreSQL 18.1; không suy ra toàn bộ application
+đã được kiểm thử trên mọi version chỉ từ mức tương thích DDL.
 
-**Schema hiện tại chưa tự thực hiện allocation và chưa chứng minh an toàn concurrency của ứng dụng.** Một `CHECK` không bảo vệ được tổng nhiều dòng hoặc các bảng khác. `supply_id` là FK tới nguồn cung tồn tại, nhưng chưa tự kiểm tra supplier/product/tuần phải khớp demand.
+## Baseline và quan hệ
 
-Khi implement service, dùng cùng JDBC Connection và một transaction:
+Đúng 13 bảng: `coffee_shops`, `suppliers`, `coffee_products`, `supplier_products`,
+`supplier_weekly_supply`, `demands`, `demand_items`, `recommendation_runs`,
+`supplier_scores`, `allocations`, `orders`, `order_items`, `supplier_reviews`.
 
-1. Tắt auto-commit; dùng `READ COMMITTED` với giao thức khóa bên dưới, hoặc chiến lược isolation khác đã kiểm thử. Không chờ người dùng trong transaction.
-2. Khóa demand headers/items liên quan, rồi supply rows, theo ID tăng dần trong từng nhóm để các đường ghi dùng cùng thứ tự. Nếu xác nhận batch, lấy đủ khóa trước khi ghi.
-3. Sau khi lấy khóa, đọc lại trạng thái và nguồn cung bằng câu query mới. Kiểm tra active flags, supplier/product/tuần khớp, run/item khớp và tổng lượng đã cam kết của item. Chốt tập trạng thái được tính là cam kết trước khi viết query này.
-4. Dùng cập nhật có điều kiện; số dòng cập nhật phải đúng 1:
+So với [sơ đồ gốc](../db_schema.png), DDL có các chi tiết triển khai:
+
+- `demands.required_year`, `required_week` là tuần cần hàng, khác `request_date`.
+- `allocations.run_id`, `supply_id` truy vết run và supply. Composite FK
+  `(run_id, demand_item_id)` bảo đảm allocation thuộc item của run.
+- PK `BIGINT GENERATED ALWAYS AS IDENTITY`; INSERT bỏ ID, dùng `RETURNING`.
+- `order_items.total_price` là generated column `round(quantity * unit_price, 2)`.
+  Không truyền cột này; tổng vượt precision bị từ chối.
+- Composite FK giữ supplier của order khớp allocation và supplier review khớp order.
+- DDL vẫn cho **một allocation → nhiều orders**, **một order → nhiều reviews**.
+  Service hiện tạo một order/supplier allocation và cho một review/order; không
+  nhầm service policy với UNIQUE constraint chưa có trong schema.
+
+Không có bảng inventory, distance, star rating hoặc login trong baseline này.
+
+## Kiểu dữ liệu, đơn vị và thời gian
+
+- Quantity/giá `DECIMAL(15,2)`; Java dùng `BigDecimal`. Demand/allocation/order
+  quantity dương; supply/giá không âm; remaining nằm trong `0..initial`.
+- Mọi quantity của product dùng `coffee_products.unit`; app không tự chuyển đổi
+  hoặc cộng khác unit. Fixture/nhãn console dùng kg, VND/kg; không có multi-currency.
+- Week/year theo ISO 8601, bắt đầu thứ Hai. Dùng ISO week-based year, không mặc
+  định calendar year; constraint kiểm tra tuần 53 theo từng năm.
+- Timestamps là `TIMESTAMP` không timezone. Cần thống nhất convention giữa writer/
+  report; kiểm tra `SHOW TIME ZONE` của JDBC session thực tế. Một số service đặt
+  UTC trong transaction, nhưng không giả định mọi connection UTC. Review cutoff
+  report hiển thị session timezone; expiry chuyển database clock sang business
+  zone `Asia/Ho_Chi_Minh` tường minh.
+- Contact, description, variety, note, comment optional. Không unique toàn cục cho
+  email/phone/tên; business records phân biệt bằng ID.
+- Không cascade-delete lịch sử. Deactivate/stop offering giữ dữ liệu; xóa record
+  đang được tham chiếu bị foreign key chặn.
+
+## Trạng thái nghiệp vụ hiện tại
+
+Status columns là `VARCHAR(20) NOT NULL` với check không rỗng. Workflow được kiểm
+tra bởi services; không có PostgreSQL enum khóa cứng danh sách status.
+
+| Record | Workflow hiện có |
+| --- | --- |
+| Demand | `OPEN` → `ALLOCATED` khi mọi line fulfilled; OPEN quá hạn còn thiếu thành `EXPIRED`. `CANCELLED` khác expiry; chưa có general cancellation action. |
+| Recommendation run / allocation | Confirmation ghi `CONFIRMED`; một run gắn với một demand item. |
+| Order | Confirmation tạo `PENDING`; Buyer receipt chuyển `COMPLETED`. |
+| Review | Owning shop review completed order, một lần/order qua service. |
+
+`TEST_*` trong DDL tests và status handcrafted của seed lịch sử không định nghĩa
+thêm transition cho application.
+
+Expiry xảy ra sau khi tuần giao hàng kết thúc theo business timezone, giữ
+confirmed allocations, supply, orders và reviews. Không carry-over; service từ
+chối tạo demand/matching/allocation cho tuần quá hạn. JavaFX catch-up 60 giây
+khi workspace đủ điều kiện; foreground access cũng catch-up. Không có job server
+khi mọi desktop app tắt. Xem [demand expiry](../docs/demand-expiry.md).
+
+## Constraints và transaction service
+
+DDL bảo vệ PK/FK/composite FK, unique supplier-product và offering-week, unique
+supplier/run score, giá/lượng/tuần hợp lệ và generated line totals. CHECK một dòng
+không tự bảo vệ tổng nhiều allocations, ownership hoặc mọi điều kiện active/
+product/week. Service có trách nhiệm giữ các bất biến đó.
+
+`AllocationConfirmationService` đã triển khai:
+
+1. Catch-up expiry riêng, sau đó mở transaction `SERIALIZABLE` cho confirmation.
+2. Khóa demand headers/items rồi supply theo thứ tự ổn định.
+3. Kiểm tra lại tuần, eligibility, nguồn cung và toàn bộ snapshot đã hiển thị.
+4. Tính batch dùng chung supply: all-or-nothing từng line, demand cũ trước,
+   supplier rẻ trước, tie-break theo ID; preview cũ bị từ chối.
+5. Ghi runs/allocations, trừ remaining bằng guarded update, tạo orders/items và
+   cập nhật demand cùng commit; lỗi rollback toàn bộ phần confirmation.
+
+Ví dụ guarded update trong DAO, với parameters bind bằng JDBC:
 
 ```sql
--- JDBC PreparedStatement: bind quantity, supply_id, quantity theo thứ tự.
 UPDATE supplier_weekly_supply
 SET remaining_quantity = remaining_quantity - ?
 WHERE supply_id = ? AND remaining_quantity >= ?;
 ```
 
-5. Ghi allocation, order và order items trong transaction đó. Không trừ supply thêm lần nữa khi tạo order. Tổng quantities qua các orders của cùng allocation không vượt allocation.
-6. Bổ sung khóa idempotency/confirmation theo thiết kế cuối cùng và constraint tương ứng trước khi bật thao tác xác nhận thật. Schema hiện tại **chưa chống double-click/retry tạo allocation/order trùng**; không dùng unique theo run/supplier một cách tùy ý vì có thể chặn nghiệp vụ chia đơn hợp lệ.
-7. Commit khi mọi bước thành công; lỗi bất kỳ thì rollback toàn bộ. Deadlock/serialization failure chỉ retry có giới hạn sau rollback và khi thao tác đã idempotent.
+Service kiểm tra số dòng cập nhật; tạo order không trừ lần hai. Eligibility loại
+items đã có allocation history. Stale/repeated confirmation hoặc serialization/
+deadlock conflict cần kiểm tra kết quả và preview mới. Đây là service protocol,
+không phải global idempotency-key constraint trong DDL; direct SQL/đường ghi khác
+vẫn phải giữ cùng invariants. Không giữ transaction chờ UI hay retry approval cũ.
 
-Mọi đường sửa/hủy supply, demand, allocation hoặc orders phải theo cùng giao thức. Giảm initial supply không được thấp hơn lượng đã cam kết; hủy chỉ hoàn lượng đúng một lần; sửa supplier-product/tuần của nguồn cung đã có lịch sử cần bị cấm hoặc được xử lý bằng nghiệp vụ rõ ràng.
+`remaining_quantity` đã net of committed allocations, không phải tồn kho. Supply
+edit khóa row, giữ product/week, không giảm initial dưới commitment. Delete cần
+zero committed và không có allocation history. Saved order prices không bị đổi
+khi sửa supply price.
 
-Các kiểm tra service còn lại: shop của order phải là chủ demand; product của order item phải là product của allocation; supplier của allocation phải là supplier của supply; review chỉ từ shop của order đủ điều kiện hoàn tất. Review có thể nhiều dòng theo ảnh, nên phải chốt semantics lần đánh giá/sửa đánh giá trước khi tổng hợp để không nhân trọng số vô ý.
+## Reviews và scoring
 
-Scores lưu thành phần và kết quả lịch sử. Để tái hiện đầy đủ còn cần version/config trọng số và snapshot đầu vào; schema ảnh hiện chỉ có `algorithm_version`, chưa đủ audit hoàn chỉnh. Không âm thầm sửa score cũ khi có review mới.
+Review submission khóa completed order của đúng shop, lấy supplier từ order và
+chặn duplicate trước insert. Comment tối đa 255 Unicode code points. Không có
+star rating hay delivery timestamp để đo punctuality độc lập.
 
-## Bước tiếp theo
+History lấy review hợp lệ đầu tiên/order theo `created_at`, `review_id`, đúng
+supplier, order hiện COMPLETED và timestamp giữa order creation với cutoff.
+Duplicate legacy reviews vẫn được giữ nhưng không nhân trọng số.
 
-Sau khi tạo schema thành công: thống nhất trạng thái, currency, quy tắc review và confirmation/idempotency; sau đó viết `02_seed_data.sql` và Java DAO/Service. Chưa cần UI hoặc thuật toán scoring đầy đủ ở bước database DDL này.
+Dashboard ranking đã có **40% quality + 30% quantity + 30% on-time** từ tỷ lệ
+Boolean feedback. Top tối đa 3 active suppliers, ít nhất 5 eligible reviews;
+no reviews thì không tạo score giả. Xem [ranking policy](../docs/supplier-ranking.md).
+
+`supplier_scores` là baseline storage `DECIMAL(5,4)`, không giới hạn 0..1.
+Dashboard score 0–100 không được confirmation ghi vào bảng này, và allocation
+vẫn ưu tiên giá. Không tự chuẩn hóa/điền bảng hoặc sửa historical scores.
+Persisted scoring config/snapshots đầy đủ không được coi là đã triển khai chỉ
+vì schema có `algorithm_version` và bảng scores.
+
+## Kiểm chứng
+
+[VALIDATION.md](VALIDATION.md) giữ kết quả DDL lịch sử. Hướng dẫn/kết quả rolling
+fixture ở [current-demo.md](../docs/current-demo.md). README gốc có bảng integration
+test class/database name/flag. Các fixtures đó tự tạo schema và cần DB mới, trống,
+đúng tên; không preload seed hay dùng dữ liệu application thật.
+
+Bản cập nhật tài liệu này đối chiếu source/build/links; không chạy seed, migration
+hoặc ghi database. Kết quả test có ngày không được coi là live verification mới
+của concurrency hay mọi workflow.

@@ -2,6 +2,12 @@
 
 Ngày kiểm chứng: 08/11/2026 (Asia/Saigon).
 
+**Báo cáo lịch sử của Swing:** các kết quả/counts bên dưới thuộc phiên bản và
+phạm vi ngày 08/11/2026. Hướng dẫn desktop hiện tại ở
+[phase8-desktop.md](phase8-desktop.md); JavaFX Buyer/Supplier/Admin và launcher
+được mô tả riêng ở [README gốc](../README.md). Bản cập nhật tài liệu 26/11/2026
+không chạy lại các kiểm thử này.
+
 ## Kết quả đã chạy
 
 | Kiểm tra | Kết quả |
@@ -31,4 +37,4 @@ Năm panel được dựng offscreen ở 1200×720 với font Segoe UI 14 và d�
 
 Các chương trình kiểm tra và ảnh nằm trong bản thử `.validation/phase8-desktop`. Kịch bản dùng ứng dụng trực tiếp được mô tả trong `phase8-desktop.md`.
 
-Giới hạn chức năng theo backend hiện tại: Shop ID chọn thủ công; chưa có authentication, quản trị danh mục/nguồn cung hay công thức scoring mới. Phân bổ vẫn dùng quy tắc giá và nguồn cung của các phase trước.
+Giới hạn của Swing tại mốc kiểm chứng 08/11/2026: Shop ID chọn thủ công; chưa có authentication, quản trị danh mục/nguồn cung hay công thức scoring mới. Phân bổ vẫn dùng quy tắc giá và nguồn cung của các phase trước.

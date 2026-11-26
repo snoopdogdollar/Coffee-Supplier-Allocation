@@ -1,5 +1,19 @@
 # Project decisions
 
+## 2026-11-26 — Reconcile development, database and launch documentation
+
+- Update AGENTS.md and the database README to the existing implementation: Java 26,
+  Maven, JavaFX/Swing/console entry points, the JavaFX launcher, configured test
+  identities, selectable ISO weeks, seed choices, transaction/lifecycle and review policy.
+- Keep price-priority allocation distinct from dashboard review ranking; preserve
+  the baseline 13 tables and existing business rules. Document expiry catch-up
+  separately from read-only previews and the composition widget's five-second polling.
+- Refresh desktop/Neon instructions; mark dated DDL, Swing and Neon verification
+  reports as historical evidence without replacing their original results.
+- Documentation-only: no Java, SQL, launcher, dependency, schema or database changes;
+  validation checks documentation links, source/config facts and unchanged file hashes.
+
+
 ## 2026-11-22 — Selectable console weeks and a rolling demo fixture
 
 - Console startup uses the current ISO week/year in `Asia/Ho_Chi_Minh`. Menu 13
